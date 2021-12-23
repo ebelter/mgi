@@ -8,5 +8,8 @@ def cli():
     """
     pass
 
+from mgi.samples.cli import samples_cli
+cli.add_command(samples_cli, name="samples")
+
 from mgi.utils import utils_cli
 cli.add_command(utils_cli, name="utils")

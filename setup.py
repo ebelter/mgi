@@ -37,7 +37,7 @@ setup(
     setup_requires=["pytest-runner"],
     test_suite="nose.collector",
     tests_requires=tests_require,
-    packages=find_packages(include=["mgi"], exclude=("tests")),
+    packages=find_packages(include=["mgi", "mgi.samples"], exclude=("tests")),
     #include_package_data=True,
     #package_data={"": ["",]}
 )
