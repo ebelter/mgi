@@ -4,9 +4,9 @@ class TestBaseWithDb(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         self.data_dn = os.path.join(os.path.dirname(__file__), "data")
-        self.src_db_fn = os.path.join(self.data_dn, "test.db")
+        self.src_db_fn = os.path.join(self.data_dn, "db")
         self.temp_d = tempfile.TemporaryDirectory()
-        self.db_fn = os.path.join(self.temp_d.name, "test.db")
+        self.db_fn = os.path.join(self.temp_d.name, "db")
         shutil.copyfile(self.src_db_fn, self.db_fn)
         self.db_url = "sqlite:///" + self.db_fn
         os.environ["SQLALCHEMY_DATABASE_URI"] = self.db_url

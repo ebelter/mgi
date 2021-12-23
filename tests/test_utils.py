@@ -29,6 +29,11 @@ class UtilsTest(unittest.TestCase):
         result = runner.invoke(utils_cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
+    def test_create_db(self):
+        from mgi.utils import create_db
+        create_db(self.db_url)
+        self.assertTrue(os.path.exists(self.db_fn))
+
     def test_create_db_cmd(self):
         from mgi.cli import cli as cli
         from mgi.utils import create_db_cmd as cmd

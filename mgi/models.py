@@ -44,6 +44,7 @@ class EntityPath(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     entity_id = db.Column(db.Integer, db.ForeignKey("entity.id"), nullable=False)
+    group = db.Column(db.String(length=32), primary_key=True)
     value = db.Column(db.String(length=256), nullable=False, unique=True, index=True)
     checksum = db.Column(db.String(length=32), nullable=True)
     kind = db.Column(db.String(length=16), nullable=False, index=True)

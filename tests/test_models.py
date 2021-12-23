@@ -30,8 +30,9 @@ class ModelsTest(TestBaseWithDb):
         self.assertEqual(len(fps), 1)
         self.assertTrue(fps[0].entity)
         self.assertEqual(fps[0].entity_id, 1)
+        self.assertTrue(fps[0].group, "anaylsis1")
         self.assertEqual(fps[0].value, "/mnt/data/samples/HG002.merged.bam")
-        self.assertTrue(fps[0].checksum, "checksum")
+        self.assertEqual(fps[0].checksum, "checksum")
         self.assertEqual(fps[0].exists, True)
         self.assertEqual(fps[0].kind, "merged bam")
 # -- ModelsTest
