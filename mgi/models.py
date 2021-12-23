@@ -1,5 +1,10 @@
 from mgi import db
 
+eset_entity = db.Table('eset_entity', db.metadata,
+    db.Column("eset_id", db.Integer, db.ForeignKey("eset.id")),
+    db.Column("entity_id", db.Integer, db.ForeignKey("entity.id"))
+)
+
 class Entity(db.Model):
     __tablename__ = 'entity'
     id = db.Column(db.Integer, primary_key=True)
@@ -8,6 +13,11 @@ class Entity(db.Model):
 
     features = db.relationship("EntityFeature", back_populates="entity")
     paths = db.relationship("EntityPath", back_populates="entity")
+    sets = db.relationship(
+        "EntitySet",
+        secondary=eset_entity,
+        back_populates="entities")
+
     def __str__(self):
         return self.name
 #-- Entity
@@ -54,3 +64,18 @@ class EntityPath(db.Model):
     def __str__(self):
         return self.value
 #-- EntityPath
+
+class EntitySet(db.Model):
+    __tablename__ = 'eset'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=32), unique=True, index=True)
+    kind = db.Column(db.String(length=32))
+
+    entities = db.relationship(
+        "Entity",
+        secondary=eset_entity,
+        back_populates="sets")
+
+    def __str__(self):
+        return f"{self.name} {self.type}"
+#-- EntitySet

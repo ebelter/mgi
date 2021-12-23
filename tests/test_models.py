@@ -14,6 +14,9 @@ class ModelsTest(TestBaseWithDb):
         self.assertEqual(len(entities[0].features), 1)
         self.assertEqual(len(entities[0].paths), 1)
 
+        esets = entities[0].sets
+        self.assertEqual(len(esets), 1)
+
     def test2_entity_features(self):
         from mgi.models import EntityFeature
         features = EntityFeature.query.filter_by(group="qc").all()
@@ -35,6 +38,19 @@ class ModelsTest(TestBaseWithDb):
         self.assertEqual(fps[0].checksum, "checksum")
         self.assertEqual(fps[0].exists, True)
         self.assertEqual(fps[0].kind, "merged bam")
+
+    def test4_eset(self):
+        from mgi.models import EntitySet
+        eset = EntitySet.query.get((1))
+        self.assertTrue(bool(eset))
+        self.assertEqual(eset.id, 1)
+        self.assertEqual(eset.name, "hic")
+        self.assertEqual(eset.kind, "data group")
+
+        entities = eset.entities
+        self.assertEqual(len(entities), 1)
+        self.assertEqual(entities[0].id, 1)
+
 # -- ModelsTest
 
 if __name__ == '__main__':
