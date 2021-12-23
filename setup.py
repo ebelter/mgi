@@ -15,7 +15,7 @@ install_requires=[
     "flask",
     "flask-migrate",
     "flask-sqlalchemy",
-    "Jinja2",
+    "Jinja2>=3.0",
     "pyyaml>=5.1",
     "SQLAlchemy>=1.3.10",
     "tabulate",
@@ -37,7 +37,7 @@ setup(
     setup_requires=["pytest-runner"],
     test_suite="nose.collector",
     tests_requires=tests_require,
-    packages=find_packages(include=["mgi", "mgi.entity", "mgi.samples"], exclude=("tests")),
+    packages=find_packages(include=["mgi", "mgi.entity", "mgi.ref", "mgi.samples"], exclude=("tests")),
     #include_package_data=True,
     #package_data={"": ["",]}
 )

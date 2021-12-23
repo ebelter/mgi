@@ -11,5 +11,8 @@ def cli():
 from mgi.samples.cli import samples_cli
 cli.add_command(samples_cli, name="samples")
 
+from mgi.refs.cli import refs_cli
+cli.add_command(refs_cli, name="refs")
+
 from mgi.utils import utils_cli
 cli.add_command(utils_cli, name="utils")

@@ -5,6 +5,12 @@ from mgi.models import db, Entity
 add_help = """
     Add Entites Into MGI
 
+    Give a list of names, and entities will be created in the database.
+"""
+
+future_add_help = """
+    Add Entites Into MGI
+
     \b
     Add via command line:
 
