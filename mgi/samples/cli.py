@@ -1,4 +1,6 @@
-import click
+import click, sys
+
+from mgi.entity.add import add_help, add_entities
 
 @click.group(short_help="work with samples")
 def samples_cli():
@@ -7,15 +9,9 @@ def samples_cli():
     """
     pass
 
-#from mgi.samples.create import samples_add_cmd, samples_create_cmd
-#samples_cli.add_command(samples_add_cmd, name="add")
-#samples_cli.add_command(samples_create_cmd, name="create")
-
-#from mgi.samples.list import samples_list_cmd
-#samples_cli.add_command(samples_list_cmd, name="list")
-
-#from mgi.sample_features import sample_features_cli
-#samples_cli.add_command(sample_features_cli, name="features")
-
-#from mgi.samples.update import update_cmd
-#samples_cli.add_command(update_cmd, name="update")
+@click.command(help=add_help, short_help="add samples into mgi")
+@click.argument("names", required=True, nargs=-1)
+def add_cmd(names):
+    created, existed = add_entities(names=set(names), kind="sample")
+    sys.stdout.write(f"Added {len(created)} of {len(created) - len(existing)}, with these {len(existed)} existing:\n{''.join(existed)}\n")
+samples_cli.add_command(add_cmd, name="add")
