@@ -34,6 +34,39 @@ class RefsCliTest(TestBaseWithDb):
         runner = CliRunner()
         expected_output = "Added 1 of 1 refs."
 
+    def test_list_cmd(self):
+        from mgi.refs.cli import list_cmd as cmd
+        runner = CliRunner()
+
+        result = runner.invoke(cmd, ["blah=blah"])
+        self.assertEqual(result.exit_code, 1)
+        self.assertTrue(result.exception)
+
+        # FILTER FAILURES
+        result = runner.invoke(cmd, ["blah=blah"])
+        self.assertEqual(result.exit_code, 1)
+        self.assertTrue(result.exception)
+
+        result = runner.invoke(cmd, ["name"])
+        self.assertEqual(result.exit_code, 1)
+        self.assertTrue(result.exception)
+
+        result = runner.invoke(cmd, ["name="])
+        self.assertEqual(result.exit_code, 1)
+        self.assertTrue(result.exception)
+
+        # ALL
+        result = runner.invoke(cmd, [])
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = """NAME    SETS
+------  ------
+GRCh38"""
+        self.assertEqual(result.output, expected_output)
+
 # -- RefsCliTestTest
 
 if __name__ == '__main__':
