@@ -31,10 +31,17 @@ future_add_help = """
 
     """
 
+def get_entity(name, kind):
+    return Entity.query.filter(Entity.name == name, Entity.kind == kind).one_or_none()
+
+def add_entity(name, kind):
+    return Entity(name=name, kind=kind)
+#-- add_entity
+
 def add_entities(names, kind):
     created, existed = set(), set()
     for name in names:
-        entity = Entity.query.filter(Entity.name == name, Entity.kind == kind).one_or_none()
+        entity = get_entity(name, kind)
         if entity is not None:
             existed.add(name)
             continue
