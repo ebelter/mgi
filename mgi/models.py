@@ -7,7 +7,7 @@ eset_entity = db.Table('eset_entity', db.metadata,
 
 class Entity(db.Model):
     __tablename__ = 'entity'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=48), unique=True, index=True)
     kind = db.Column(db.String(length=16), nullable=False, index=True)
 
@@ -52,9 +52,9 @@ class EntityPath(db.Model):
         ),
     )
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     entity_id = db.Column(db.Integer, db.ForeignKey("entity.id"), nullable=False)
-    group = db.Column(db.String(length=32), primary_key=True)
+    group = db.Column(db.String(length=32))
     value = db.Column(db.String(length=256), nullable=False, unique=True, index=True)
     checksum = db.Column(db.String(length=32), nullable=True)
     kind = db.Column(db.String(length=16), nullable=False, index=True)

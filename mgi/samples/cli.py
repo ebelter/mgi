@@ -2,6 +2,7 @@ import click, sys, tabulate
 
 from mgi.entity.add import add_help, add_entities
 from mgi.entity.list import list_help, list_entities
+from mgi.entity.path_factory import rdr_factory
 from mgi.helpers import resolve_features
 
 @click.group(short_help="work with samples")
@@ -30,3 +31,22 @@ def list_cmd(filter_by):
     else:
         sys.stderr.write("No entities found for given fitlers.\n")
 samples_cli.add_command(list_cmd, name="list")
+
+@click.group(help=add_help, short_help="work with samples paths")
+def samples_paths_cli():
+    """
+    Samples Paths!
+    """
+    pass
+samples_cli.add_command(samples_paths_cli, name="paths")
+
+from mgi.entity.path import update_help, update_entities_paths;
+@samples_paths_cli.command(name="update", help=update_help, short_help="update samples paths")
+@click.argument("tsv", nargs=1)
+@click.argument("features", nargs=-1)
+def samples_paths_update_cmd(tsv, features):
+    features = resolve_features(features, known_features=["entity", "value", "checksum", "exists", "group", "kind"], boolean_features=["exists"])
+    rdr = rdr_factory(tsv)
+    added, updated = update_entities_paths(rdr=rdr, features=features, entity_kind="ref", create_entities=True)
+    sys.stdout.write(f"Done. Added {added} and updated {updated} of {added+updated} given paths.\n")
+#-- samples_paths_update_cmd

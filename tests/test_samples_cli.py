@@ -1,4 +1,4 @@
-import unittest
+import os, unittest
 from click.testing import CliRunner
 
 from tests.test_base_classes import TestBaseWithDb
@@ -87,8 +87,44 @@ class SamplesCliTest(TestBaseWithDb):
 H_G002  hic"""
         self.assertEqual(result.output, expected_output)
 
-# -- SamplesCliTestTest
+    def test_samples_paths_cli(self):
+        from mgi.cli import cli
+        from mgi.samples.cli import samples_cli
+        runner = CliRunner()
 
+        result = runner.invoke(samples_cli, ["paths", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(samples_cli, ["paths"])
+        self.assertEqual(result.exit_code, 0)
+ 
+        result = runner.invoke(samples_cli, ["paths", "update", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(samples_cli, ["paths", "update"])
+        self.assertEqual(result.exit_code, 2)
+
+    def test_samples_paths_update_cmd(self):
+        from mgi.samples.cli import samples_paths_update_cmd as cmd
+        from mgi.models import EntityPath
+        runner = CliRunner()
+
+        fn = os.path.join(self.temp_d.name, "paths.tsv")
+        value = "/mnt/data/sample_111.bam"
+        with open(fn, "w") as f:
+            f.write("\t".join([value])+"\n")
+
+        result = runner.invoke(cmd, [fn])
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = """Done. Added 1 and updated 0 of 1 given paths.
+"""
+        self.assertEqual(result.output, expected_output)
+        ep = EntityPath.query.filter(EntityPath.value == value).one_or_none()
+        self.assertTrue(ep)
+
+# -- SamplesCliTestTest
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
