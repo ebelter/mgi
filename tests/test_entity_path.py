@@ -34,7 +34,7 @@ class EntityPathTest(TestBaseWithDb):
 
     def test_ep_update_cmd(self):
         from mgi.entity.path import update_entities_paths, get_entity, get_entity_path
-        from mgi.entity.path_factory import rdr_factory
+        from mgi.entity.helpers import paths_rdr_factory as rdr_factory
 
         fn = os.path.join(self.temp_d.name, "paths.tsv")
         value = "/mnt/data/sample_111.bam"

@@ -1,7 +1,7 @@
 import click, csv
 
 from mgi.models import db, Entity, EntityPath
-from mgi.entity.path_factory import resolve_entity_and_kind_from_value
+from mgi.entity.helpers import resolve_entity_and_kind_from_value
 
 update_help = """
     Update Entities Paths

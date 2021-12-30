@@ -4,7 +4,7 @@ from tests.test_base_classes import TestBaseWithDb
 
 class EntityPathFactory(TestBaseWithDb):
     def test_resolve_entity_and_kind_from_value(self):
-        from mgi.entity.path_factory import resolve_entity_and_kind_from_value
+        from mgi.entity.helpers import resolve_entity_and_kind_from_value
 
         for ek in ("cram", "cram crai", "cram md5"):
             fn = os.path.join(os.sep, "mnt", "data", ".".join(["__TEST__"] + ek.split(" ")))
@@ -36,7 +36,7 @@ class EntityPathFactory(TestBaseWithDb):
         self.assertEqual(e2, "__TEST__.dunno.whatever")
 
     def test_entity_on_cli(self):
-        from mgi.entity.path_factory import rdr_factory
+        from mgi.entity.helpers import paths_rdr_factory as rdr_factory
 
         rdr = rdr_factory("sample1")
         self.assertTrue(bool(rdr))
@@ -48,7 +48,7 @@ class EntityPathFactory(TestBaseWithDb):
         self.assertListEqual(got, expected)
 
     def test_tsv_rdr(self):
-        from mgi.entity.path_factory import rdr_factory
+        from mgi.entity.helpers import paths_rdr_factory as rdr_factory
 
         fn = os.path.join(self.temp_d.name, "paths.tsv")
         with open(fn, "w") as f:
@@ -66,7 +66,7 @@ class EntityPathFactory(TestBaseWithDb):
         self.assertListEqual(got, expected)
 
     def test_value_rdr(self):
-        from mgi.entity.path_factory import rdr_factory
+        from mgi.entity.helpers import paths_rdr_factory as rdr_factory
 
         fn = os.path.join(self.temp_d.name, "paths.tsv")
         with open(fn, "w") as f:
@@ -83,7 +83,7 @@ class EntityPathFactory(TestBaseWithDb):
         self.assertListEqual(got, expected)
 
     def test_gcp_rdr(self):
-        from mgi.entity.path_factory import rdr_factory
+        from mgi.entity.helpers import paths_rdr_factory as rdr_factory
 
         fn = os.path.join(self.temp_d.name, "paths.gcpstat")
         with open(fn, "w") as f:

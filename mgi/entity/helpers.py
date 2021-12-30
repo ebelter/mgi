@@ -42,7 +42,7 @@ class GcpStatReader():
                 }
 #-- GcpStatReader
 
-def rdr_factory(fn):
+def paths_rdr_factory(fn):
     if not os.path.exists(fn):
         return [{"entity": fn}]
 
