@@ -33,6 +33,24 @@ def list_cmd(filter_by):
         sys.stderr.write("No entities found for given fitlers.\n")
 samples_cli.add_command(list_cmd, name="list")
 
+@samples_cli.command(name="remove", short_help="remove samples")
+@click.argument("names", required=True, nargs=-1)
+def remove_cmd(names):
+    """
+    Remove Samples
+
+    Give names, will remove.
+    """
+    removed = 0
+    for name in names:
+        e = get_entity(name=name, kind="sample")
+        if e is not None:
+            removed += 1
+            db.session.delete(e)
+    db.session.commit()
+    sys.stdout.write(f"Done. Removed {removed} of {len(names)} samples, skipped {len(names)-removed} not found.\n")
+#-- remove_cmd
+
 @samples_cli.command(name="rename", short_help="rename a sample")
 @click.argument("name", required=True, nargs=1)
 @click.argument("new_name", required=True, nargs=1)

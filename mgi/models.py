@@ -19,12 +19,13 @@ class Entity(db.Model):
     name = db.Column(db.String(length=48), nullable=False, index=True)
     kind = db.Column(db.String(length=16), nullable=False, index=True)
 
-    features = db.relationship("EntityFeature", back_populates="entity")
-    paths = db.relationship("EntityPath", back_populates="entity")
+    features = db.relationship("EntityFeature", back_populates="entity", cascade="all, delete, save-update")
+    paths = db.relationship("EntityPath", back_populates="entity", cascade="all, delete, save-update")
     sets = db.relationship(
         "EntitySet",
         secondary=eset_entity,
-        back_populates="entities")
+        back_populates="entities",
+        cascade="all, delete, save-update")
 
     def __str__(self):
         return self.name
@@ -45,7 +46,7 @@ class EntityFeature(db.Model):
     name = db.Column(db.String(length=48), primary_key=True)
     value = db.Column(db.String(length=128))
 
-    entity = db.relationship("Entity", back_populates="features")
+    entity = db.relationship("Entity", back_populates="features", cascade="all, delete, save-update")
     def __str__(self):
         return ":".join([self.name, self.group, self.value])
 #-- EntityFeature
@@ -68,7 +69,7 @@ class EntityPath(db.Model):
     kind = db.Column(db.String(length=16), nullable=False, index=True)
     exists = db.Column(db.Boolean, default=False)
 
-    entity = db.relationship("Entity", back_populates="paths")
+    entity = db.relationship("Entity", back_populates="paths", cascade="all, delete, save-update")
     def __str__(self):
         return self.value
 #-- EntityPath
@@ -82,7 +83,8 @@ class EntitySet(db.Model):
     entities = db.relationship(
         "Entity",
         secondary=eset_entity,
-        back_populates="sets")
+        back_populates="sets",
+        cascade="all, delete, save-update")
 
     def __str__(self):
         return f"{self.name} {self.type}"
