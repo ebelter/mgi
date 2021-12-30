@@ -1,7 +1,7 @@
 import click
 
 from mgi.models import db, Entity
-from mgi.entity.helpres import add_entity, get_entity
+from mgi.entity.helpers import add_entity, get_entity
 
 add_help = """
     Add Entites Into MGI

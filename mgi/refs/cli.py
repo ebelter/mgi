@@ -2,7 +2,8 @@ import click, sys, tabulate
 
 from mgi.entity.add import add_help, add_entities
 from mgi.entity.list import list_help, list_entities
-from mgi.entity.helpers import paths_rdr_factory as rdr_factory
+from mgi.entity.helpers import get_entity, paths_rdr_factory as rdr_factory
+from mgi.models import db
 from mgi.helpers import resolve_features
 
 @click.group(help=add_help, short_help="work with refs")
@@ -42,7 +43,7 @@ def rename_cmd(name, new_name):
     setattr(ref, "name", new_name)
     db.session.add(ref)
     db.session.commit()
-    sys.stderr.write("Rename ref from {name} to {ref.name}\n")
+    sys.stderr.write(f"Rename ref from {name} to {ref.name}\n")
 #-- rename_cmd
 
 @click.group(help=add_help, short_help="work with refs paths")

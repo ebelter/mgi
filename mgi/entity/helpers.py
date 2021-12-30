@@ -1,4 +1,5 @@
 import atexit, csv, os, yaml
+from mgi.models import Entity, EntityFeature
 
 def get_entity(name, kind):
     return Entity.query.filter(Entity.name == name, Entity.kind == kind).one_or_none()

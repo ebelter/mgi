@@ -33,6 +33,19 @@ def list_cmd(filter_by):
         sys.stderr.write("No entities found for given fitlers.\n")
 samples_cli.add_command(list_cmd, name="list")
 
+@samples_cli.command(name="rename", short_help="rename a sample")
+@click.argument("name", required=True, nargs=1)
+@click.argument("new_name", required=True, nargs=1)
+def rename_cmd(name, new_name):
+    sample = get_entity(name=name, kind="sample")
+    if sample is None:
+        raise Exception(f"Failed to get sample for {name}")
+    setattr(sample, "name", new_name)
+    db.session.add(sample)
+    db.session.commit()
+    sys.stderr.write(f"Rename sample from {name} to {sample.name}\n")
+#-- rename_cmd
+
 @click.group(help=add_help, short_help="work with samples paths")
 def samples_paths_cli():
     """
