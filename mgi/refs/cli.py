@@ -32,6 +32,19 @@ def list_cmd(filter_by):
         sys.stderr.write("No entities found for given fitlers.\n")
 refs_cli.add_command(list_cmd, name="list")
 
+@refs_cli.command(name="rename", short_help="rename a ref")
+@click.argument("name", required=True, nargs=1)
+@click.argument("new_name", required=True, nargs=1)
+def rename_cmd(name, new_name):
+    ref = get_entity(name=name, kind="ref")
+    if ref is None:
+        raise Exception(f"Failed to get ref for {name}")
+    setattr(ref, "name", new_name)
+    db.session.add(ref)
+    db.session.commit()
+    sys.stderr.write("Rename ref from {name} to {ref.name}\n")
+#-- rename_cmd
+
 @click.group(help=add_help, short_help="work with refs paths")
 def refs_paths_cli():
     """

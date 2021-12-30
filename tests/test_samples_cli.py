@@ -34,25 +34,17 @@ class SamplesCliTest(TestBaseWithDb):
         result = runner.invoke(cli, ["samples", "list", "--help"])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["samples", "rename", "-h"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["samples", "rename", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["samples", "rename"])
+        self.assertEqual(result.exit_code, 2)
+
     def test_add_cmd(self):
         from mgi.samples.cli import add_cmd as cmd
         runner = CliRunner()
         expected_output = "Added 1 of 1 samples."
-
-    def _filter_failures(self, list_cmd):
-        runner = CliRunner()
-
-        result = runner.invoke(list_cmd, ["blah=blah"])
-        self.assertEqual(result.exit_code, 1)
-        self.assertTrue(result.exception)
-
-        result = runner.invoke(list_cmd, ["name"])
-        self.assertEqual(result.exit_code, 1)
-        self.assertTrue(result.exception)
-
-        result = runner.invoke(list_cmd, ["name="])
-        self.assertEqual(result.exit_code, 1)
-        self.assertTrue(result.exception)
 
     def test_list_cmd(self):
         from mgi.samples.cli import list_cmd as cmd
