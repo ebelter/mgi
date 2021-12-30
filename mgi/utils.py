@@ -21,7 +21,7 @@ def utils_db_cli():
     pass
 
 @utils_db_cli.command(name="create", short_help="create and deploy the database")
-@click.argument("url", type=click.STRING)
+@click.argument("url", type=click.STRING, required=True, nargs=1)
 def db_create_cmd(url):
     """
     Create and Deploy the DB Schema
@@ -37,3 +37,26 @@ def db_create_cmd(url):
         Path(fn).touch()
     create_db(url)
     print(f"Created DB with {url}")
+
+@utils_db_cli.command(name="set", short_help="show the database URI")
+@click.argument("uri", type=click.STRING, required=False, nargs=1)
+def db_set_cmd(uri):
+    """
+    Show the Command to Set the Database URI
+
+    This is set an an environment variable called SQLALCHEMY_DATABASE_URI, and must be set in your courrent environment. Please run the command output here.
+
+    If no URI is given, an example will be used.
+    """
+    if uri is None:
+        uri = "sqlite:///tests/data/db"
+    print(f"export SQLALCHEMY_DATABASE_URI={uri}")
+
+@utils_db_cli.command(name="show", short_help="show the database URI")
+def db_show_cmd():
+    """
+    Show the Current DB URI
+
+    This is set an an enivirnment variable called SQLALCHEMY_DATABASE_URI
+    """
+    print(f"{os.environ.get('SQLALCHEMY_DATABASE_URI', None)}")

@@ -74,7 +74,6 @@ class UtilsCliTest(unittest.TestCase):
         from mgi.utils import db_create_cmd as cmd
         runner = CliRunner()
 
-
         # Fails - Existing DB
         pathlib.Path(self.db_fn).touch()
         with self.assertRaisesRegex(Exception, "exists"):
@@ -92,6 +91,40 @@ class UtilsCliTest(unittest.TestCase):
         expected_output = f"Created DB with {self.db_url}\n"
         self.assertEqual(result.output, expected_output)
         self.assertTrue(os.path.exists(self.db_fn))
+
+    def test_db_set_cmd(self):
+        from mgi.utils import db_set_cmd as cmd
+        runner = CliRunner()
+
+        result = runner.invoke(cmd, [], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"export SQLALCHEMY_DATABASE_URI=sqlite:///tests/data/db\n"
+
+    def test_db_show_cmd(self):
+        from mgi.utils import db_show_cmd as cmd
+        runner = CliRunner()
+
+        result = runner.invoke(cmd, [], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"{self.db_fn}\n"
+
+        os.environ.pop
+        result = runner.invoke(cmd, [], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"None\n"
+
 # -- UtilsCliTest
 
 if __name__ == '__main__':
