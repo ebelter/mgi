@@ -7,8 +7,16 @@ eset_entity = db.Table('eset_entity', db.metadata,
 
 class Entity(db.Model):
     __tablename__ = 'entity'
+    __table_args__ = (
+        db.UniqueConstraint(
+            "name",
+            "kind",
+            name="uniq_entity",
+        ),
+    )
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(length=48), unique=True, index=True)
+    name = db.Column(db.String(length=48), nullable=False, index=True)
     kind = db.Column(db.String(length=16), nullable=False, index=True)
 
     features = db.relationship("EntityFeature", back_populates="entity")
