@@ -1,6 +1,7 @@
 import click
 
 from mgi.models import db, Entity
+from mgi.entity.helpres import add_entity, get_entity
 
 add_help = """
     Add Entites Into MGI
@@ -30,13 +31,6 @@ future_add_help = """
     NAME2\tV3\tV4
 
     """
-
-def get_entity(name, kind):
-    return Entity.query.filter(Entity.name == name, Entity.kind == kind).one_or_none()
-
-def add_entity(name, kind):
-    return Entity(name=name, kind=kind)
-#-- add_entity
 
 def add_entities(names, kind):
     created, existed = set(), set()

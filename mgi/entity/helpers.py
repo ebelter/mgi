@@ -1,5 +1,12 @@
 import atexit, csv, os, yaml
 
+def get_entity(name, kind):
+    return Entity.query.filter(Entity.name == name, Entity.kind == kind).one_or_none()
+
+def add_entity(name, kind):
+    return Entity(name=name, kind=kind)
+#-- add_entity
+
 def resolve_entity_and_kind_from_value(value):
 
     known_exts = set(["bam", "cram", "crai", "fai", "fasta", "fastq", "g", "md5", "tbi", "vcf"])
