@@ -16,13 +16,19 @@ def create_db(url):
 def utils_cli():
     pass
 
-@click.command(short_help="create and deploy the database")
+@utils_cli.group(name="db", short_help="tools for the database")
+def utils_db_cli():
+    pass
+
+@utils_db_cli.command(name="create", short_help="create and deploy the database")
 @click.argument("url", type=click.STRING)
-def create_db_cmd(url):
+def db_create_cmd(url):
     """
     Create and Deploy the DB Schema
 
     SQLite3: sqlite:///name.db
+
+    Hopefully other URIs work!
     """
     fn = re.sub(r"sqlite:///", "", url)
     if fn != url:
@@ -31,4 +37,3 @@ def create_db_cmd(url):
         Path(fn).touch()
     create_db(url)
     print(f"Created DB with {url}")
-utils_cli.add_command(create_db_cmd, name="create-db")
