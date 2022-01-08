@@ -33,11 +33,12 @@ setup(
     entry_points="""
         [console_scripts]
         mgi=mgi.cli:cli
+        cw=cw.cli:cli
     """,
     setup_requires=["pytest-runner"],
     test_suite="nose.collector",
     tests_requires=tests_require,
-    packages=find_packages(include=["mgi", "mgi.entity", "mgi.ref", "mgi.samples"], exclude=("tests")),
-    #include_package_data=True,
-    #package_data={"": ["",]}
+    packages=find_packages(include=["mgi", "mgi.entity", "mgi.ref", "mgi.samples", "cw"], exclude=("tests")),
+    include_package_data=True,
+    package_data={"cw": ["resources/*"]},
 )
