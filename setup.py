@@ -17,6 +17,7 @@ install_requires=[
     "flask-sqlalchemy",
     "Jinja2>=3.0",
     "pyyaml>=5.1",
+    "requests",
     "SQLAlchemy>=1.3.10",
     "tabulate",
 ]
