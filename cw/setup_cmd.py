@@ -1,6 +1,6 @@
 import click, os, sys, yaml
 
-from cw.cconf import CromwellConf
+from cw.conf import CromwellConf
 
 @click.command(short_help="setup cromwell")
 @click.argument("yaml-file", type=click.File('r'), required=False, nargs=1)

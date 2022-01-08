@@ -1,10 +1,9 @@
 import os, tempfile, unittest, yaml
 from jinja2 import Template
 
-from cc1 import cconf
-from cc1.cconf import CromwellConf
+from cw.conf import CromwellConf
 
-class Cc1CconfTest(unittest.TestCase):
+class CwCconfTest(unittest.TestCase):
     
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
@@ -41,7 +40,7 @@ class Cc1CconfTest(unittest.TestCase):
 
     def test_resources(self):
         resources_dn = CromwellConf.resources_dn()
-        expected_dn = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "cc1", "resources")
+        expected_dn = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "cw", "resources")
         self.assertEqual(resources_dn, expected_dn)
 
         got = CromwellConf.template_fn()

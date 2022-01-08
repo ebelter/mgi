@@ -1,8 +1,8 @@
 import click, os, tempfile, unittest, yaml
 from click.testing import CliRunner
 
-from cc1.cconf import CromwellConf
-from cc1.setup_cmd import setup_cmd as cmd
+from cw.conf import CromwellConf
+from cw.setup_cmd import setup_cmd as cmd
 
 class Cc1SetupCmdTest(unittest.TestCase):
     def setUp(self):

@@ -1,8 +1,8 @@
 import click, os, tempfile, unittest, yaml
 from click.testing import CliRunner
 
-from cc1.cconf import CromwellConf
-from cc1.cprint_cmd import cprint_cmd as cmd
+from cw.conf import CromwellConf
+from cw.printc_cmd import printc_cmd as cmd
 
 class Cc1CprintCmdTest(unittest.TestCase):
     def setUp(self):

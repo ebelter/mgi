@@ -8,8 +8,8 @@ def cli():
     """
     pass
 
-from cw.cprint_cmd import cprint_cmd
-cli.add_command(cprint_cmd, "cprint")
+from cw.printc_cmd import printc_cmd as cmd
+cli.add_command(cmd, "printc")
 
-from cw.setup_cmd import setup_cmd
-cli.add_command(setup_cmd, "setup")
+from cw.setup_cmd import setup_cmd as cmd
+cli.add_command(cmd, "setup")
