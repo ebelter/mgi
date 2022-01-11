@@ -59,10 +59,8 @@ class CromwellConf(object):
     def server_script_content(self):
         server_conf_fn = self.server_conf_fn
         if not os.path.exists(server_conf_fn):
-            raise Exception("Failed to get sever script content! No server conf file found at {self.server_conf_fn}!")
-        with open(CromwellConf.server_script_template_fn(), "r") as f:
-            template = jinja2.Template(f.read())
-        return template.render(CROMWELL_CONF_FN=server_conf_fn)
+            raise Exception("Failed to generate the sever script content! Requied server conf file found at {self.server_conf_fn} does not exist!")
+        return self._generate_content(CromwellConf.server_script_template_fn(), {"CROMWELL_CONF_FN": server_conf_fn})
 
     def server_conf(self):
         with open(CromwellConf.template_fn(), "r") as f:
@@ -70,5 +68,14 @@ class CromwellConf(object):
         attrs = self._attrs.copy()
         attrs.update(self._dir_attrs)
         return template.render(attrs)
-    #-- SERVER_CONF
+
+    def _generate_content(self, template_fn, attrs=None):
+        if not os.path.exists(template_fn):
+            raise Exception(f"Template file {template_fn} does not exist!")
+        if attrs is None:
+            attrs = self._attrs.copy()
+            attrs.update(self._dir_attrs)
+        with open(template_fn, "r") as f:
+            template = jinja2.Template(f.read())
+        return template.render(attrs)
 #-- CromwellConf
