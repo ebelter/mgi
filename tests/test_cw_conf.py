@@ -1,4 +1,4 @@
-import os, tempfile, unittest, yaml
+import os, re, tempfile, unittest, yaml
 from jinja2 import Template
 
 from cw.conf import CromwellConf
@@ -16,21 +16,23 @@ class CwCconfTest(unittest.TestCase):
         attrs["CROMWELL_DIR"] = self.temp_d.name
         cc = CromwellConf(attrs=attrs)
         self.assertTrue(bool(cc))
-        self.assertEqual(cc.root_dn, self.temp_d.name)
         self.assertDictEqual(cc._attrs, attrs)
         return cc
 
     def test_cromwell_conf(self):
-        attrs_n = CromwellConf.attribute_names()
-        self.assertTrue(bool(attrs_n))
-        self.assertEqual(len(attrs_n), 6)
-
         cc = self.get_cc()
-        self.assertEqual(cc.root_dn, cc._attrs["CROMWELL_DIR"])
-        self.assertEqual(cc._attrs["CROMWELL_ROOT_DIR"], os.path.join(cc._attrs["CROMWELL_DIR"], "runs"))
-        for bn in cc.dir_names():
-            attr_n = "_".join([bn, "dn"])
-            self.assertEqual(getattr(cc, attr_n), os.path.join(cc.root_dn, bn))
+
+        attrs_n = CromwellConf.attribute_names()
+        self.assertEqual(len(attrs_n), 6)
+        self.assertTrue(cc._attrs)
+
+        bns = cc.dir_names()
+        self.assertEqual(len(bns), 6)
+        for bn in bns:
+            dn = os.path.join(self.temp_d.name, bn)
+            self.assertEqual(getattr(cc, "_".join([bn, "dn"])), dn)
+            self.assertEqual(cc._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])], dn)
+        self.assertEqual(cc.server_conf_fn, os.path.join(cc.server_dn, "conf"))
         self.assertEqual(cc.server_script_fn, os.path.join(cc.server_dn, "run"))
 
     def test_validate_attributes(self):
@@ -62,7 +64,12 @@ class CwCconfTest(unittest.TestCase):
         server_conf_fn = cc.server_conf_fn
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf()
-        self.assertRegex(server_conf, f"root = \"{self.temp_d.name}/runs\"")
+        self.assertRegex(server_conf, f"root = \"{cc.runs_dn}\"")
+        self.assertRegex(server_conf, f"LSF_DOCKER_VOLUMES='MINE")
+        m = re.findall(f"\-oo {cc.lsf_logs_dn}", server_conf)
+        self.assertEqual(len(m), 2)
+        self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.wf_logs_dn}\"")
+        self.assertRegex(server_conf, f"file:{cc.db_dn}")
 
         os.makedirs(os.path.dirname(server_conf_fn))
         with open(server_conf_fn, "w") as f:

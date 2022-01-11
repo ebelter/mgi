@@ -14,10 +14,12 @@ class CromwellConf(object):
         return ("cromshell", "db", "lsf_logs", "runs", "server", "wf_logs")
 
     def _setdirs(self):
-        self.root_dn = self._attrs["CROMWELL_DIR"]
+        root_dn = self._attrs["CROMWELL_DIR"]
+        self._dir_attrs = {}
         for bn in self.dir_names():
-            setattr(self, "_".join([bn, "dn"]), os.path.join(self.root_dn, bn))
-        self._attrs["CROMWELL_ROOT_DIR"] = self.runs_dn
+            dn = os.path.join(root_dn, bn)
+            self._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])] = dn
+            setattr(self, "_".join([bn, "dn"]), dn)
 
     def makedirs(self):
         for bn in self.dir_names():
@@ -65,6 +67,8 @@ class CromwellConf(object):
     def server_conf(self):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
-        return template.render(self._attrs)
+        attrs = self._attrs.copy()
+        attrs.update(self._dir_attrs)
+        return template.render(attrs)
     #-- SERVER_CONF
 #-- CromwellConf

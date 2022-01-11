@@ -6,7 +6,7 @@ backend {
     LSF {
       actor-factory = "cromwell.backend.impl.sfs.config.ConfigBackendLifecycleActorFactory"
       config {
-        root = "{{CROMWELL_ROOT_DIR}}"
+        root = "{{CROMWELL_RUNS_DIR}}"
         runtime-attributes = """
         Int cpu = 1
         Int memory_gb = 4
