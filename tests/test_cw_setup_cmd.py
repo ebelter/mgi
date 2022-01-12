@@ -50,7 +50,8 @@ LSF_USER_GROUP: null
         #self.assertRegex(result.output, "^include")
         cc = CromwellConf(attrs)
         self.assertTrue(os.path.exists(cc.server_conf_fn))
-        self.assertTrue(os.path.exists(cc.server_script_fn))
+        self.assertTrue(os.path.exists(cc.server_run_fn))
+        self.assertTrue(os.path.exists(cc.server_start_fn))
         for attr_n in cc._attrs.keys():
             if not attr_n.endswith("_DIR"): continue
             self.assertTrue(os.path.exists(cc._attrs[attr_n]))

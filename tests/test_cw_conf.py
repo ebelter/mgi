@@ -33,7 +33,8 @@ class CwCconfTest(unittest.TestCase):
             self.assertEqual(getattr(cc, "_".join([bn, "dn"])), dn)
             self.assertEqual(cc._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])], dn)
         self.assertEqual(cc.server_conf_fn, os.path.join(cc.server_dn, "conf"))
-        self.assertEqual(cc.server_script_fn, os.path.join(cc.server_dn, "run"))
+        self.assertEqual(cc.server_run_fn, os.path.join(cc.server_dn, "run"))
+        self.assertEqual(cc.server_start_fn, os.path.join(cc.server_dn, "start"))
 
     def test_validate_attributes(self):
         with self.assertRaisesRegex(Exception, "Missing or undefined attributes"):
@@ -67,7 +68,7 @@ class CwCconfTest(unittest.TestCase):
         cc = self.get_cc()
         server_conf_fn = cc.server_conf_fn
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
-        server_conf = cc.server_conf()
+        server_conf = cc.server_conf_content()
         self.assertRegex(server_conf, f"root = \"{cc.runs_dn}\"")
         self.assertRegex(server_conf, f"LSF_DOCKER_VOLUMES='MINE")
         m = re.findall(f"\-oo {cc.lsf_logs_dn}", server_conf)

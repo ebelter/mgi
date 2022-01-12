@@ -4,33 +4,35 @@ class CromwellConf(object):
     def __init__(self, attrs):
         self._attrs = attrs
         CromwellConf.validate_attributes(attrs)
-        self._setdirs()
-        self.server_conf_fn = os.path.join(self.server_dn, "conf")
-        self.server_script_fn = os.path.join(self.server_dn, "run")
+        self._setpaths()
     #-- __init__
 
-    # DIRS
+    ## PATHS
     def dir_names(self):
         return ("cromshell", "db", "lsf_logs", "runs", "server", "wf_logs")
 
-    def _setdirs(self):
-        root_dn = self._attrs["CROMWELL_DIR"]
+    def _setpaths(self):
+        self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])
+        self.cromwell_dn = self._attrs["CROMWELL_DIR"]
         self._dir_attrs = {}
         for bn in self.dir_names():
-            dn = os.path.join(root_dn, bn)
+            dn = os.path.join(self.cromwell_dn, bn)
             self._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])] = dn
             setattr(self, "_".join([bn, "dn"]), dn)
+        self.server_conf_fn = os.path.join(self.server_dn, "conf")
+        self.server_run_fn = os.path.join(self.server_dn, "run")
+        self.server_start_fn = os.path.join(self.server_dn, "start")
 
     def makedirs(self):
         for bn in self.dir_names():
             os.makedirs(getattr(self, "_".join([bn, "dn"])))
-    #-- DIRS
+    ##--
 
+    ## ATTRS
     @staticmethod
     def attribute_names():
         return [ "CROMWELL_DIR", "LSF_DEFAULT_DOCKER", "LSF_DOCKER_VOLUMES",
                 "LSF_JOB_GROUP", "LSF_QUEUE", "LSF_USER_GROUP",]
-    #-- required_attributes
 
     def validate_attributes(attrs):
         e = []
@@ -39,7 +41,7 @@ class CromwellConf(object):
                 e.append(a)
         if len(e):
             raise Exception(f"Missing or undefined attributes: {' | '.join(e)}")
-    #-- validate_attributes
+    ##-
 
     @staticmethod
     def resources_dn():
@@ -52,7 +54,7 @@ class CromwellConf(object):
     #-- template_fn
 
     # SERVER
-    def server_conf(self):
+    def server_conf_content(self):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
         attrs = self._attrs.copy()
@@ -81,4 +83,5 @@ class CromwellConf(object):
         with open(template_fn, "r") as f:
             template = jinja2.Template(f.read())
         return template.render(**attrs)
+    ##-
 #-- CromwellConf

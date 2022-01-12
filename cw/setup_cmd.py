@@ -19,12 +19,10 @@ def setup_cmd(yaml_file):
     print("Setup!")
     attrs = yaml.safe_load(yaml_file)
     cc = CromwellConf(attrs)
-    print(f"CROMWELL_DIR: {attrs['CROMWELL_DIR']}")
+    print(f"Creating cromwell directory structure in {cc.cromwell_dn}")
     cc.makedirs()
-
-    with open(cc.server_conf_fn, "w") as f:
-        f.write(cc.server_conf())
-    fn = os.path.join(cc.server_script_fn)
-    with open(fn, "w") as f:
-        f.write(cc.server_script_content())
+    for ft in ("conf", "run", "start"):
+        fun = getattr(cc, f"server_{ft}_content")
+        with open(getattr(cc, f"server_{ft}_fn"), "w") as f:
+            f.write(fun())
 #-- setup_cmd
