@@ -52,16 +52,6 @@ class CromwellConf(object):
     #-- template_fn
 
     # SERVER
-    @staticmethod
-    def server_script_template_fn():
-        return os.path.join(CromwellConf.resources_dn(), "server.sh.jinja")
-
-    def server_script_content(self):
-        server_conf_fn = self.server_conf_fn
-        if not os.path.exists(server_conf_fn):
-            raise Exception("Failed to generate the sever script content! Requied server conf file found at {self.server_conf_fn} does not exist!")
-        return self._generate_content(CromwellConf.server_script_template_fn(), {"CROMWELL_CONF_FN": server_conf_fn})
-
     def server_conf(self):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
@@ -69,13 +59,26 @@ class CromwellConf(object):
         attrs.update(self._dir_attrs)
         return template.render(attrs)
 
-    def _generate_content(self, template_fn, attrs=None):
+    @staticmethod
+    def server_run_template_fn():
+        return os.path.join(CromwellConf.resources_dn(), "server.run.jinja")
+
+    def server_run_content(self):
+        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": self.server_conf_fn})
+
+    @staticmethod
+    def server_start_template_fn():
+        return os.path.join(CromwellConf.resources_dn(), "server.start.jinja")
+
+    def server_start_content(self):
+        return self._generate_content(template_fn=CromwellConf.server_start_template_fn())
+
+    def _generate_content(self, template_fn, attrs={}):
         if not os.path.exists(template_fn):
             raise Exception(f"Template file {template_fn} does not exist!")
-        if attrs is None:
-            attrs = self._attrs.copy()
-            attrs.update(self._dir_attrs)
+        attrs.update(self._attrs.copy())
+        attrs.update(self._dir_attrs)
         with open(template_fn, "r") as f:
             template = jinja2.Template(f.read())
-        return template.render(attrs)
+        return template.render(**attrs)
 #-- CromwellConf

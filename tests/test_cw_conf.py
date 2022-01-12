@@ -49,8 +49,12 @@ class CwCconfTest(unittest.TestCase):
         expected = os.path.join(expected_dn, "compute1.conf.jinja")
         self.assertEqual(got, expected)
 
-        got = CromwellConf.server_script_template_fn()
-        expected = os.path.join(expected_dn, "server.sh.jinja")
+        got = CromwellConf.server_run_template_fn()
+        expected = os.path.join(expected_dn, "server.run.jinja")
+        self.assertEqual(got, expected)
+
+        got = CromwellConf.server_start_template_fn()
+        expected = os.path.join(expected_dn, "server.start.jinja")
         self.assertEqual(got, expected)
 
     def test_makedirs(self):
@@ -71,12 +75,19 @@ class CwCconfTest(unittest.TestCase):
         self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.wf_logs_dn}\"")
         self.assertRegex(server_conf, f"file:{cc.db_dn}")
 
-        os.makedirs(os.path.dirname(server_conf_fn))
-        with open(server_conf_fn, "w") as f:
-            f.write(server_conf)
-        server_script = cc.server_script_content()
-        self.assertRegex(server_script, server_conf_fn)
-        
+    def test_server_run(self):
+        cc = self.get_cc()
+        template_fn = cc.server_run_template_fn()
+        self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.run.jinja"))
+        content = cc.server_run_content()
+        self.assertRegex(content, f"file={cc.server_conf_fn}")
+
+    def test_server_start(self):
+        cc = self.get_cc()
+        template_fn = cc.server_start_template_fn()
+        self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.start.jinja"))
+        content = cc.server_start_content()
+        self.assertRegex(content, f"LSF_DOCKER_VOLUMES='MINE")
 #--
 
 if __name__ == '__main__':
