@@ -8,6 +8,9 @@ def cli():
     """
     pass
 
+from mgi.pipelines.cli import pl_cli
+cli.add_command(pl_cli, name="pl")
+
 from mgi.samples.cli import samples_cli
 cli.add_command(samples_cli, name="samples")
 
