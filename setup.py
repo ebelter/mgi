@@ -11,11 +11,13 @@ tests_require = [
 ]
 
 install_requires=[
-    "click>=7.0",
+    "click>=8.0",
     "flask",
     "flask-migrate",
     "flask-sqlalchemy",
     "Jinja2>=3.0",
+    "matplotlib",
+    "numpy",
     "pyyaml>=5.1",
     "requests",
     "SQLAlchemy>=1.3.10",
