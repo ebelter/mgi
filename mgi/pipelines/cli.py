@@ -1,4 +1,4 @@
-import click, os
+import click, csv, os, tabulate, sys
 from collections import defaultdict
 from mgi.pipelines import hic
 
@@ -9,9 +9,6 @@ def pl_cli():
     Pipelines Info and Tools
     """
     pass
-
-# histograms by metric grouped by sample
-# histograms, tables by sample(s)
 
 # CLI Helpers
 def resolve_samples(samples_and_dns):
@@ -52,6 +49,10 @@ def hic_cli():
     pass
 #--
 
+########################
+# histograms by metric grouped by sample
+# histograms, tables by sample(s)
+
 reports_available = ["ch", "table",]
 @hic_cli.command(name="benchmarks", short_help="")
 @click.argument("samples", nargs=-1)
@@ -85,10 +86,19 @@ def benchmarks_cmd(samples, output, reports):
     groups = group_samples_by_name(samples)
     output_dn = os.path.abspath(output)
     if "ch" in reports:
-        hic.create_benchmarks_comparative_histograms(groups, output_dn)
+        pass
+        #hic.create_benchmarks_comparative_histograms(groups, output_dn)
     if "detail" in reports:
-        for sample in samples:
-            hic.create_benchmarks_detail_histogram(sample, output_dn)
-    if "table" in reports:
-        print(hic.get_benchmarks_table(samples))
+        pass
+        #for sample in samples:
+        #    hic.create_benchmarks_detail_histogram(sample, output_dn)
+    if "table" in reports or "tsv" in reports:
+        headers, data = hic.get_benchmarks_stats(samples)
+        if "table" in reports:
+            print(f"\n\n{tabulate.tabulate(data, headers=headers)}\n\n")
+        if "tsv" in reports:
+            wtr = csv.writer(sys.stdout, delimiter="\t")
+            wtr.writerow(headers)
+            for row in data:
+                wtr.writerow(row)
 #--

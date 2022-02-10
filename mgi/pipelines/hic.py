@@ -7,6 +7,7 @@ def get_benchmarks():
             # Alignment
             "aligned": { # >.9; .75-.9; <.75
                 "cat": "alignment",
+                "original_name": "2_alignments",
                 "ops": [[operator.ge, 75], [operator.gt, 90]],
                 "status": ["fail", "marg", "pass"],
                 "desc": ">90% (<75%)",
@@ -91,7 +92,9 @@ def load_stats(stats_fn):
     benchmarks = get_benchmarks()
 
     # Add Aligned to Orig Stats
-    stats["pct_sequenced_aligned"] = stats["pct_2_alignments"]
+    #stats["pct_sequenced_aligned"] = stats["pct_2_alignments"]
+    stats["pct_sequenced_2_alignments"] = stats["pct_2_alignments"]
+    stats["pct_unique_2_alignments"] = None
     stats["pct_unique_aligned"] = None
     # Add Chimeric Stats
     stats["pct_sequenced_chimera_ambiguous"] = round(stats["no_chimera_found"] * 100 / stats["sequenced_read_pairs"], 2)
@@ -103,6 +106,8 @@ def load_stats(stats_fn):
     stats["pct_unique_short_range"] = sum(list(map(lambda r: stats["_".join(["pct_unique_short_range", r])], ["less_than_500bp", "500bp_to_5kb", "5kb_to_20kb"])))
     # Collect and Fix
     new_stats = {
+            "sequenced": stats["sequenced_read_pairs"],
+            "unique": stats["total_unique"],
             "multimapped": { "seqd": stats["pct_3_or_more_alignments"], },
             }
     for name in sorted(benchmarks.keys()):
@@ -110,108 +115,56 @@ def load_stats(stats_fn):
         if "original_name" in benchmarks[name]:
             original_name = benchmarks[name]["original_name"]
         seqd_k = "_".join(["pct", "sequenced", original_name])
-        seqd_v = stats[seqd_k]
+        seqd_pct = stats[seqd_k]
+        seqd_v = int(round(seqd_pct*stats['sequenced_read_pairs']))
         uniq_k = "_".join(["pct", "unique", original_name])
-        uniq_v = stats[uniq_k]
+        uniq_pct = stats[uniq_k]
+        if uniq_pct is not None:
+            uniq_v = int(round(seqd_pct*stats['total_unique']))
+        else:
+            uniq_v = None
         # Some of these stats are reversed sequenced v. unique
-        if uniq_v is None or uniq_v > seqd_v:
+        if uniq_pct is None or uniq_pct > seqd_pct:
             new_stats[name] = {
-                    "seqd": seqd_v,
-                    "uniq": uniq_v,
+                    "seqd": [seqd_v, seqd_pct],
+                    "uniq": [uniq_v, uniq_pct],
                     }
         else: # flipped
             new_stats[name] = {
-                    "seqd": uniq_v,
-                    "uniq": seqd_v,
+                    "seqd": [uniq_v, uniq_pct],
+                    "uniq": [seqd_v, seqd_pct],
                     }
     return new_stats
 #--
 
-def get_benchmarks_table(samples):
+def get_benchmarks_stats(samples):
     benchmarks = get_benchmarks()
     rows = []
     for name in benchmarks.keys():
         ops = benchmarks[name]["ops"]
         statuses = benchmarks[name]["status"]
         desc = benchmarks[name]["desc"]
-        new_rows = [ [name+" %", desc], [name+" uniq %", desc] ]
+        new_rows = [ [name, desc], [name+" uniq", desc] ]
+        #new_rows = [ [name+" %", desc], [name+" uniq %", desc] ]
         for j, subn in enumerate(["seqd", "uniq"]):
             for sample in samples:
-                stats_v = sample["stats"][name][subn]
-                if stats_v is not None:
-                    value = "{:.2%}".format(stats_v/100)
-                    ops_evals = list(map(lambda op: op[0](stats_v, op[1]), ops))
+                stats_v = sample["stats"][name][subn][0]
+                stats_pct = sample["stats"][name][subn][1]
+                if stats_pct is not None:
+                    ops_evals = list(map(lambda op: op[0](stats_pct, op[1]), ops))
                     status = statuses[ops_evals.count(True)]
+                    #value = "{:.2%}".format(stats_pct/100)
                 else:
                     continue
-                    value = "N/A"
-                    status = "N/A"
-                new_rows[j].append(f"{status} {value}")
+                new_rows[j].append(f"{status}")
+                new_rows[j].append(f"{stats_pct}")
+                new_rows[j].append(f"{stats_v}")
             j += 1
         for row in new_rows:
             if len(row) > 2:
                 rows.append(row)
-    return tabulate.tabulate(rows, headers=["STAT", "THRESHOLD"]+list(map(lambda s: s["label"].upper(), samples)))
-#--
-
-def create_benchmarks_comparative_histograms(groups, output_dn="."):
-    for cat in ("alignment", "hic"):
-        for metric_name in get_benchmark_names_for_category(cat):
-            aligned_reads_histogram(groups, metric_name)
-            plt.title(f"{cat.title()} - {' '.join(metric_name.split('_')).title()}")
-            fn = os.path.join(output_dn, ".".join(["all", cat, metric_name, "png"]))
-            plt.savefig(fn)
-#--
-
-def aligned_reads_histogram(groups, metric_name):
-    sample_names = sorted(groups.keys())
-    benchmarks = get_benchmarks()
-    colors = ["grey", "burlywood", "olive"]
-    xtickslabels_fs = 7
-
-    fig, ax = plt.subplots(1, 1, sharex=True, sharey=True, figsize=(len(sample_names)+3, 5))
-    fig.text(0.04, 0.5, 'Percent', va='center', rotation='vertical')
-    idx = np.asarray([i for i in range(len(sample_names))])
-
-    #ax.set_title(" ".join(metric_name.split("_")).title())
-    ax.set_xticks(idx+.15)
-    ax.set_xticklabels(sample_names, fontsize=xtickslabels_fs)
-    ax.set_ylabel(benchmarks[metric_name]["desc"])
-    ax.set_yticks(np.arange(0, 100, step=10))
-    plt.ylim(0, 100)
-    #ax.set_yticks(np.arange(0, 100, step=10), labels=benchmarks[metric_name]["desc"])
-    data = defaultdict(lambda: [])
-    for sample_name in sample_names:
-        for i, sample in enumerate(groups[sample_name]):
-            data[i].append(sample["stats"][metric_name]["seqd"])
-    for i, k in enumerate(sorted(data.keys())):
-        ax.bar(idx+(i*.3), data[k], width=0.2, color=colors[i])
-    #ax.bar(idx, list(map(lambda s: samples[s][0]["stats"][metric_name]["seqd"], sample_names)), width=0.2, color=colors[0])
-    #ax.bar(idx+.3, list(map(lambda s: samples[s][1]["stats"][metric_name]["seqd"], sample_names)), width=0.2, color=colors[1])
-    for op, value in benchmarks[metric_name]["ops"]:
-        ax.axhline(y=value, linewidth=1, color="peru", linestyle="--")
-#--
-
-def create_benchmarks_detail_histogram(sample, output_dn="."):
-    colors = ["grey", "burlywood", "olive"]
-    xtickslabels_fs = 7
-    fig, axes = plt.subplots(1, 2, sharey=True, figsize=(15, 6))
-    fig.text(0.04, 0.5, 'Percent', va='center', rotation='vertical')
-
-    axes[0].set_yticks(np.arange(0, 100, step=10))
-    plt.ylim(0, 100)
-
-    cats = ["Alignment", "HiC"]
-    for ci, cat in enumerate(cats):
-        data = []
-        metric_names = list(get_benchmark_names_for_category(cat.lower()))
-        for i, metric_name in enumerate(metric_names):
-            data.append(sample["stats"][metric_name]["seqd"])
-        idx = np.asarray([i for i in range(len(metric_names))])
-        axes[ci].set_title(f"{cat} Benchmarks")
-        axes[ci].bar(idx, data, width=0.2, color=colors)
-        axes[ci].set_xticks(idx, metric_names, fontsize=xtickslabels_fs, rotation=15)
-
-    fn = os.path.join(output_dn, ".".join([sample["name"], "benchmarks", "png"]))
-    plt.savefig(fn)
+    headers=["STAT", "THRESHOLD"]
+    for s in samples:
+        headers += [s["label"].upper(), "PCT", "VALUE"]
+    return headers, rows
 #--
