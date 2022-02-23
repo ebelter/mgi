@@ -21,8 +21,8 @@ backend {
         -oo {{CROMWELL_LSF_LOGS_DIR}}/%J.out \
         -a 'docker({{LSF_DEFAULT_DOCKER}})' \
         -q '{{LSF_QUEUE}}' \
-        -G '{{LSF_JOB_GROUP}}' \
-        -g '{{LSF_USER_GROUP}}' \
+        -g '{{LSF_JOB_GROUP}}' \
+        -G '{{LSF_USER_GROUP}}' \
         -M ${memory_gb}G \
         -n ${cpu} \
         -R "span[hosts=1] select[mem>${memory_gb}G] rusage[mem=${memory_gb}G]" \
@@ -36,8 +36,8 @@ backend {
         -cwd ${cwd} \
         -oo {{CROMWELL_LSF_LOGS_DIR}}/%J.out \
         -q '{{LSF_QUEUE}}' \
-        -G '{{LSF_JOB_GROUP}}' \
-        -g '{{LSF_USER_GROUP}}' \
+        -g '{{LSF_JOB_GROUP}}' \
+        -G '{{LSF_USER_GROUP}}' \
         -a "docker(${docker})" \
         -M ${memory_gb}G \
         -n ${cpu} \
@@ -68,7 +68,7 @@ database {
   db {
     driver = "org.hsqldb.jdbcDriver"
     url = """
-    jdbc:hsqldb:file:{{CROMWELL_DB_DIR}};
+    jdbc:hsqldb:file:{{CROMWELL_DB_DIR}}/db/db;
     shutdown=false;
     hsqldb.default_table_type=cached;hsqldb.tx=mvcc;
     hsqldb.result_max_memory_rows=10000;
