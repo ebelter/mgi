@@ -54,6 +54,10 @@ backend {
   }
 }
 
+webservice {
+  port = {{CROMWELL_PORT}}
+}
+
 workflow-options {
   workflow-log-dir = "{{CROMWELL_WF_LOGS_DIR}}"
 }

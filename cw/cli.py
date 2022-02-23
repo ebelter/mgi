@@ -12,6 +12,7 @@ def cli():
 @click.argument("server", required=False, nargs=1)
 def cw_heartbeat_cmd(server):
     """
+    Give VM name and port
     """
     if server is None:
         cromwell_server_environ_key = "CROMWELL_SERVER"
@@ -19,7 +20,7 @@ def cw_heartbeat_cmd(server):
         if server is None:
             sys.stderr.write(f"No server given or found in environment '{cromwell_server_environ_key}' variable.\n")
             sys.exit(1)
-    url = f"http://{server}:8000/engine/v1/version"
+    url = f"http://{server}/engine/v1/version"
     response = requests.get(url)
     if not response.ok:
         sys.stderr.write("No response from {server}. Correct server? Is cromwell running?")

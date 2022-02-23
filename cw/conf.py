@@ -31,7 +31,7 @@ class CromwellConf(object):
     ## ATTRS
     @staticmethod
     def attribute_names():
-        return [ "CROMWELL_DIR", "LSF_DEFAULT_DOCKER", "LSF_DOCKER_VOLUMES",
+        return [ "CROMWELL_DIR", "CROMWELL_PORT", "LSF_DEFAULT_DOCKER", "LSF_DOCKER_VOLUMES",
                 "LSF_JOB_GROUP", "LSF_QUEUE", "LSF_USER_GROUP",]
 
     def validate_attributes(attrs):
