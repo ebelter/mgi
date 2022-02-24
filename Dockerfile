@@ -21,12 +21,10 @@ RUN git clone https://github.com/broadinstitute/cromshell.git && \
 
 WORKDIR /apps/build/
 COPY ./ ./
+RUN mv ./jar/ /apps/cromwell/
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
 RUN rm -rf /apps/build/
-
-WORKDIR /apps/cromwell/
-RUN mv ./jar/ 
 
 WORKDIR /apps/
 RUN find . -type d -exec chmod go+w {} \; && \
