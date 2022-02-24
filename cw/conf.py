@@ -9,7 +9,7 @@ class CromwellConf(object):
 
     ## PATHS
     def dir_names(self):
-        return ("cromshell", "db", "lsf_logs", "runs", "server", "wf_logs")
+        return ("db", "lsf_logs", "runs", "server", "wf_logs")
 
     def _setpaths(self):
         self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])

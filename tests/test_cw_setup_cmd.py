@@ -27,6 +27,7 @@ class Cc1SetupCmdTest(unittest.TestCase):
         expected_output = """Fill out and save the YAML configuration to a file. Then rerun this command.
 
 CROMWELL_DIR: null
+CROMWELL_PORT: null
 LSF_DEFAULT_DOCKER: null
 LSF_DOCKER_VOLUMES: null
 LSF_JOB_GROUP: null

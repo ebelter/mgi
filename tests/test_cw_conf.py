@@ -27,7 +27,7 @@ class CwCconfTest(unittest.TestCase):
         self.assertTrue(cc._attrs)
 
         bns = cc.dir_names()
-        self.assertEqual(len(bns), 6)
+        self.assertEqual(len(bns), 5)
         for bn in bns:
             dn = os.path.join(self.temp_d.name, bn)
             self.assertEqual(getattr(cc, "_".join([bn, "dn"])), dn)
