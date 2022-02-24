@@ -13,8 +13,9 @@ RUN apt update && \
     vim \
   && apt clean
 
-WORKDIR /apps/
+WORKDIR /apps/cromshell
 RUN git clone https://github.com/broadinstitute/cromshell.git && \
+  sed -i 's#\${HOME}#/apps/cromshell#' cromshell/cromshell && \
   cp cromshell/cromshell /usr/local/bin/ && \
   rm -rf cromshell
 
