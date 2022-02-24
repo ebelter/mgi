@@ -80,6 +80,7 @@ def benchmarks_cmd(samples, output, reports):
     ch        Runs grouped per sample, with alignment and hic benchmarks plots
     detail    Benchmarks metrics by sample
     table     Text table of benchmarks
+    tsv       TSV output
 
     """
     samples = resolve_samples(sorted(samples))

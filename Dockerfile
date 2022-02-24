@@ -23,11 +23,14 @@ WORKDIR /apps/build/
 COPY ./ ./
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
-RUN mv ./jar/ /apps/cromwell/
+RUN rm -rf /apps/build/
+
+WORKDIR /apps/cromwell/
+RUN mv ./jar/ 
+
 WORKDIR /apps/
 RUN find . -type d -exec chmod go+w {} \; && \
   find . -type f -exec chmod go+w {} \;
-RUN rm -rf /apps/build/
 
 ENV TZ America/Chicago
 ENV LANG C
