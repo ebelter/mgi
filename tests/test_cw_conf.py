@@ -23,7 +23,7 @@ class CwCconfTest(unittest.TestCase):
         cc = self.get_cc()
 
         attrs_n = CromwellConf.attribute_names()
-        self.assertEqual(len(attrs_n), 6)
+        self.assertEqual(len(attrs_n), 7)
         self.assertTrue(cc._attrs)
 
         bns = cc.dir_names()
@@ -47,7 +47,7 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(resources_dn, expected_dn)
 
         got = CromwellConf.template_fn()
-        expected = os.path.join(expected_dn, "compute1.conf.jinja")
+        expected = os.path.join(expected_dn, "server.conf.jinja")
         self.assertEqual(got, expected)
 
         got = CromwellConf.server_run_template_fn()

@@ -25,7 +25,7 @@ class CromwellConf(object):
 
     def makedirs(self):
         for bn in self.dir_names():
-            os.makedirs(getattr(self, "_".join([bn, "dn"])))
+            os.makedirs(getattr(self, "_".join([bn, "dn"])), exist_ok=True)
     ##--
 
     ## ATTRS
@@ -50,7 +50,7 @@ class CromwellConf(object):
 
     @staticmethod
     def template_fn():
-        return os.path.join(CromwellConf.resources_dn(), "compute1.conf.jinja")
+        return os.path.join(CromwellConf.resources_dn(), "server.conf.jinja")
     #-- template_fn
 
     # SERVER
