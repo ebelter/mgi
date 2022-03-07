@@ -31,27 +31,8 @@ def cw_heartbeat_cmd(server):
 from cw.printc_cmd import printc_cmd as cmd
 cli.add_command(cmd, "printc")
 
-@cli.command(name="server", short_help="Start a cromwell server")
-@click.option("--local", is_flag=True, required=False, default=False, help="Run a cromwell server locally in the background")
-def server_cmd(local):
-    """
-    Start a Cromwell Server
-
-    Run distributed cromwell server. The file that is run is 'cromwell/server/start'
-
-    If running a local server in the background, the file is 'cromwell/server/run'
-    """
-    if local:
-        bn = "run"
-    else:
-        bn = "start"
-    fn =os.path.join("cromwell", "server", bn)
-    if not os.path.exists(fn):
-        sys.stderr.write(f"Can not find cromwell server {fn} to run. Have you setup up cromwell?")
-        sys.exit(1)
-    sys.stderr.write(f"RUNNING: {fn}\n")
-    subprocess.call([fn])
-#-- server_cmd
+from cw.server_cmd import server_cmd as cmd
+cli.add_command(cmd, "server")
 
 from cw.setup_cmd import setup_cmd as cmd
 cli.add_command(cmd, "setup")
