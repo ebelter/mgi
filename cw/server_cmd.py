@@ -10,10 +10,6 @@ def server_cmd(yaml_file):
 
     Give the configuration YAML file, the server script (server/start) will be executed. This command will wait for the job to start, then update the configuration YAML wit hthe host oname of the cromwell server.
     """
-    # load yaml
-    # check setup
-    # start server
-    # wait for host
     with open(yaml_file, "r") as f:
         cw_attrs = yaml.safe_load(f)
     cc = CromwellConf(cw_attrs)
@@ -26,7 +22,7 @@ def server_cmd(yaml_file):
 
     cw_attrs["CROMWELL_JOB_ID"] = job_id
     cw_attrs["CROMWELL_HOST"] = host
-    cw_attrs["CROMWELL_URL"] = f"{cw_attrs['CROMWELL_HOST']}:{cw_attrs['CROMWELL_PORT']}\n"
+    cw_attrs["CROMWELL_URL"] = f"http://{cw_attrs['CROMWELL_HOST']}:{cw_attrs['CROMWELL_PORT']}"
     sys.stdout.write(f"Updating YAML file <{yaml_file}>\n")
     with open(yaml_file, "w") as f:
         f.write(yaml.dump(cw_attrs))
@@ -37,6 +33,8 @@ def server_cmd(yaml_file):
 def start_server(cc):
     # Launch server, return lsf job id
     server_start_fn = cc.server_start_fn
+    if not os.path.exists(server_start_fn):
+        raise Exception(f"Server start script [server_start_fn] not found. Has 'cw setup <YAMLFILE>' been run?")
     output = subprocess.check_output([server_start_fn])
     found = re.match(r"\AJob <(\d+)> is submitted to queue <(.+)>", output.decode("UTF-8"))
     if not found:

@@ -16,14 +16,11 @@ class CwServerCmdTest(unittest.TestCase):
         cw_attrs["LSF_QUEUE"] = "general"
         cw_attrs["LSF_JOB_GROUP"] = "job"
         cw_attrs["LSF_USER_GROUP"] = "user"
-        self.cw_attrs = cw_attrs
         self.cw_yaml_fn = os.path.join(self.temp_d.name, "cw.yaml")
         with open(self.cw_yaml_fn, "w") as f:
             f.write(yaml.dump(cw_attrs))
-        self.cc = CromwellConf(self.cw_attrs)
-
-        runner = CliRunner()
-        result = runner.invoke(cmd, ["--yaml-file", self.cw_yaml_fn], catch_exceptions=False)
+        self.cc = CromwellConf(cw_attrs)
+        self.cc.setup()
 
     def tearDown(self):
         self.temp_d.cleanup()
@@ -84,6 +81,12 @@ Updating YAML file <{self.cw_yaml_fn}>
 Server ready!
 """
         self.assertEqual(result.output, expected_output)
+
+        with open(self.cw_yaml_fn, "r") as f:
+            updated_attrs = yaml.safe_load(f)
+        self.assertEqual(updated_attrs["CROMWELL_JOB_ID"], "1234")
+        self.assertEqual(updated_attrs["CROMWELL_HOST"], "compute1-exec-225.ris.wustl.edu")
+        self.assertEqual(updated_attrs["CROMWELL_URL"], "http://compute1-exec-225.ris.wustl.edu:8888")
 #--
 
 if __name__ == '__main__':
