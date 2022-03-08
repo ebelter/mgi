@@ -12,5 +12,5 @@ def printc_cmd(yaml_file):
     """
     attrs = yaml.safe_load(yaml_file)
     cc = CromwellConf(attrs)
-    sys.stdout.write(cc.server_conf())
+    sys.stdout.write(cc.server_conf_content())
 #-- printc_cmd
