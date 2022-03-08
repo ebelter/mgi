@@ -23,7 +23,7 @@ class CwCconfTest(unittest.TestCase):
         cc = self.get_cc()
 
         attrs_n = CromwellConf.attribute_names()
-        self.assertEqual(len(attrs_n), 7)
+        self.assertEqual(len(attrs_n), 6)
         self.assertTrue(cc._attrs)
 
         bns = cc.dir_names()
@@ -70,9 +70,9 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf_content()
         self.assertRegex(server_conf, f"root = \"{cc.runs_dn}\"")
-        self.assertRegex(server_conf, f"LSF_DOCKER_VOLUMES='MINE")
+        self.assertRegex(server_conf, "LSF_DOCKER_VOLUMES='\$\{cwd\}:\$\{docker_cwd\} MINE'")
         m = re.findall(f"\-oo {cc.lsf_logs_dn}", server_conf)
-        self.assertEqual(len(m), 2)
+        self.assertEqual(len(m), 1)
         self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.wf_logs_dn}\"")
         self.assertRegex(server_conf, f"file:{cc.db_dn}")
 

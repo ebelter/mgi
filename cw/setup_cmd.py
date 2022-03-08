@@ -1,9 +1,9 @@
-import click, os, sys, yaml
+import click, sys, yaml
 
 from cw.conf import CromwellConf
 
 @click.command(short_help="setup cromwell")
-@click.argument("yaml-file", type=click.File('r'), required=False, nargs=1)
+@click.argument("yaml-file", type=str, required=False, nargs=1)
 def setup_cmd(yaml_file):
     """
     Setup Cromwell
@@ -16,13 +16,7 @@ def setup_cmd(yaml_file):
         sys.stderr.write("Fill out and save the YAML configuration to a file. Then rerun this command.\n\n")
         sys.stdout.write(yaml.dump(dict.fromkeys(CromwellConf.attribute_names())))
         sys.exit(0)
-    print("Setup!")
-    attrs = yaml.safe_load(yaml_file)
-    cc = CromwellConf(attrs)
-    print(f"Creating cromwell directory structure in {cc.cromwell_dn}")
-    cc.makedirs()
-    for ft in ("conf", "run", "start"):
-        fun = getattr(cc, f"server_{ft}_content")
-        with open(getattr(cc, f"server_{ft}_fn"), "w") as f:
-            f.write(fun())
+    sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
+    cc = CromwellConf.from_yaml(yaml_file)
+    cc.setup()
 #-- setup_cmd

@@ -17,7 +17,7 @@ class Cc1SetupCmdTest(unittest.TestCase):
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-        result = runner.invoke(cmd, [])
+        result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
             self.assertEqual(result.exit_code, 0)
@@ -28,7 +28,6 @@ class Cc1SetupCmdTest(unittest.TestCase):
 
 CROMWELL_DIR: null
 CROMWELL_PORT: null
-LSF_DEFAULT_DOCKER: null
 LSF_DOCKER_VOLUMES: null
 LSF_JOB_GROUP: null
 LSF_QUEUE: null

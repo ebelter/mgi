@@ -13,22 +13,6 @@ backend {
         String? docker
         """
 
-        submit = """
-        LSF_DOCKER_PRESERVE_ENVIRONMENT=false LSF_DOCKER_VOLUMES='{{LSF_DOCKER_VOLUMES}}' \
-        bsub \
-        -J ${job_name} \
-        -cwd ${cwd} \
-        -oo {{CROMWELL_LSF_LOGS_DIR}}/%J.out \
-        -a 'docker({{LSF_DEFAULT_DOCKER}})' \
-        -q '{{LSF_QUEUE}}' \
-        -g '{{LSF_JOB_GROUP}}' \
-        -G '{{LSF_USER_GROUP}}' \
-        -M ${memory_gb}G \
-        -n ${cpu} \
-        -R "span[hosts=1] select[mem>${memory_gb}G] rusage[mem=${memory_gb}G]" \
-        /bin/bash ${script}
-        """
-
         submit-docker = """
         LSF_DOCKER_PRESERVE_ENVIRONMENT=false LSF_DOCKER_PORTS='' LSF_DOCKER_VOLUMES='${cwd}:${docker_cwd} {{LSF_DOCKER_VOLUMES}}' \
         bsub \

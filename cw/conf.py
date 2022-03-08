@@ -1,13 +1,11 @@
-import jinja2, os, sys
+import jinja2, os, sys, yaml
 
 class CromwellConf(object):
     def __init__(self, attrs):
         self._attrs = attrs
         CromwellConf.validate_attributes(attrs)
         self._setpaths()
-    #-- __init__
 
-    ## PATHS
     def dir_names(self):
         return ("db", "lsf_logs", "runs", "server", "wf_logs")
 
@@ -23,15 +21,32 @@ class CromwellConf(object):
         self.server_run_fn = os.path.join(self.server_dn, "run")
         self.server_start_fn = os.path.join(self.server_dn, "start")
 
+    def from_yaml(yaml_file):
+        with open(yaml_file, "r") as f:
+            attrs = yaml.safe_load(f)
+        self = CromwellConf(attrs)
+        return self
+
+    def setup(self):
+        self.makedirs()
+        self.write_server_files()
+
+    def write_server_files(self):
+        for ft in ("conf", "run", "start"):
+            fun = getattr(self, f"server_{ft}_content")
+            with open(getattr(self, f"server_{ft}_fn"), "w") as f:
+                f.write(fun())
+
     def makedirs(self):
         for bn in self.dir_names():
             os.makedirs(getattr(self, "_".join([bn, "dn"])), exist_ok=True)
+
     ##--
 
     ## ATTRS
     @staticmethod
     def attribute_names():
-        return [ "CROMWELL_DIR", "CROMWELL_PORT", "LSF_DEFAULT_DOCKER", "LSF_DOCKER_VOLUMES",
+        return [ "CROMWELL_DIR", "CROMWELL_PORT", "LSF_DOCKER_VOLUMES",
                 "LSF_JOB_GROUP", "LSF_QUEUE", "LSF_USER_GROUP",]
 
     def validate_attributes(attrs):
