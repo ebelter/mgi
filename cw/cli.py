@@ -8,25 +8,8 @@ def cli():
     """
     pass
 
-@cli.command(name="heartbeat", short_help="Check if the cromwell server is running")
-@click.argument("server", required=False, nargs=1)
-def cw_heartbeat_cmd(server):
-    """
-    Give VM name and port
-    """
-    if server is None:
-        cromwell_server_environ_key = "CROMWELL_SERVER"
-        os.environ.get(cromwell_server_environ_key, None)
-        if server is None:
-            sys.stderr.write(f"No server given or found in environment '{cromwell_server_environ_key}' variable.\n")
-            sys.exit(1)
-    url = f"http://{server}/engine/v1/version"
-    response = requests.get(url)
-    if not response.ok:
-        sys.stderr.write("No response from {server}. Correct server? Is cromwell running?")
-        sys.exit(1)
-    sys.stdout.write(f"Cromwell server is up and running version {response.content}.\n")
-#-- cw_heartbeat_cmd
+from cw.heartbeat_cmd import heartbeat_cmd as cmd
+cli.add_command(cmd, "heartbeat")
 
 from cw.printc_cmd import printc_cmd as cmd
 cli.add_command(cmd, "printc")
