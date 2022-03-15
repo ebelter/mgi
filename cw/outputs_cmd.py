@@ -42,37 +42,47 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs):
         raise Exception(f"Destination directory <{destination}> does not exist!")
 
     tasks_and_outputs = resolve_tasks_and_outputs(tasks_and_outputs)
-    rm_wf_name_re = re.compile(f"^{metadata['workflowName']}\.")
+    rm_wf_name_re = re.compile(rf"^{metadata['workflowName']}\.")
     for task_name, file_keys in tasks_and_outputs.items():
         sys.stdout.write(f"[INFO] Task <{task_name}> files: <{' '.join(file_keys)}>\n")
         task = calls.get(task_name, None)
         if task is None:
             sys.stderr.write(f"[WARN] No task found for <{task_name}> ... skipping\n")
             continue
-        succeeded_calls = 0
-        files_and_dests = []
+
+        # Collect shards files
+        shards = []
+        shard_idxs = set()
         for call in task:
+            shard_idxs.add(call["shardIndex"])
             if call["executionStatus"] != "Done":
+                #if call["shardIndex"] not in shards.keys():
+                #    shards[call["shardIndex"]] = None
+                #shards_incomplete.add(call["shardIndex"])
                 continue
-            succeeded_calls += 1
-            dest = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
+            files_to_copy = []
             for file_key in file_keys:
                 files = call["outputs"][file_key]
                 if type(files) is str:
                     files = [files]
-                files_and_dests.append([files, dest])
-        sys.stdout.write(f"[INFO] Calls {succeeded_calls} of {len(task)} DONE\n")
-        files_missing = 0
-        for files, dest in files_and_dests:
+                files_to_copy += files
+            shards.append([call["shardIndex"], files_to_copy])
+        sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
+
+        # Copy shards files, use separate directory if multiple shards
+        for idx, files in shards:
+            if files is None:
+                continue
+            dest = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
+            if len(shards) > 1:
+                dest = os.path.join(dest, "shard"+str(idx))
             os.makedirs(dest, exist_ok=1)
             for fn in files:
                 if not os.path.exists(fn):
                     sys.stdout.write(f"[INFO] File <{fn}> not found ... skipping\n")
-                    files_missing += 1
                     continue
                 sys.stdout.write(f"[INFO] Copy {fn} to {dest}\n")
                 shutil.copy(fn, dest)
-        sys.stdout.write(f"[INFO] Copied {len(files_and_dests)} skipped {files_missing} missing files\n")
     sys.stdout.write(f"[INFO] Done\n")
 #-- outputs_cmd
 

@@ -39,12 +39,13 @@ class CwOutputsCmdTest(unittest.TestCase):
 
         # create files
         # create metadata
-        task1_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task1")
+        task1_shard0_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task1")
+        task1_shard1_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task1")
         task2_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task2")
-        for dn in task1_dn, task2_dn:
+        for dn in task1_shard0_dn, task1_shard1_dn, task2_dn:
             os.makedirs(dn, exist_ok=True)
-        task1_file1_1 = os.path.join(task1_dn, "file1-1")
-        task1_file1_2 = os.path.join(task1_dn, "file1-2")
+        task1_file1_1 = os.path.join(task1_shard0_dn, "file1-1")
+        task1_file1_2 = os.path.join(task1_shard1_dn, "file1-2")
         task2_file2 = os.path.join(task2_dn, "file2")
         task2_file3 = os.path.join(task2_dn, "file3")
         for fn in task1_file1_1, task1_file1_2, task2_file2, task2_file3:
@@ -54,6 +55,7 @@ class CwOutputsCmdTest(unittest.TestCase):
             "calls": {
                 "test.task1": [
                     {
+                        "shardIndex": 0,
                         "executionStatus": "Done",
                         "outputs": {
                             "file1": task1_file1_1,
@@ -61,6 +63,15 @@ class CwOutputsCmdTest(unittest.TestCase):
                         },
                     },
                     {
+                        "shardIndex": 0,
+                        "executionStatus": "Failed",
+                        "outputs": {
+                            "file1": "failed",
+                            "nocopy": "nocopy",
+                        },
+                    },
+                    {
+                        "shardIndex": 1,
                         "executionStatus": "Done",
                         "outputs": {
                             "file1": task1_file1_2,
@@ -70,6 +81,7 @@ class CwOutputsCmdTest(unittest.TestCase):
                 ],
                 "test.task2": [
                     {
+                        "shardIndex": 0,
                         "executionStatus": "Done",
                         "outputs": {
                             "file2": task2_file2,
@@ -78,11 +90,21 @@ class CwOutputsCmdTest(unittest.TestCase):
                         },
                     },
                     {
+                        "shardIndex": 0,
                         "executionStatus": "Failed",
                         "outputs": {
                             "file2": "failed",
                             "file3": "failed",
                             "nocopy": "nocopy",
+                        },
+                    },
+                ],
+                "test.task3": [ # ignored
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file": "ignored",
                         },
                     },
                 ],
@@ -103,15 +125,13 @@ class CwOutputsCmdTest(unittest.TestCase):
         expected = f"""[INFO] Task <test.missing_task> files: <?>
 [WARN] No task found for <test.missing_task> ... skipping
 [INFO] Task <test.task1> files: <file1>
-[INFO] Calls 2 of 2 DONE
-[INFO] Copy {self.temp_d.name}/runs/test/UUID/call-task1/file1-1 to {self.temp_d.name}/outputs/task1
-[INFO] Copy {self.temp_d.name}/runs/test/UUID/call-task1/file1-2 to {self.temp_d.name}/outputs/task1
-[INFO] Copied 2 skipped 0 missing files
+[INFO] Found 2 of 2 tasks DONE
+[INFO] Copy {task1_file1_1} to {self.temp_d.name}/outputs/task1/shard0
+[INFO] Copy {task1_file1_2} to {self.temp_d.name}/outputs/task1/shard1
 [INFO] Task <test.task2> files: <file2 file3>
-[INFO] Calls 1 of 2 DONE
+[INFO] Found 1 of 1 tasks DONE
 [INFO] Copy {self.temp_d.name}/runs/test/UUID/call-task2/file2 to {self.temp_d.name}/outputs/task2
 [INFO] Copy {self.temp_d.name}/runs/test/UUID/call-task2/file3 to {self.temp_d.name}/outputs/task2
-[INFO] Copied 2 skipped 0 missing files
 [INFO] Done
 """
         self.maxDiff = 10000
@@ -120,10 +140,10 @@ class CwOutputsCmdTest(unittest.TestCase):
         got = []
         for (root, dirs, files) in os.walk(dest_dn):
             for fn in files:
-                got.append(os.path.join(os.path.basename(root), fn))
-        expected = list(map(lambda f: os.path.join(self.temp_d.name, f), ["task1/file1-2", "task1/file1-1", "task2/file2", "task2/file3"]))
-        expected = ["task1/file1-2", "task1/file1-1", "task2/file2", "task2/file3"]
-        self.assertEqual(got, expected)
+                got.append(os.path.join(root, fn))
+        expected = ["task1/shard0/file1-1", "task1/shard1/file1-2", "task2/file2", "task2/file3"]
+        expected = list(map(lambda f: os.path.join(dest_dn, f), expected))
+        self.assertEqual(got.sort(), expected.sort())
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
