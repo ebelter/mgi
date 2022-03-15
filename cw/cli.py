@@ -11,6 +11,9 @@ def cli():
 from cw.heartbeat_cmd import heartbeat_cmd as cmd
 cli.add_command(cmd, "heartbeat")
 
+from cw.outputs_cmd import outputs_cmd as cmd
+cli.add_command(cmd, "outputs")
+
 from cw.printc_cmd import printc_cmd as cmd
 cli.add_command(cmd, "printc")
 

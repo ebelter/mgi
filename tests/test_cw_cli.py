@@ -18,6 +18,12 @@ class CwCliTest(unittest.TestCase):
         result = runner.invoke(cli, ["heartbeat", "--help"])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["outputs", "--help"])
+        self.assertEqual(result.exit_code, 0)
+
+        result = runner.invoke(cli, ["outputs"])
+        self.assertEqual(result.exit_code, 2)
+
         result = runner.invoke(cli, ["printc", "--help"])
         self.assertEqual(result.exit_code, 0)
 
