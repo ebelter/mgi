@@ -63,19 +63,8 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs):
         sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
 
         # Copy shards files, use separate directory if multiple shards
-        for idx, files in shards:
-            if files is None:
-                continue
-            dest = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
-            if len(shards) > 1:
-                dest = os.path.join(dest, "shard"+str(idx))
-            os.makedirs(dest, exist_ok=1)
-            for fn in files:
-                if not os.path.exists(fn):
-                    sys.stdout.write(f"[INFO] File <{fn}> not found ... skipping\n")
-                    continue
-                sys.stdout.write(f"[INFO] Copy {fn} to {dest}\n")
-                shutil.copy(fn, dest)
+        dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
+        copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
 #-- outputs_cmd
 
@@ -106,3 +95,19 @@ def collect_shards_outputs(task, output_keys):
         shards.append([call["shardIndex"], files_to_copy])
     return shards, shard_idxs
 #-- collect_shards_outputs
+
+def copy_shards_outputs(shards, dest_dn):
+    if len(shards) > 1:
+        dest_dn = os.path.join(dest_dn, "shard{}")
+    for idx, files in shards:
+        if files is None:
+            continue
+        dest = dest_dn.format(str(idx))
+        os.makedirs(dest, exist_ok=1)
+        for fn in files:
+            if not os.path.exists(fn):
+                sys.stdout.write(f"[INFO] File <{fn}> not found ... skipping\n")
+                continue
+            sys.stdout.write(f"[INFO] Copy {fn} to {dest}\n")
+            shutil.copy(fn, dest)
+#-- copy_shards_outputs

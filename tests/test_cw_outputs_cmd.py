@@ -1,4 +1,4 @@
-import click, glob, json, os, shutil, tempfile, unittest, yaml
+import click, glob, json, os, shutil, sys, tempfile, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -8,6 +8,8 @@ from cw.conf import CromwellConf
 class CwOutputsCmdTest(unittest.TestCase):
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
+        self.destination = os.path.join(self.temp_d.name, "outputs")
+        os.makedirs(self.destination, exist_ok=True)
         self.tasks_and_outputs = { "test.task1": ["file1"], "test.task2": ["file2", "file3"], "test.missing_task": ["?"]}
         self.tasks_and_outputs_fn = os.path.join(self.temp_d.name, "mypipe_tno.yaml")
         with open(self.tasks_and_outputs_fn, "w") as f:
@@ -72,6 +74,17 @@ class CwOutputsCmdTest(unittest.TestCase):
         shards, shard_idxs = fun(task, self.tasks_and_outputs[task_name])
         self.assertEqual(shards, [[0, ["file2", "file3"]], [1, ["file2", "file3"]]])
         self.assertEqual(shard_idxs, set([0, 1, 2]))
+
+    @patch("shutil.copy")
+    def test_copy_shards_outputs(self, p):
+        from cw.outputs_cmd import copy_shards_outputs as fun
+        sys.stdout = open(os.devnull, 'w')
+        shards = [[0, ["file2", "file3"]], [1, ["file2", "file3"]]]
+        task2_dn = os.path.join(self.destination, "task2")
+        fun(shards, task2_dn)
+        self.assertTrue(os.path.join(task2_dn))
+        self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard0")))
+        self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard1")))
 
     @patch("cw.server_cmd.start_server")
     def test_outputs_cmd(self, p):
@@ -154,10 +167,8 @@ class CwOutputsCmdTest(unittest.TestCase):
         metadata_fn = os.path.join(self.temp_d.name, "metadata.json")
         with open(metadata_fn, "w") as f:
             json.dump(metadata, f)
-        dest_dn = os.path.join(self.temp_d.name, "outputs")
-        os.makedirs(dest_dn, exist_ok=True)
 
-        result = runner.invoke(cmd, [metadata_fn, dest_dn, self.tasks_and_outputs_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -179,11 +190,11 @@ class CwOutputsCmdTest(unittest.TestCase):
         self.assertEqual(result.output, expected)
 
         got = []
-        for (root, dirs, files) in os.walk(dest_dn):
+        for (root, dirs, files) in os.walk(self.destination):
             for fn in files:
                 got.append(os.path.join(root, fn))
         expected = ["task1/shard0/file1-1", "task1/shard1/file1-2", "task2/file2", "task2/file3"]
-        expected = list(map(lambda f: os.path.join(dest_dn, f), expected))
+        expected = list(map(lambda f: os.path.join(self.destination, f), expected))
         self.assertEqual(got.sort(), expected.sort())
 
 if __name__ == '__main__':
