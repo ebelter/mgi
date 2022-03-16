@@ -27,8 +27,17 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs):
 
     Generate metadata file with `cromshell metadata <WORKFLOW_ID>`
 
-    For tasks and outputs, give a known pipeline or json formatted file of tasks and oiutputs to gather
+    For tasks and outputs, give a known pipeline or yaml formatted file of tasks and outputs to gather
 
+    Ex:
+
+    pipeline.task1:
+    - output_file1
+    pipeline.task2:
+    - output_file1
+    - output_file2
+
+    Outputs will be copied into the destination into task subdirectories. If the task has multiple shards, files will be copied into the shard subdirectory.
     """
     if not os.path.exists(metadata_file):
         raise Exception(f"Metadata file <{metadata_file}> does not exist!")
@@ -50,23 +59,7 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs):
             sys.stderr.write(f"[WARN] No task found for <{task_name}> ... skipping\n")
             continue
 
-        # Collect shards files
-        shards = []
-        shard_idxs = set()
-        for call in task:
-            shard_idxs.add(call["shardIndex"])
-            if call["executionStatus"] != "Done":
-                #if call["shardIndex"] not in shards.keys():
-                #    shards[call["shardIndex"]] = None
-                #shards_incomplete.add(call["shardIndex"])
-                continue
-            files_to_copy = []
-            for file_key in file_keys:
-                files = call["outputs"][file_key]
-                if type(files) is str:
-                    files = [files]
-                files_to_copy += files
-            shards.append([call["shardIndex"], files_to_copy])
+        shards, shard_idxs = collect_shards_outputs(task, file_keys)
         sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
 
         # Copy shards files, use separate directory if multiple shards
@@ -96,3 +89,20 @@ def resolve_tasks_and_outputs(tasks_and_outputs):
         raise Exception(f"No such known pipeline <{tasks_and_outputs}>.")
     return tasks_and_outputs
 #-- tasks_and_outputs
+
+def collect_shards_outputs(task, output_keys):
+    shards = []
+    shard_idxs = set()
+    for call in task:
+        shard_idxs.add(call["shardIndex"])
+        if call["executionStatus"] != "Done":
+            continue
+        files_to_copy = []
+        for k in output_keys:
+            files = call["outputs"][k]
+            if type(files) is str:
+                files = [files]
+            files_to_copy += files
+        shards.append([call["shardIndex"], files_to_copy])
+    return shards, shard_idxs
+#-- collect_shards_outputs

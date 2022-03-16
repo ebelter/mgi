@@ -16,7 +16,6 @@ class CwOutputsCmdTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
-    #@patch("subprocess.check_output")
     def test_resolve_tasks_and_outputs(self):
         from cw.outputs_cmd import resolve_tasks_and_outputs as fun
 
@@ -31,7 +30,49 @@ class CwOutputsCmdTest(unittest.TestCase):
         # error
         with self.assertRaisesRegex(Exception, f"No such known pipeline <unknown>."):
             fun("unknown")
-        
+
+    def test_collect_shards_outputs(self):
+        from cw.outputs_cmd import collect_shards_outputs as fun
+
+        task_name = "test.task2"
+        task = [
+            {
+                "shardIndex": 0,
+                "executionStatus": "Done",
+                "outputs": {
+                    "file2": "file2",
+                    "file3": "file3",
+                },
+            },
+            {
+                "shardIndex": 0,
+                "executionStatus": "Failed",
+                "outputs": {
+                    "file2": "file2",
+                    "file3": "file3",
+                },
+            },
+            {
+                "shardIndex": 1,
+                "executionStatus": "Done",
+                "outputs": {
+                    "file2": "file2",
+                    "file3": "file3",
+                },
+            },
+            {
+                "shardIndex": 2,
+                "executionStatus": "Failed",
+                "outputs": {
+                    "file2": "file2",
+                    "file3": "file3",
+                },
+            },
+        ]
+        shards, shard_idxs = fun(task, self.tasks_and_outputs[task_name])
+        self.assertEqual(shards, [[0, ["file2", "file3"]], [1, ["file2", "file3"]]])
+        self.assertEqual(shard_idxs, set([0, 1, 2]))
+
     @patch("cw.server_cmd.start_server")
     def test_outputs_cmd(self, p):
         from cw.outputs_cmd import outputs_cmd as cmd
