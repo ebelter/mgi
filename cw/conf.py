@@ -4,7 +4,8 @@ class CromwellConf(object):
     def __init__(self, attrs):
         self._attrs = attrs
         CromwellConf.validate_attributes(attrs)
-        self._setpaths()
+        self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])
+        self.cromwell_dn = self._attrs["CROMWELL_DIR"]
 
     @staticmethod
     def yaml_fn():
@@ -22,14 +23,11 @@ class CromwellConf(object):
     def known_dir_names(self):
         return set(["db", "lsf_logs", "runs", "server", "wf_logs"])
 
-    def _setpaths(self):
-        self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])
-        self.cromwell_dn = self._attrs["CROMWELL_DIR"]
-        self._dir_attrs = {}
-        for bn in self.known_dir_names():
-            dn = os.path.join(self.cromwell_dn, bn)
-            self._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])] = dn
-            setattr(self, "_".join([bn, "dn"]), dn)
+    def dir_attrs(self):
+        dir_attrs = {}
+        for name in self.known_dir_names():
+            dir_attrs["_".join(["CROMWELL", name.upper(), "DIR"])] = self.dir_for(name)
+        return dir_attrs
 
     def makedirs(self):
         for name in self.known_dir_names():
@@ -92,7 +90,7 @@ class CromwellConf(object):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
         attrs = self._attrs.copy()
-        attrs.update(self._dir_attrs)
+        attrs.update(self.dir_attrs())
         return template.render(attrs)
 
     @staticmethod
@@ -113,7 +111,7 @@ class CromwellConf(object):
         if not os.path.exists(template_fn):
             raise Exception(f"Template file {template_fn} does not exist!")
         attrs.update(self._attrs.copy())
-        attrs.update(self._dir_attrs)
+        attrs.update(self.dir_attrs())
         with open(template_fn, "r") as f:
             template = jinja2.Template(f.read())
         return template.render(**attrs)

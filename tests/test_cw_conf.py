@@ -56,20 +56,20 @@ class CwCconfTest(unittest.TestCase):
     def test_makedirs(self):
         cc = self.get_cc()
         cc.makedirs()
-        for bn in cc.known_dir_names():
-            self.assertTrue(os.path.exists(getattr(cc, "_".join([bn, "dn"]))))
+        for name in cc.known_dir_names():
+            self.assertTrue(os.path.exists(cc.dir_for(name)))
 
     def test_server_conf(self):
         cc = self.get_cc()
         server_conf_fn = cc.server_conf_fn()
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf_content()
-        self.assertRegex(server_conf, f"root = \"{cc.runs_dn}\"")
+        self.assertRegex(server_conf, f"root = \"{cc.dir_for('runs')}\"")
         self.assertRegex(server_conf, "LSF_DOCKER_VOLUMES='\$\{cwd\}:\$\{docker_cwd\} MINE'")
-        m = re.findall(f"\-oo {cc.lsf_logs_dn}", server_conf)
+        m = re.findall(f"\-oo {cc.dir_for('lsf_logs')}", server_conf)
         self.assertEqual(len(m), 1)
-        self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.wf_logs_dn}\"")
-        self.assertRegex(server_conf, f"file:{cc.db_dn}")
+        self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.dir_for('wf_logs')}\"")
+        self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
 
     def test_server_run(self):
         cc = self.get_cc()
