@@ -26,15 +26,10 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(len(attrs_n), 6)
         self.assertTrue(cc._attrs)
 
-        bns = cc.dir_names()
-        self.assertEqual(len(bns), 5)
-        for bn in bns:
-            dn = os.path.join(self.temp_d.name, bn)
-            self.assertEqual(getattr(cc, "_".join([bn, "dn"])), dn)
-            self.assertEqual(cc._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])], dn)
-        self.assertEqual(cc.server_conf_fn, os.path.join(cc.server_dn, "conf"))
-        self.assertEqual(cc.server_run_fn, os.path.join(cc.server_dn, "run"))
-        self.assertEqual(cc.server_start_fn, os.path.join(cc.server_dn, "start"))
+        dir_names = cc.known_dir_names()
+        self.assertEqual(len(dir_names), 5)
+        for name in dir_names:
+            self.assertEqual(cc.dir_for(name), os.path.join(self.temp_d.name, name))
 
     def test_validate_attributes(self):
         with self.assertRaisesRegex(Exception, "Missing or undefined attributes"):
@@ -61,12 +56,12 @@ class CwCconfTest(unittest.TestCase):
     def test_makedirs(self):
         cc = self.get_cc()
         cc.makedirs()
-        for bn in cc.dir_names():
+        for bn in cc.known_dir_names():
             self.assertTrue(os.path.exists(getattr(cc, "_".join([bn, "dn"]))))
 
     def test_server_conf(self):
         cc = self.get_cc()
-        server_conf_fn = cc.server_conf_fn
+        server_conf_fn = cc.server_conf_fn()
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf_content()
         self.assertRegex(server_conf, f"root = \"{cc.runs_dn}\"")

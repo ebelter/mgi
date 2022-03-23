@@ -10,20 +10,31 @@ class CromwellConf(object):
     def yaml_fn():
         return "cw.yaml"
 
-    def dir_names(self):
-        return ("db", "lsf_logs", "runs", "server", "wf_logs")
+    # DIRs
+    def dir_for(self, name):
+        cw_dn = self._attrs.get("CROMWELL_DIR", None)
+        if cw_dn is None:
+            raise Exception("No CROMWELL_DIR set in cromwell conf attributes!")
+        if name not in self.known_dir_names():
+            raise Exception(f"Dir name <name> is not in the known directory names!")
+        return os.path.join(cw_dn, name)
+
+    def known_dir_names(self):
+        return set(["db", "lsf_logs", "runs", "server", "wf_logs"])
 
     def _setpaths(self):
         self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])
         self.cromwell_dn = self._attrs["CROMWELL_DIR"]
         self._dir_attrs = {}
-        for bn in self.dir_names():
+        for bn in self.known_dir_names():
             dn = os.path.join(self.cromwell_dn, bn)
             self._dir_attrs["_".join(["CROMWELL", bn.upper(), "DIR"])] = dn
             setattr(self, "_".join([bn, "dn"]), dn)
-        self.server_conf_fn = os.path.join(self.server_dn, "conf")
-        self.server_run_fn = os.path.join(self.server_dn, "run")
-        self.server_start_fn = os.path.join(self.server_dn, "start")
+
+    def makedirs(self):
+        for name in self.known_dir_names():
+            os.makedirs(self.dir_for(name), exist_ok=True)
+    #--
 
     def from_yaml(yaml_file="cw.yaml"):
         ymal_file = CromwellConf.yaml_fn()
@@ -40,15 +51,12 @@ class CromwellConf(object):
         self.write_server_files()
 
     def write_server_files(self):
-        for ft in ("conf", "run", "start"):
-            fun = getattr(self, f"server_{ft}_content")
-            with open(getattr(self, f"server_{ft}_fn"), "w") as f:
+        server_dn = self.dir_for("server")
+        for name in ("conf", "run", "start"):
+            fun = getattr(self, f"server_{name}_content")
+            fn = os.path.join(server_dn, name)
+            with open(fn, "w") as f:
                 f.write(fun())
-
-    def makedirs(self):
-        for bn in self.dir_names():
-            os.makedirs(getattr(self, "_".join([bn, "dn"])), exist_ok=True)
-
     ##--
 
     ## ATTRS
@@ -77,6 +85,9 @@ class CromwellConf(object):
     #-- template_fn
 
     # SERVER
+    def server_conf_fn(self):
+        return os.path.join(self.dir_for("server"), "conf")
+
     def server_conf_content(self):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
