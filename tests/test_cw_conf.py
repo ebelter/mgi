@@ -7,34 +7,59 @@ class CwCconfTest(unittest.TestCase):
     
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
+        self.cc_attrs = {}
+        for name in CromwellConf.attribute_names():
+            self.cc_attrs[name] = "MINE"
+        self.cc_attrs["CROMWELL_DIR"] = self.temp_d.name
+        self.yaml_fn = os.path.join(self.temp_d.name, CromwellConf.yaml_fn())
+        with open(self.yaml_fn, "w") as f:
+            f.write(yaml.dump(self.cc_attrs))
 
     def tearDown(self):
         self.temp_d.cleanup()
 
-    def get_cc(self):
-        attrs = dict.fromkeys(CromwellConf.attribute_names(), "MINE")
-        attrs["CROMWELL_DIR"] = self.temp_d.name
-        cc = CromwellConf(attrs=attrs)
+    def test_init(self):
+        cc = CromwellConf({})
         self.assertTrue(bool(cc))
-        self.assertDictEqual(cc._attrs, attrs)
-        return cc
+        self.assertFalse(cc.is_validated)
 
-    def test_cromwell_conf(self):
-        cc = self.get_cc()
-
+    def test_load(self):
         attrs_n = CromwellConf.attribute_names()
         self.assertEqual(len(attrs_n), 6)
-        self.assertTrue(cc._attrs)
 
-        dir_names = cc.known_dir_names()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
+        self.assertTrue(cc._attrs)
+        self.assertTrue(cc.is_validated)
+
+        dir_names = CromwellConf.known_dir_names()
         self.assertEqual(len(dir_names), 5)
         for name in dir_names:
             self.assertEqual(cc.dir_for(name), os.path.join(self.temp_d.name, name))
 
+    def test_save(self):
+        cc = CromwellConf(self.cc_attrs)
+        os.chdir(self.temp_d.name)
+        os.makedirs("test_save")
+        os.chdir("test_save")
+        cc.save()
+        yaml_fn = CromwellConf.yaml_fn()
+        self.assertTrue(os.path.exists("cw.yaml"))
+        with open(yaml_fn, "r") as f:
+            got = yaml.safe_load(f)
+        self.assertDictEqual(got, self.cc_attrs)
+
+    def test_safe_load(self):
+        pass
+
     def test_validate_attributes(self):
+        cc = CromwellConf({})
+        self.assertTrue(bool(cc))
         with self.assertRaisesRegex(Exception, "Missing or undefined attributes"):
-            CromwellConf.validate_attributes({})
-        CromwellConf.validate_attributes(self.get_cc()._attrs)
+            cc.validate_attributes()
+        for name in CromwellConf.attribute_names():
+            cc._attrs[name] = "MINE"
+        CromwellConf.validate_attributes(cc)
 
     def test_resources(self):
         resources_dn = CromwellConf.resources_dn()
@@ -54,13 +79,16 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(got, expected)
 
     def test_makedirs(self):
-        cc = self.get_cc()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
         cc.makedirs()
-        for name in cc.known_dir_names():
+        for name in CromwellConf.known_dir_names():
             self.assertTrue(os.path.exists(cc.dir_for(name)))
 
     def test_server_conf(self):
-        cc = self.get_cc()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
+
         server_conf_fn = cc.server_conf_fn()
         self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf_content()
@@ -72,14 +100,18 @@ class CwCconfTest(unittest.TestCase):
         self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
 
     def test_server_run(self):
-        cc = self.get_cc()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
+
         template_fn = cc.server_run_template_fn()
         self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.run.jinja"))
         content = cc.server_run_content()
         self.assertRegex(content, f"file={cc.server_conf_fn}")
 
     def test_server_start(self):
-        cc = self.get_cc()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
+
         template_fn = cc.server_start_template_fn()
         self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.start.jinja"))
         content = cc.server_start_content()

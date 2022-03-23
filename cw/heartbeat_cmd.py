@@ -11,7 +11,7 @@ def heartbeat_cmd():
 
     CROMWELL_HOST and CROMWELL_PORT must be set in the YAML configuration.
     """
-    cc = CromwellConf.from_yaml()
+    cc = CromwellConf.load()
     host = cc._attrs.get("CROMWELL_HOST", None)
     if host is None:
         sys.stderr.write("Please set CROMWELL_HOST in YAML file: {yaml_file}\n")

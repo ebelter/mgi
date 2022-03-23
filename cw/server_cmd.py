@@ -9,30 +9,25 @@ def server_cmd():
 
      This command will the run server script (server/start), then wait for the job to start and update the configuration YAML (cw.yaml) with the host name of the cromwell server.
     """
-    yaml_file = "cw.yaml"
-    with open(yaml_file, "r") as f:
-        cw_attrs = yaml.safe_load(f)
-    cc = CromwellConf(cw_attrs)
+    cc = CromwellConf.load()
 
     job_id = start_server(cc)
     sys.stdout.write(f"Waiting for job <{job_id}> to start to obtain HOST...\n")
 
     host = wait_for_host(job_id)
-    sys.stdout.write(f"Server running on <{host}> port <{cw_attrs['CROMWELL_PORT']}>\n")
+    sys.stdout.write(f"Server running on <{host}> port <{cc._attrs['CROMWELL_PORT']}>\n")
 
-    cw_attrs["CROMWELL_JOB_ID"] = job_id
-    cw_attrs["CROMWELL_HOST"] = host
-    cw_attrs["CROMWELL_URL"] = f"http://{cw_attrs['CROMWELL_HOST']}:{cw_attrs['CROMWELL_PORT']}"
-    sys.stdout.write(f"Updating YAML file <{yaml_file}>\n")
-    with open(yaml_file, "w") as f:
-        f.write(yaml.dump(cw_attrs))
-
+    cc._attrs["CROMWELL_JOB_ID"] = job_id
+    cc._attrs["CROMWELL_HOST"] = host
+    cc._attrs["CROMWELL_URL"] = f"http://{cc._attrs['CROMWELL_HOST']}:{cc._attrs['CROMWELL_PORT']}"
+    sys.stdout.write(f"Updating YAML file <{CromwellConf.yaml_fn()}>\n")
+    cc.save()
     sys.stdout.write("Server ready!\n")
 #-- server_cmd
 
 def start_server(cc):
     # Launch server, return lsf job id
-    server_start_fn = cc.server_start_fn
+    server_start_fn = cc.server_start_fn()
     if not os.path.exists(server_start_fn):
         raise Exception(f"Server start script [server_start_fn] not found. Has 'cw setup <YAMLFILE>' been run?")
     output = subprocess.check_output([server_start_fn])
