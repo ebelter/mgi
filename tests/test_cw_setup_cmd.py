@@ -11,12 +11,13 @@ class Cc1SetupCmdTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
-    def test_setup_cmd(self):
+    def test_setup_cmd_no_yaml(self):
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
+        os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
@@ -24,23 +25,21 @@ class Cc1SetupCmdTest(unittest.TestCase):
         except:
             print(result.output)
             raise
-        expected_output = """Fill out and save the YAML configuration to a file. Then rerun this command.
-
-CROMWELL_DIR: null
-CROMWELL_PORT: null
-LSF_DOCKER_VOLUMES: null
-LSF_JOB_GROUP: null
-LSF_QUEUE: null
-LSF_USER_GROUP: null
+        expected_output = """Saved YAML configuration to <cw.yaml>. Fill out all attributes, then rerun this command.
 """
         self.assertEqual(result.output, expected_output)
+        self.assertTrue(os.path.exists("cw.yaml"))
+
+    def test_setup_cmd(self):
+        runner = CliRunner()
 
         attrs = dict.fromkeys(CromwellConf.attribute_names(), "TEST")
         attrs["CROMWELL_DIR"] = self.temp_d.name
-        yaml_fn = os.path.join(self.temp_d.name, "cromwell-attrs.yaml")
+        os.chdir(self.temp_d.name)
+        yaml_fn = "cw.yaml"
         with open(yaml_fn, "w") as f:
             f.write(yaml.dump(attrs))
-        result = runner.invoke(cmd, [yaml_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
             self.assertEqual(result.exit_code, 0)

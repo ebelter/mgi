@@ -29,11 +29,9 @@ class CwHeartbeatCmdTest(unittest.TestCase):
         from cw.heartbeat_cmd import heartbeat_cmd as cmd
         runner = CliRunner()
 
-        result = runner.invoke(cmd, [])
-        self.assertEqual(result.exit_code, 2)
-
         requests_p.return_value = MagicMock(ok=True, content="1")
-        result = runner.invoke(cmd, [self.cw_yaml_fn], catch_exceptions=False)
+        os.chdir(self.temp_d.name)
+        result = runner.invoke(cmd, [], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:

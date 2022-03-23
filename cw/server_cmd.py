@@ -3,13 +3,13 @@ import click, os, re, subprocess, sys, time, yaml
 from cw.conf import CromwellConf
 
 @click.command(short_help="Start a cromwell server")
-@click.argument("yaml-file", type=str, required=True, nargs=1)
-def server_cmd(yaml_file):
+def server_cmd():
     """
     Start a Cromwell Server on LSF
 
-    Give the configuration YAML file, the server script (server/start) will be executed. This command will wait for the job to start, then update the configuration YAML wit hthe host oname of the cromwell server.
+     This command will the run server script (server/start), then wait for the job to start and update the configuration YAML (cw.yaml) with the host name of the cromwell server.
     """
+    yaml_file = "cw.yaml"
     with open(yaml_file, "r") as f:
         cw_attrs = yaml.safe_load(f)
     cc = CromwellConf(cw_attrs)

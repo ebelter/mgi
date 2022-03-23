@@ -6,6 +6,10 @@ class CromwellConf(object):
         CromwellConf.validate_attributes(attrs)
         self._setpaths()
 
+    @staticmethod
+    def yaml_fn():
+        return "cw.yaml"
+
     def dir_names(self):
         return ("db", "lsf_logs", "runs", "server", "wf_logs")
 
@@ -21,7 +25,11 @@ class CromwellConf(object):
         self.server_run_fn = os.path.join(self.server_dn, "run")
         self.server_start_fn = os.path.join(self.server_dn, "start")
 
-    def from_yaml(yaml_file):
+    def from_yaml(yaml_file="cw.yaml"):
+        ymal_file = CromwellConf.yaml_fn()
+        # TODO move to some resolve sort of name space
+        if not os.path.exists(yaml_file):
+            raise Exception(f"Cannot create config object, given YAML file <{yaml_file}> does not exist!")
         with open(yaml_file, "r") as f:
             attrs = yaml.safe_load(f)
         self = CromwellConf(attrs)

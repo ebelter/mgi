@@ -3,8 +3,7 @@ import click, os, requests, subprocess, sys
 from cw.conf import CromwellConf
 
 @click.command(name="heartbeat", short_help="Check if the cromwell server is running")
-@click.argument("yaml-file", type=str, required=True, nargs=1)
-def heartbeat_cmd(yaml_file):
+def heartbeat_cmd():
     """
     Check the Cromwell Server
 
@@ -12,7 +11,7 @@ def heartbeat_cmd(yaml_file):
 
     CROMWELL_HOST and CROMWELL_PORT must be set in the YAML configuration.
     """
-    cc = CromwellConf.from_yaml(yaml_file)
+    cc = CromwellConf.from_yaml()
     host = cc._attrs.get("CROMWELL_HOST", None)
     if host is None:
         sys.stderr.write("Please set CROMWELL_HOST in YAML file: {yaml_file}\n")

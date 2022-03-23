@@ -61,15 +61,13 @@ class CwServerCmdTest(unittest.TestCase):
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-        result = runner.invoke(cmd, [])
-        self.assertEqual(result.exit_code, 2)
-
         job_id = "1234"
         start_p.return_value = job_id
         host = "compute1-exec-225.ris.wustl.edu"
         wait_p.return_value = host
 
-        result = runner.invoke(cmd, [self.cw_yaml_fn], catch_exceptions=False)
+        os.chdir(self.temp_d.name)
+        result = runner.invoke(cmd, [], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -77,7 +75,7 @@ class CwServerCmdTest(unittest.TestCase):
             raise
         expected_output = f"""Waiting for job <{job_id}> to start to obtain HOST...
 Server running on <{host}> port <8888>
-Updating YAML file <{self.cw_yaml_fn}>
+Updating YAML file <cw.yaml>
 Server ready!
 """
         self.assertEqual(result.output, expected_output)
