@@ -30,7 +30,7 @@ def start_server(cc):
     server_start_fn = cc.server_start_fn()
     if not os.path.exists(server_start_fn):
         raise Exception(f"Server start script [server_start_fn] not found. Has 'cw setup <YAMLFILE>' been run?")
-    output = subprocess.check_output([server_start_fn])
+    output = subprocess.check_output(["/bin/bash", server_start_fn])
     found = re.match(r"\AJob <(\d+)> is submitted to queue <(.+)>", output.decode("UTF-8"))
     if not found:
         raise Exception(f"Failed to parse LSF bsub command output to get job id: {output}")
