@@ -29,6 +29,9 @@ class Cc1SetupCmdTest(unittest.TestCase):
 """
         self.assertEqual(result.output, expected_output)
         self.assertTrue(os.path.exists("cw.yaml"))
+        with open(CromwellConf.yaml_fn(), "r") as f:
+            attrs = yaml.safe_load(f)
+        self.assertTrue(attrs["CROMWELL_DIR"], self.temp_d.name)
 
     def test_setup_cmd(self):
         runner = CliRunner()
