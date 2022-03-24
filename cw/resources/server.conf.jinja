@@ -56,7 +56,7 @@ database {
   db {
     driver = "org.hsqldb.jdbcDriver"
     url = """
-    jdbc:hsqldb:file:{{CROMWELL_DB_DIR}}/db/db;
+    jdbc:hsqldb:file:{{CROMWELL_DB_DIR}}/db;
     shutdown=false;
     hsqldb.default_table_type=cached;hsqldb.tx=mvcc;
     hsqldb.result_max_memory_rows=10000;
