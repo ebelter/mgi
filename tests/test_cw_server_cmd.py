@@ -3,8 +3,7 @@ from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
 from cw.conf import CromwellConf
-#from cw.server_cmd import server_cmd as cmd, start_server, wait_for_host
-import cw.server_cmd
+import cw.cromshell, cw.server_cmd
 
 class CwServerCmdTest(unittest.TestCase):
     def setUp(self):
@@ -54,7 +53,8 @@ class CwServerCmdTest(unittest.TestCase):
 
     @patch("cw.server_cmd.start_server")
     @patch("cw.server_cmd.wait_for_host")
-    def test_server_cmd(self, wait_p, start_p):
+    @patch("cw.cromshell.config_dn")
+    def test_server_cmd(self, dn_p, wait_p, start_p):
         from cw.server_cmd import server_cmd as cmd
         runner = CliRunner()
 
@@ -65,6 +65,7 @@ class CwServerCmdTest(unittest.TestCase):
         start_p.return_value = job_id
         host = "compute1-exec-225.ris.wustl.edu"
         wait_p.return_value = host
+        dn_p.return_value = "/blah"
 
         os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [], catch_exceptions=False)
@@ -76,6 +77,7 @@ class CwServerCmdTest(unittest.TestCase):
         expected_output = f"""Waiting for job <{job_id}> to start to obtain HOST...
 Server running on <{host}> port <8888>
 Updating YAML file <cw.yaml>
+No cromshell directory at </blah> detected, not updating url
 Server ready!
 """
         self.assertEqual(result.output, expected_output)

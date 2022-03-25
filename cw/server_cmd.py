@@ -1,6 +1,7 @@
 import click, os, re, subprocess, sys, time, yaml
 
 from cw.conf import CromwellConf
+import cw.cromshell
 
 @click.command(short_help="Start a cromwell server")
 def server_cmd():
@@ -22,6 +23,8 @@ def server_cmd():
     cc._attrs["CROMWELL_URL"] = f"http://{cc._attrs['CROMWELL_HOST']}:{cc._attrs['CROMWELL_PORT']}"
     sys.stdout.write(f"Updating YAML file <{CromwellConf.yaml_fn()}>\n")
     cc.save()
+    rv, msg = cw.cromshell.update_server(cc._attrs["CROMWELL_HOST"])
+    sys.stderr.write(msg)
     sys.stdout.write("Server ready!\n")
 #-- server_cmd
 
