@@ -6,12 +6,18 @@ class CromwellConf(object):
         self.is_validated = False
 
     ## ATTRIBUTES
-    def __getattr__(self, name):
+    def getattr(self, name):
+        if name not in self.attribute_names():
+            raise Exception(f"Unknown attribute <{name}>")
         if name in self._attrs:
             return self._attrs[name]
-        #return object.__getattribute__(self, name)
-        # Calling the super class to avoid recursion
-        #return super(CromwellConf, self).__getattribute__(item)
+        return None
+
+    def setattr(self, name, value):
+        if name not in self.attribute_names():
+            raise Exception(f"Unknown attribute <{name}>")
+        self._attrs[name] = value
+        return value
 
     @staticmethod
     def known_attributes():
@@ -23,9 +29,9 @@ class CromwellConf(object):
                 "LSF_JOB_GROUP": [None, True],
                 "LSF_QUEUE": [None, True],
                 "LSF_USER_GROUP": [None, True],
-                #"CROMWELL_JOB_ID": [],
-                #"CROMWELL_HOST": [],
-                #"CROMWELL_URL": [],
+                "CROMWELL_JOB_ID": [None, True],
+                "CROMWELL_HOST": [None, True],
+                "CROMWELL_URL": [None, True],
                 }
 
     @staticmethod
@@ -53,7 +59,7 @@ class CromwellConf(object):
     def validate_attributes(self):
         e = []
         for name in CromwellConf.required_attribute_names():
-            value = getattr(self, name)
+            value = self.getattr(name)
             if value is None:#if a not in attrs or attrs[a] is None or attrs[a] == "null":
                 e.append(name)
         if len(e):
@@ -75,7 +81,7 @@ class CromwellConf(object):
         yaml_fn = CromwellConf.yaml_fn()
         if os.path.exists(yaml_fn):
             return CromwellConf.load(yaml_fn)
-        return CromwellConf(dict.fromkeys(CromwellConf.attribute_names()))
+        return CromwellConf(CromwellConf.default_attributes())
 
     def load(yaml_fn="cw.yaml"):
         yaml_file = CromwellConf.yaml_fn()

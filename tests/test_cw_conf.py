@@ -36,11 +36,17 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(type(required_attribute_names), set)
 
         cc = CromwellConf(default_attributes)
-        self.assertEqual(cc.CROMWELL_DIR, default_attributes["CROMWELL_DIR"])
+        self.assertDictEqual(cc._attrs, default_attributes)
+        self.assertEqual(cc.getattr("CROMWELL_PORT"), default_attributes["CROMWELL_PORT"])
+        self.assertEqual(cc.getattr("CROMWELL_PORT"), cc._attrs["CROMWELL_PORT"])
+        cc.CROMWELL_PORT = "9999"
+        self.assertEqual(cc.setattr("CROMWELL_PORT", "9999"), "9999")
+        self.assertEqual(cc.getattr("CROMWELL_PORT"), cc._attrs["CROMWELL_PORT"])
+        self.assertEqual(cc.getattr("CROMWELL_PORT"), "9999")
 
     def test_load(self):
         attrs_n = CromwellConf.attribute_names()
-        self.assertEqual(len(attrs_n), 6)
+        self.assertEqual(len(attrs_n), 9)
 
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
@@ -70,7 +76,7 @@ class CwCconfTest(unittest.TestCase):
         os.chdir(dn)
         cc = CromwellConf.safe_load()
         self.assertTrue(cc)
-        #self.assertDictEqual(cc._attrs, CromwellConf.default_attributes())
+        self.assertDictEqual(cc._attrs, CromwellConf.default_attributes())
         self.assertTrue(not cc.is_validated)
 
         os.chdir(self.temp_d.name)
