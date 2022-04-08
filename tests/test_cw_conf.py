@@ -35,6 +35,9 @@ class CwCconfTest(unittest.TestCase):
         self.assertTrue(bool(required_attribute_names))
         self.assertEqual(type(required_attribute_names), set)
 
+        cc = CromwellConf(default_attributes)
+        self.assertEqual(cc.CROMWELL_DIR, default_attributes["CROMWELL_DIR"])
+
     def test_load(self):
         attrs_n = CromwellConf.attribute_names()
         self.assertEqual(len(attrs_n), 6)

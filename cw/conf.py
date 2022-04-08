@@ -6,6 +6,13 @@ class CromwellConf(object):
         self.is_validated = False
 
     ## ATTRIBUTES
+    def __getattr__(self, name):
+        if name in self._attrs:
+            return self._attrs[name]
+        #return object.__getattribute__(self, name)
+        # Calling the super class to avoid recursion
+        #return super(CromwellConf, self).__getattribute__(item)
+
     @staticmethod
     def known_attributes():
         return {
@@ -44,11 +51,11 @@ class CromwellConf(object):
         return attrs
 
     def validate_attributes(self):
-        attrs = self._attrs
         e = []
-        for a in CromwellConf.attribute_names():
-            if a not in attrs or attrs[a] is None or attrs[a] == "null":
-                e.append(a)
+        for name in CromwellConf.required_attribute_names():
+            value = getattr(self, name)
+            if value is None:#if a not in attrs or attrs[a] is None or attrs[a] == "null":
+                e.append(name)
         if len(e):
             raise Exception(f"Missing or undefined attributes: {' | '.join(e)}")
         self.is_validated = True
