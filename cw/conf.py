@@ -29,9 +29,9 @@ class CromwellConf(object):
                 "LSF_JOB_GROUP": [None, True],
                 "LSF_QUEUE": [None, True],
                 "LSF_USER_GROUP": [None, True],
-                "CROMWELL_JOB_ID": [None, True],
-                "CROMWELL_HOST": [None, True],
-                "CROMWELL_URL": [None, True],
+                "CROMWELL_JOB_ID": [None, False],
+                "CROMWELL_HOST": [None, False],
+                "CROMWELL_URL": [None, False],
                 }
 
     @staticmethod

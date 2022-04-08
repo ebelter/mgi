@@ -1,4 +1,4 @@
-import click, os, subprocess, tempfile, time, unittest, yaml
+import click, os, requests, subprocess, tempfile, time, unittest, yaml
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
@@ -9,20 +9,31 @@ class CwServerCmdTest(unittest.TestCase):
     def setUp(self):
         from cw.setup_cmd import setup_cmd as cmd
         self.temp_d = tempfile.TemporaryDirectory()
-        cw_attrs = dict.fromkeys(CromwellConf.attribute_names(), "NULL")
-        cw_attrs["CROMWELL_DIR"] = self.temp_d.name
-        cw_attrs["CROMWELL_PORT"] = "8888"
-        cw_attrs["LSF_QUEUE"] = "general"
-        cw_attrs["LSF_JOB_GROUP"] = "job"
-        cw_attrs["LSF_USER_GROUP"] = "user"
-        self.cw_yaml_fn = os.path.join(self.temp_d.name, "cw.yaml")
-        with open(self.cw_yaml_fn, "w") as f:
-            f.write(yaml.dump(cw_attrs))
-        self.cc = CromwellConf(cw_attrs)
-        self.cc.setup()
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf(CromwellConf.default_attributes())
+        cc.setattr("LSF_QUEUE", "general")
+        cc.setattr("LSF_JOB_GROUP", "job")
+        cc.setattr("LSF_USER_GROUP", "user")
+        cc.save()
+        self.cc = cc
+        cc.setup()
 
     def tearDown(self):
         self.temp_d.cleanup()
+
+    @patch("requests.get")
+    def test_server_is_running(self, requests_p):
+        from cw.server_cmd import server_is_running as fun
+        requests_p.return_value = MagicMock(ok=True, content="1")
+        url = "http://host:port"
+        self.cc.setattr("CROMWELL_URL", url)
+        rv = fun(self.cc)
+        requests_p.assert_called_with(url)
+        self.assertTrue(rv)
+
+        requests_p.return_value = MagicMock(ok=False, content="1")
+        rv = fun(self.cc)
+        self.assertFalse(rv)
 
     @patch("subprocess.check_output")
     def test_start_server(self, co_p):
@@ -51,20 +62,23 @@ class CwServerCmdTest(unittest.TestCase):
         with self.assertRaisesRegex(Exception, f"Seems server <{job_id}> IS DONE/EXIT. Fix and try again!"):
             fun(job_id)
 
+    @patch("cw.server_cmd.server_is_running")
     @patch("cw.server_cmd.start_server")
     @patch("cw.server_cmd.wait_for_host")
     @patch("cw.cromshell.config_dn")
-    def test_server_cmd(self, dn_p, wait_p, start_p):
+    def test_server_cmd(self, dn_p, wait_p, start_p, running_p):
         from cw.server_cmd import server_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
+        running_p.return_value = False
         job_id = "1234"
         start_p.return_value = job_id
         host = "compute1-exec-225.ris.wustl.edu"
         wait_p.return_value = host
+        url = f"http://{host}:8888"
         dn_p.return_value = "/blah"
 
         os.chdir(self.temp_d.name)
@@ -82,11 +96,23 @@ Server ready!
 """
         self.assertEqual(result.output, expected_output)
 
-        with open(self.cw_yaml_fn, "r") as f:
+        with open(self.cc.yaml_fn(), "r") as f:
             updated_attrs = yaml.safe_load(f)
-        self.assertEqual(updated_attrs["CROMWELL_JOB_ID"], "1234")
-        self.assertEqual(updated_attrs["CROMWELL_HOST"], "compute1-exec-225.ris.wustl.edu")
-        self.assertEqual(updated_attrs["CROMWELL_URL"], "http://compute1-exec-225.ris.wustl.edu:8888")
+        self.assertEqual(updated_attrs["CROMWELL_JOB_ID"], job_id)
+        self.assertEqual(updated_attrs["CROMWELL_HOST"], host)
+        self.assertEqual(updated_attrs["CROMWELL_URL"], url)
+
+        # Try to run while server already running
+        running_p.return_value = True
+        result = runner.invoke(cmd, [], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"""Server is already up and running at <{url}>
+"""
+        self.assertEqual(result.output, expected_output)
 #--
 
 if __name__ == '__main__':
