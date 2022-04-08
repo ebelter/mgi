@@ -23,6 +23,11 @@ class CwCconfTest(unittest.TestCase):
         self.assertTrue(bool(cc))
         self.assertFalse(cc.is_validated)
 
+    def test_attributes(self):
+        known_attributes = CromwellConf.known_attributes()
+        self.assertTrue(bool(known_attributes))
+        self.assertEqual(type(known_attributes), dict)
+
     def test_load(self):
         attrs_n = CromwellConf.attribute_names()
         self.assertEqual(len(attrs_n), 6)

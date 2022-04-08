@@ -5,6 +5,27 @@ class CromwellConf(object):
         self._attrs = attrs
         self.is_validated = False
 
+    ## ATTRIBUTES
+    @staticmethod
+    def known_attributes():
+        return {
+                # ATTR: [value, required]
+                "CROMWELL_DIR": [],
+                "CROMWELL_PORT": [],
+                "LSF_DOCKER_VOLUMES": [],
+                "LSF_JOB_GROUP": [],
+                "LSF_QUEUE": [],
+                "LSF_USER_GROUP": []
+                #"CROMWELL_JOB_ID": [],
+                #"CROMWELL_HOST": [],
+                #"CROMWELL_URL": [],
+                }
+
+    @staticmethod
+    def attribute_names():
+        return CromwellConf.known_attributes().keys()
+    ##--
+
     ## SAVE / LOAD
     @staticmethod
     def yaml_fn():
@@ -72,11 +93,6 @@ class CromwellConf(object):
     ##--
 
     ## ATTRS
-    @staticmethod
-    def attribute_names():
-        return [ "CROMWELL_DIR", "CROMWELL_PORT", "LSF_DOCKER_VOLUMES",
-                "LSF_JOB_GROUP", "LSF_QUEUE", "LSF_USER_GROUP",]
-
     def validate_attributes(self):
         attrs = self._attrs
         e = []
