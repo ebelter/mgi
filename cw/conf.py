@@ -10,12 +10,12 @@ class CromwellConf(object):
     def known_attributes():
         return {
                 # ATTR: [value, required]
-                "CROMWELL_DIR": [],
-                "CROMWELL_PORT": [],
-                "LSF_DOCKER_VOLUMES": [],
-                "LSF_JOB_GROUP": [],
-                "LSF_QUEUE": [],
-                "LSF_USER_GROUP": []
+                "CROMWELL_DIR": [os.getcwd, True],
+                "CROMWELL_PORT": ["8888", True],
+                "LSF_DOCKER_VOLUMES": ["/scratch1/fs1/hprc:/scratch1/fs1/hprc /storage1/fs1/hprc:/storage1/fs1/hprc", True],
+                "LSF_JOB_GROUP": [None, True],
+                "LSF_QUEUE": [None, True],
+                "LSF_USER_GROUP": [None, True],
                 #"CROMWELL_JOB_ID": [],
                 #"CROMWELL_HOST": [],
                 #"CROMWELL_URL": [],
@@ -24,7 +24,17 @@ class CromwellConf(object):
     @staticmethod
     def attribute_names():
         return CromwellConf.known_attributes().keys()
-    ##--
+
+    def default_attributes():
+        attrs = {}
+        known_attrs = CromwellConf.known_attributes()
+        #for name, (value, isrequired) in known_attrs.items():
+        for name, (value, isrequired) in known_attrs.items():
+            if callable(value):
+                value = value()
+            attrs[name] = value
+        return attrs
+   ##--
 
     ## SAVE / LOAD
     @staticmethod
