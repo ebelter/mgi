@@ -5,6 +5,11 @@ class CromwellConf(object):
         self._attrs = attrs
         self.is_validated = False
 
+    ## SAVE / LOAD
+    @staticmethod
+    def yaml_fn():
+        return "cw.yaml"
+
     def save(self):
         yaml_fn = CromwellConf.yaml_fn()
         with open(yaml_fn, "w") as f:
@@ -26,10 +31,7 @@ class CromwellConf(object):
         self.validate_attributes()
         self._attrs["CROMWELL_DIR"] = os.path.abspath(self._attrs["CROMWELL_DIR"])
         return self
-
-    @staticmethod
-    def yaml_fn():
-        return "cw.yaml"
+    ##--
 
     @staticmethod
     def known_dir_names():
