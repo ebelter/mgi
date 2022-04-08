@@ -25,6 +25,14 @@ class CromwellConf(object):
     def attribute_names():
         return CromwellConf.known_attributes().keys()
 
+    def required_attribute_names():
+        names = set()
+        known_attrs = CromwellConf.known_attributes()
+        for name, (value, isrequired) in known_attrs.items():
+            if isrequired:
+                names.add(name)
+        return names
+
     def default_attributes():
         attrs = {}
         known_attrs = CromwellConf.known_attributes()
@@ -34,7 +42,17 @@ class CromwellConf(object):
                 value = value()
             attrs[name] = value
         return attrs
-   ##--
+
+    def validate_attributes(self):
+        attrs = self._attrs
+        e = []
+        for a in CromwellConf.attribute_names():
+            if a not in attrs or attrs[a] is None or attrs[a] == "null":
+                e.append(a)
+        if len(e):
+            raise Exception(f"Missing or undefined attributes: {' | '.join(e)}")
+        self.is_validated = True
+    ##-
 
     ## SAVE / LOAD
     @staticmethod
@@ -102,27 +120,15 @@ class CromwellConf(object):
                 f.write(fun())
     ##--
 
-    ## ATTRS
-    def validate_attributes(self):
-        attrs = self._attrs
-        e = []
-        for a in CromwellConf.attribute_names():
-            if a not in attrs or attrs[a] is None or attrs[a] == "null":
-                e.append(a)
-        if len(e):
-            raise Exception(f"Missing or undefined attributes: {' | '.join(e)}")
-        self.is_validated = True
-    ##-
-
+    ## RESOURCES
     @staticmethod
     def resources_dn():
         return os.path.join(os.path.dirname(__file__), "resources")
-    #-- resources_dn
 
     @staticmethod
     def template_fn():
         return os.path.join(CromwellConf.resources_dn(), "server.conf.jinja")
-    #-- template_fn
+    ##-
 
     ## SERVER
     ### conf

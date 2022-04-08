@@ -31,6 +31,9 @@ class CwCconfTest(unittest.TestCase):
         self.assertTrue(bool(default_attributes))
         self.assertEqual(type(default_attributes), dict)
         self.assertEqual(default_attributes.keys(), known_attributes.keys())
+        required_attribute_names = CromwellConf.required_attribute_names()
+        self.assertTrue(bool(required_attribute_names))
+        self.assertEqual(type(required_attribute_names), set)
 
     def test_load(self):
         attrs_n = CromwellConf.attribute_names()
