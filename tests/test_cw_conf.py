@@ -65,7 +65,18 @@ class CwCconfTest(unittest.TestCase):
         self.assertDictEqual(got, self.cc_attrs)
 
     def test_safe_load(self):
-        pass
+        dn = os.path.join(self.temp_d.name, "noyaml")
+        os.makedirs(dn)
+        os.chdir(dn)
+        cc = CromwellConf.safe_load()
+        self.assertTrue(cc)
+        #self.assertDictEqual(cc._attrs, CromwellConf.default_attributes())
+        self.assertTrue(not cc.is_validated)
+
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.safe_load()
+        self.assertTrue(cc._attrs)
+        self.assertTrue(cc.is_validated)
 
     def test_validate_attributes(self):
         cc = CromwellConf({})
