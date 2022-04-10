@@ -164,7 +164,7 @@ class CromwellConf(object):
         return os.path.join(CromwellConf.resources_dn(), "server.run.jinja")
 
     def server_run_content(self):
-        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": self.server_conf_fn})
+        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": self.server_conf_fn()})
 
     ### start
     @staticmethod
