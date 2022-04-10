@@ -25,7 +25,7 @@ class Cc1SetupCmdTest(unittest.TestCase):
         except:
             print(result.output)
             raise
-        expected_output = """Saved YAML configuration to <cw.yaml>. Fill out all attributes, then rerun this command.
+        expected_output = """Saved YAML configuration to <cw.yaml>.\nFill out the 'LSF' attributes, then rerun this command.
 """
         self.assertEqual(result.output, expected_output)
         self.assertTrue(os.path.exists("cw.yaml"))

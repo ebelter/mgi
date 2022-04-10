@@ -13,7 +13,7 @@ def setup_cmd():
     if not cc.is_validated:
         cc._attrs["CROMWELL_DIR"] = os.getcwd()
         cc.save()
-        sys.stderr.write(f"Saved YAML configuration to <{cc.yaml_fn()}>. Fill out all attributes, then rerun this command.\n")
+        sys.stderr.write(f"Saved YAML configuration to <{cc.yaml_fn()}>.\nFill out the 'LSF' attributes, then rerun this command.\n")
         sys.exit(0)
     sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
     cc.setup()
