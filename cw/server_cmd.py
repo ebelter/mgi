@@ -38,7 +38,10 @@ def server_is_running(cc):
     url = cc.getattr("CROMWELL_URL")
     if url is None:
         return False
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except:
+        return False
     return response.ok
  
 def start_server(cc):
