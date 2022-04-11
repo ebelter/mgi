@@ -11,6 +11,7 @@ RUN apt update && \
     libnss-sss \
     mailutils \
     vim \
+    zip \
   && apt clean
 
 WORKDIR /apps/cromshell/
