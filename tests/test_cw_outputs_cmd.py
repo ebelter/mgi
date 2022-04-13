@@ -75,19 +75,39 @@ class CwOutputsCmdTest(unittest.TestCase):
         self.assertEqual(shards, [[0, ["file2", "file3"]], [1, ["file2", "file3"]]])
         self.assertEqual(shard_idxs, set([0, 1, 2]))
 
-    @patch("shutil.copy")
-    def test_copy_shards_outputs(self, p):
+    def test_copy_shards_outputs(self):
         from cw.outputs_cmd import copy_shards_outputs as fun
-        sys.stdout = open(os.devnull, 'w')
-        shards = [[0, ["file2", "file3"]], [1, ["file2", "file3"]]]
-        task2_dn = os.path.join(self.destination, "task2")
-        fun(shards, task2_dn)
-        self.assertTrue(os.path.join(task2_dn))
-        self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard0")))
-        self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard1")))
+        with open(os.devnull, 'w') as stdout:
+            sys.stdout = stdout
+            shards = [[0, ["file2", "file3"]], [1, ["file2", "file3"]]]
+            task2_dn = os.path.join(self.destination, "task2")
+            fun(shards, task2_dn)
+            self.assertTrue(os.path.join(task2_dn))
+            self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard0")))
+            self.assertTrue(os.path.exists(os.path.join(task2_dn, "shard1")))
+        sys.stdout = sys.__stdout__
 
-    @patch("cw.server_cmd.start_server")
-    def test_outputs_cmd(self, p):
+    def test_list_shards_outputs(self):
+        from cw.outputs_cmd import  list_shards_outputs as fun
+        fn = os.path.join(self.temp_d.name, "stdout")
+        with open(fn, "w") as f:
+            sys.stdout = f
+            shards = [[0, ["file2", "file3"]], [1, ["file2", "file3"]]]
+            fun("generate_files", shards)
+        sys.stdout = sys.__stdout__
+
+        expected = """generate_files
+ shard 0
+  file2
+  file3
+ shard 1
+  file2
+  file3
+"""
+        with open(fn, "r") as f:
+            self.assertEqual(f.read(), expected)
+
+    def test_outputs_cmd(self):
         from cw.outputs_cmd import outputs_cmd as cmd
         runner = CliRunner()
 
@@ -167,6 +187,16 @@ class CwOutputsCmdTest(unittest.TestCase):
         metadata_fn = os.path.join(self.temp_d.name, "metadata.json")
         with open(metadata_fn, "w") as f:
             json.dump(metadata, f)
+
+        result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn, "-l"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected = f"""
+"""
+        print(result.output)
 
         result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn], catch_exceptions=False)
         try:

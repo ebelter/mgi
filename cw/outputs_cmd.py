@@ -10,6 +10,14 @@ known_pipelines = {
             "hic.create_eigenvector_10kb": ["eigenvector_bigwig", "eigenvector_wig"],
             "hic.arrowhead": ["out_file"],
             "hic.hiccups": ["merged_loops"],
+        },
+        "encode_rna": {
+            "rna.align": ["anno_flagstat", "anno_flagstat_json", "annobam", "genome_flagstat", "genome_flagstat_json", "genomebam", "log", "log_json"],
+            "rna.bam_to_signals": ["unique_minus", "unique_plus", "unique_unstranded", "all_minus", "all_plus", "all_unstranded" ], # "all_" not generated maybe because one replicate?
+            "rna.kallisto": [ "quants" ],
+            "rna.mad_qc": ["madQCmetrics", "madQCplot"], # if replicates == 2
+            "rna.rna_qc": ["rnaQC"],
+            "rna.rsem_quant": ["genes_results", "isoforms_results", "number_of_genes"],
         }
 }
 
@@ -17,7 +25,8 @@ known_pipelines = {
 @click.argument("metadata-file", type=str, required=True, nargs=1)
 @click.argument("destination", type=str, required=True, nargs=1)
 @click.argument("tasks_and_outputs", type=str, required=True, nargs=1)
-def outputs_cmd(metadata_file, destination, tasks_and_outputs):
+@click.option("--list-outputs", "-l", is_flag=True, default=False, help="List, do not copy, the outputs found in the workflow")
+def outputs_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
     """
     Gather Outputs from a Cromwell Run
 
@@ -62,9 +71,14 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs):
         shards, shard_idxs = collect_shards_outputs(task, file_keys)
         sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
 
-        # Copy shards files, use separate directory if multiple shards
-        dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
-        copy_shards_outputs(shards, dest_dn)
+        if list_outputs:
+            # List the outputs found in the workflow
+            sys.stdout.write(f"[INFO] Listing files for {task_name}\n")
+            list_shards_outputs(task_name, shards)
+        else:
+            # Copy shards files, use separate directory if multiple shards
+            dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
+            copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
 #-- outputs_cmd
 
@@ -111,3 +125,10 @@ def copy_shards_outputs(shards, dest_dn):
             sys.stdout.write(f"[INFO] Copy {fn} to {dest}\n")
             shutil.copy(fn, dest)
 #-- copy_shards_outputs
+
+def list_shards_outputs(task_name, shards):
+    print(f"{task_name}")
+    for idx, files in shards:
+        print(f" shard {idx}")
+        print("\n".join(list(map(lambda f: f"  {f}", files))))
+#-- list_shards_outputs
