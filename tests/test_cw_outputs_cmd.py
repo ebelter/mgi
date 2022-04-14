@@ -152,6 +152,14 @@ class CwOutputsCmdTest(unittest.TestCase):
                             "nocopy": "failed",
                         },
                     },
+                    {
+                        "shardIndex": 2,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file1": None,
+                            "nocopy": "failed",
+                        },
+                    },
                 ],
                 "test.task2": [
                     {
@@ -194,9 +202,29 @@ class CwOutputsCmdTest(unittest.TestCase):
         except:
             print(result.output)
             raise
-        expected = f"""
+        expected = f"""[INFO] Task <test.missing_task> files: <?>
+[WARN] No task found for <test.missing_task> ... skipping
+[INFO] Task <test.task1> files: <file1>
+[INFO] Found 3 of 3 tasks DONE
+[INFO] Listing files for test.task1
+test.task1
+ shard 0
+  {self.temp_d.name}/runs/test/UUID/call-task1/file1-1
+ shard 1
+  {self.temp_d.name}/runs/test/UUID/call-task1/file1-2
+ shard 2
+
+[INFO] Task <test.task2> files: <file2 file3>
+[INFO] Found 1 of 1 tasks DONE
+[INFO] Listing files for test.task2
+test.task2
+ shard 0
+  {self.temp_d.name}/runs/test/UUID/call-task2/file2
+  {self.temp_d.name}/runs/test/UUID/call-task2/file3
+[INFO] Done
 """
-        print(result.output)
+        self.maxDiff = 10000
+        self.assertEqual(result.output, expected)
 
         result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn], catch_exceptions=False)
         try:
@@ -207,7 +235,7 @@ class CwOutputsCmdTest(unittest.TestCase):
         expected = f"""[INFO] Task <test.missing_task> files: <?>
 [WARN] No task found for <test.missing_task> ... skipping
 [INFO] Task <test.task1> files: <file1>
-[INFO] Found 2 of 2 tasks DONE
+[INFO] Found 3 of 3 tasks DONE
 [INFO] Copy {task1_file1_1} to {self.temp_d.name}/outputs/task1/shard0
 [INFO] Copy {task1_file1_2} to {self.temp_d.name}/outputs/task1/shard1
 [INFO] Task <test.task2> files: <file2 file3>

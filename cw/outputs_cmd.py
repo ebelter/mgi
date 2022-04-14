@@ -102,7 +102,9 @@ def collect_shards_outputs(task, output_keys):
             continue
         files_to_copy = []
         for k in output_keys:
-            files = call["outputs"][k]
+            files = call["outputs"].get(k, None)
+            if files is None:
+                continue
             if type(files) is str:
                 files = [files]
             files_to_copy += files
