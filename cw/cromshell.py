@@ -1,7 +1,7 @@
 import os, subprocess, sys
 
 def config_dn():
-    return os.path.join("apps", "cromshell", ".cromshell")
+    return os.path.join(os.sep, "apps", "cromshell", ".cromshell")
 #--
 
 def server_fn():
