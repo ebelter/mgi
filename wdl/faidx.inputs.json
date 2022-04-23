@@ -1,5 +1,5 @@
 {
-    "sizes": true,
-    "docker": "biocontainers/samtools:v1.9-4-deb_cv1",
-    "": ""
+    "samtools.fasta": "/scratch1/fs1/hprc/rna/CHM13-files/CHM13v2.0.fa.gz",
+    "samtools.sizes": true,
+    "samtools.docker": "ebelter/samtools:1.15.1"
 }

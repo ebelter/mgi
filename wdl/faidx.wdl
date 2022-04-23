@@ -1,17 +1,18 @@
+version 1.0
 
 struct RunEnv {
   String docker
-  Int cpus = 1
-  Int mem = 4
-  Int disk = 20
+  Int cpu
+  Int memory
+  #Int disks
 }
 
 workflow samtools {
-      input {
+    input {
         File fasta
         Boolean sizes = false
         String docker
-        Int cpus = 1
+        Int cpu = 1
         Int memory = 4
         #Int disks = 20
     }
@@ -25,32 +26,37 @@ workflow samtools {
 
     call faidx {
         input:
-            fasta=
+            fasta=fasta,
             runenv=runenv
-        }
+    }
+
+    output {
+        File fai = faidx.fai
+        File gzi = faidx.gzi
     }
 }
 
 task faidx {
     input {
         File fasta
-        String docker
-        Int cpus
-        Int mem
-        Int disk
+        RunEnv runenv
     }
-    File idx = "~{fasta}.faidx"
-    output {
-        File idx = idx
-    }
-    runtime {
-      docker: runenv.docker
-      cpu: runenv.cpu
-      memory: runenv.memory + " GB"
-      disks : select_first([runenv.disks,"local-disk 100 SSD"])
-      singularity: runtime_environment.singularity
-    }
+
+    String bn = basename(fasta)
+
     command {
-      samtools faidx ${fasta} -o ${idx}
+        samtools faidx ${fasta} --fai-idx ${bn + ".fai"} --gzi-idx ${bn + ".gzi"}
+    }
+
+    output {
+        File fai = "${bn}.fai"
+				File gzi = "${bn}.gzi"
+    }
+
+    runtime {
+        docker: runenv.docker
+        cpu: runenv.cpu
+        memory: runenv.memory + " GB"
+        #disks : select_first([runenv.disks,"local-disk 100 SSD"])
     }
 }
