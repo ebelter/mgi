@@ -1,0 +1,13 @@
+rna.align:
+- flagstat
+- flagstat_json
+- bam
+- log
+- log_json
+rna.bam_to_signals:
+- unique_minus
+- unique_plus
+- unique_unstranded
+- all_minus
+- all_plus
+- all_unstranded
