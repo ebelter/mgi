@@ -24,6 +24,28 @@ class CwServerTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
+    @patch("requests.get")
+    def test_server(self, requests_p):
+        from cw.server import server_factory
+
+        server = server_factory()
+        self.assertTrue(bool(server))
+
+        # is_running
+        # no host
+        url = "http://host:port"
+        self.assertFalse(server.is_running())
+        requests_p.assert_not_called()
+        # has host, but not running
+        server.host = self.server_host
+        requests_p.return_value = MagicMock(ok=False, content="1")
+        self.assertFalse(server.is_running())
+        requests_p.assert_called_with(server.url())
+        # running
+        requests_p.return_value = MagicMock(ok=True, content="1")
+        self.assertTrue(server.is_running())
+        requests_p.assert_called_with(server.url())
+
     def test_server_cli(self):
         runner = CliRunner()
         from cw.server import cli
@@ -32,20 +54,6 @@ class CwServerTest(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         result = runner.invoke(cli, [])
         self.assertEqual(result.exit_code, 0)
-
-    @patch("requests.get")
-    def test_server_is_running(self, requests_p):
-        from cw.server import server_is_running as fun
-        requests_p.return_value = MagicMock(ok=True, content="1")
-        url = "http://host:port"
-        self.cc.setattr("CROMWELL_URL", url)
-        rv = fun(self.cc)
-        requests_p.assert_called_with(url)
-        self.assertTrue(rv)
-
-        requests_p.return_value = MagicMock(ok=False, content="1")
-        rv = fun(self.cc)
-        self.assertFalse(rv)
 
     @patch("subprocess.check_output")
     def test_start_server(self, co_p):
@@ -72,18 +80,22 @@ class CwServerTest(unittest.TestCase):
         with self.assertRaisesRegex(Exception, f"Seems server <{self.server_job_id}> IS DONE/EXIT. Fix and try again!"):
             fun(self.server_job_id)
 
-    @patch("cw.server.server_is_running")
+    @patch("cw.server.server_factory")
     @patch("cw.server.start_server")
     @patch("cw.server.wait_for_host")
     @patch("cw.cromshell.config_dn")
-    def test_start_cmd(self, dn_p, wait_p, start_p, running_p):
+    def test_start_cmd(self, dn_p, wait_p, start_p, factory_p):
         from cw.server import start_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-        running_p.return_value = False
+        server = MagicMock(host=self.server_host, port="8888", **{"is_running.return_value": False})
+        #attrs = {'method.return_value': 3, 'other.side_effect': KeyError}
+        #server.configure_mock(**attrs)
+
+        factory_p.return_value = server
         start_p.return_value = self.server_job_id
         host = "compute1-exec-225.ris.wustl.edu"
         wait_p.return_value = host
@@ -112,7 +124,7 @@ Server ready!
         self.assertEqual(updated_attrs["CROMWELL_URL"], url)
 
         # Try to run while server already running
-        running_p.return_value = True
+        server.is_running.return_value = True
         result = runner.invoke(cmd, [], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)

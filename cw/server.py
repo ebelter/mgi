@@ -3,6 +3,38 @@ import click, os, re, requests, subprocess, sys, time, yaml
 from cw.conf import CromwellConf
 import cw.cromshell
 
+def server_factory():
+    cc = CromwellConf.load()
+    host = cc.getattr("CROMWELL_URL")
+    port = cc.getattr("CROMWELL_PORT")
+    return Server(host, port)
+#-- server_factory
+
+class Server(object):
+    def __init__(self, host=None, port="8888"):
+        self.host = host
+        self.port = port
+
+    def url(self):
+        if self.host is None:
+            return None
+        return f"http://{self.host}:{self.port}"
+
+    def is_running(self):
+        url = self.url()
+        if url is None:
+            return False
+        response = self.query(url)
+        return response.ok
+
+    def query(self, url):
+        try:
+            response = requests.get(url)
+        except:
+            return False
+        return response
+#-- Server
+
 @click.group()
 def cli():
     pass
@@ -15,8 +47,8 @@ def start_cmd():
      This command will the run server script (server/start), then wait for the job to start and update the configuration YAML (cw.yaml) with the host name of the cromwell server.
     """
     cc = CromwellConf.load()
-
-    if server_is_running(cc):
+    server = server_factory()
+    if server.is_running():
         sys.stdout.write(f"Server is already up and running at <{cc.getattr('CROMWELL_URL')}>\n")
         sys.exit(0)
 
@@ -38,16 +70,6 @@ def start_cmd():
     sys.stdout.write("Server ready!\n")
 cli.add_command(start_cmd, name="start")
 
-def server_is_running(cc):
-    url = cc.getattr("CROMWELL_URL")
-    if url is None:
-        return False
-    try:
-        response = requests.get(url)
-    except:
-        return False
-    return response.ok
- 
 def start_server(cc):
     # Launch server, return lsf job id
     server_start_fn = cc.server_start_fn()
