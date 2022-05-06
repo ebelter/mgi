@@ -17,8 +17,8 @@ cli.add_command(cmd, "outputs")
 from cw.printc_cmd import printc_cmd as cmd
 cli.add_command(cmd, "printc")
 
-from cw.server_cmd import server_cmd as cmd
-cli.add_command(cmd, "server")
+from cw.server import cli as server_cli
+cli.add_command(server_cli, "server")
 
 from cw.setup_cmd import setup_cmd as cmd
 cli.add_command(cmd, "setup")

@@ -3,8 +3,12 @@ import click, os, re, requests, subprocess, sys, time, yaml
 from cw.conf import CromwellConf
 import cw.cromshell
 
+@click.group()
+def cli():
+    pass
+
 @click.command(short_help="Start a cromwell server")
-def server_cmd():
+def start_cmd():
     """
     Start a Cromwell Server on LSF
 
@@ -32,7 +36,7 @@ def server_cmd():
     rv, msg = cw.cromshell.update_server(url)
     sys.stderr.write(msg)
     sys.stdout.write("Server ready!\n")
-#-- server_cmd
+cli.add_command(start_cmd, name="start")
 
 def server_is_running(cc):
     url = cc.getattr("CROMWELL_URL")
@@ -76,3 +80,25 @@ def wait_for_host(job_id):
         raise Exception(f"Seems server job is not starting. Fix and try again.")
     return host
 #--
+
+@click.command(short_help="Stop the cromwell server")
+def stop_cmd():
+    """
+    Stop the Cromwell Server
+    """
+    cc = CromwellConf.load()
+    job_id = cc.getattr("CROMWELL_JOB_ID")
+    if job_id is None:
+        sys.stdout.write(f"No job id found in configuration, cannot stop server\n")
+        return
+    url = cc.getattr("CROMWELL_URL")
+    sys.stdout.write(f"Server URL: <{url}>\n")
+    sys.stdout.write(f"Stopping job <{job_id}>\n")
+    cmd = ["bkill", job_id]
+    subprocess.call(cmd)
+    sys.stdout.write(f"Updating YAML file <cw.yaml>\n")
+    url = cc.setattr("CROMWELL_JOB_ID", None)
+    url = cc.setattr("CROMWELL_HOST", None)
+    url = cc.setattr("CROMWELL_URL", None)
+    cc.save()
+cli.add_command(stop_cmd, name="stop")
