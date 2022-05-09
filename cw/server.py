@@ -5,7 +5,7 @@ import cw.cromshell
 
 def server_factory():
     cc = CromwellConf.load()
-    host = cc.getattr("CROMWELL_URL")
+    host = cc.getattr("CROMWELL_HOST")
     port = cc.getattr("CROMWELL_PORT")
     return Server(host, port)
 #-- server_factory

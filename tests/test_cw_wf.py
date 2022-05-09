@@ -53,7 +53,24 @@ class CwWfTest(unittest.TestCase):
         except:
             print(result.output)
             raise
-        expected_output = f"""Workflow ID: WF_ID
+        expected_output = f"""URL: http://compute1-exec-225.ris.wustl.edu:8888/api/workflows/v1/WF_ID/status
+Failed to get response from server at http://compute1-exec-225.ris.wustl.edu:8888/api/workflows/v1/WF_ID/status
+"""
+        self.assertEqual(result.output, expected_output)
+        requests_p.assert_called()
+
+        response = MagicMock(ok=True, content=b'{"status":"Succeeded","id":"WF_ID"}')
+        requests_p.return_value = response
+
+        os.chdir(self.temp_d.name)
+        result = runner.invoke(cmd, ["WF_ID"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"""URL: http://compute1-exec-225.ris.wustl.edu:8888/api/workflows/v1/WF_ID/status
+Workflow ID: WF_ID
 Status:      Succeeded
 """
         self.assertEqual(result.output, expected_output)
