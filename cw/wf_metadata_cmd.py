@@ -14,4 +14,4 @@ def metadata_cmd(workflow_id):
     if not response or not response.ok:
         sys.stderr.write(f"Failed to get response from server at {url}\n")
         return 3
-    sys.stdout.write(f"{response.content.decode()}")
+    sys.stdout.write(f"{json.dumps(json.loads(response.content.decode()), indent=4)}")
