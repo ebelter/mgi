@@ -25,3 +25,6 @@ def status_cmd(workflow_id):
     sys.stdout.write(f"Workflow ID: {info['id']}\n")
     sys.stdout.write(f"Status:      {info['status']}\n")
 cli.add_command(status_cmd, name="status")
+
+from cw.wf_metadata_cmd import metadata_cmd as cmd
+cli.add_command(cmd, name="metadata")
