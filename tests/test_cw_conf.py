@@ -102,6 +102,10 @@ class CwCconfTest(unittest.TestCase):
         expected = os.path.join(expected_dn, "server.conf.jinja")
         self.assertEqual(got, expected)
 
+        got = CromwellConf.server_pipelines_data_fn()
+        expected = os.path.join(expected_dn, "server.pipelines.yaml")
+        self.assertEqual(got, expected)
+
         got = CromwellConf.server_run_template_fn()
         expected = os.path.join(expected_dn, "server.run.jinja")
         self.assertEqual(got, expected)
@@ -131,6 +135,16 @@ class CwCconfTest(unittest.TestCase):
         self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.dir_for('wf_logs')}\"")
         self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
 
+    def test_server_pipelines(self):
+        os.chdir(self.temp_d.name)
+        cc = CromwellConf.load()
+
+        template_fn = cc.server_pipelines_data_fn()
+        self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.pipelines.yaml"))
+        content = cc.server_pipelines_content()
+        pipelines = yaml.safe_load(content)
+        self.assertTrue(pipelines.get("pipelines", None))
+
     def test_server_run(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
@@ -138,7 +152,7 @@ class CwCconfTest(unittest.TestCase):
         template_fn = cc.server_run_template_fn()
         self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.run.jinja"))
         content = cc.server_run_content()
-        self.assertRegex(content, f"file={cc.server_conf_fn}")
+        self.assertRegex(content, f"file={cc.server_conf_fn()}")
 
     def test_server_start(self):
         os.chdir(self.temp_d.name)

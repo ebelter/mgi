@@ -1,0 +1,5 @@
+pipelines:
+  rna-seq:
+  - wdl
+  - imports
+worflows: {}

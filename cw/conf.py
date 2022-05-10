@@ -126,7 +126,7 @@ class CromwellConf(object):
 
     def write_server_files(self):
         server_dn = self.dir_for("server")
-        for name in ("conf", "run", "start"):
+        for name in ("conf", "pipelines", "run", "start"):
             fn =  getattr(self, f"server_{name}_fn")
             fun = getattr(self, f"server_{name}_content")
             with open(fn(), "w") as f:
@@ -176,6 +176,19 @@ class CromwellConf(object):
 
     def server_start_content(self):
         return self._generate_content(template_fn=CromwellConf.server_start_template_fn())
+
+    ### pipelines
+    def server_pipelines_fn(self):
+        return os.path.join(self.dir_for("server"), "pipelines")
+
+    @staticmethod
+    def server_pipelines_data_fn():
+        return os.path.join(CromwellConf.resources_dn(), "server.pipelines.yaml")
+
+    def server_pipelines_content(self):
+        with open(self.server_pipelines_data_fn(), "r") as f:
+            content = f.read()
+        return content
 
     ###
     def _generate_content(self, template_fn, attrs={}):
