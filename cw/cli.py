@@ -14,6 +14,9 @@ cli.add_command(cmd, "heartbeat")
 from cw.outputs_cmd import outputs_cmd as cmd
 cli.add_command(cmd, "outputs")
 
+from cw.pipelines import cli as pipelines_cli
+cli.add_command(pipelines_cli, "pipelines")
+
 from cw.printc_cmd import printc_cmd as cmd
 cli.add_command(cmd, "printc")
 
