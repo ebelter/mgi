@@ -4,22 +4,25 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 
+from cw.conf import CromwellConf
+
 app = Flask(__name__)
-#default_db_fn = db_url_for_file(os.path.join("server", "db"))
 app.config['SQLALCHEMY_DATABASE_URI'] = None
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-def create(url):
-    engine = create_engine(url)
+def create():
+    engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
     db.metadata.create_all(engine)
 
-def url_for_file(fn):
+def sqlite_uri_for_file(fn):
     return 'sqlite:///' + os.path.abspath(fn)
 
-def set_url(db_url):
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+def connect(db_uri=None):
+    if db_uri is None:
+        db_uri = sqlite_uri_for_file(os.path.join(CromwellConf.db_fn))
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 
 class Pipeline(db.Model):
     __tablename__ = 'pipeline'

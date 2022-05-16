@@ -7,9 +7,9 @@ class BaseWithDb(unittest.TestCase):
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
         self.db_fn = os.path.join(self.temp_d.name, "db")
-        self.db_url = "sqlite:///" + os.path.join(self.temp_d.name, "db")
-        cw.db.set_url(self.db_url)
-        cw.db.create(self.db_url)
+        self.db_url = cw.db.sqlite_uri_for_file(os.path.join(self.temp_d.name, "db"))
+        cw.db.connect(self.db_url)
+        cw.db.create()
 
     def setUp(self):
         pass
