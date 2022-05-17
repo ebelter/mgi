@@ -1,7 +1,6 @@
 import click, os, sys, tabulate, yaml
-from cw.conf import CromwellConf
-from cw.db import connect, db, Pipeline
-import cw.db
+
+from cw.app import connect, db, Pipeline
 
 @click.group()
 def cli():

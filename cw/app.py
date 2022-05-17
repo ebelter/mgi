@@ -10,7 +10,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-import cw.models
+from cw.conf import CromwellConf
+from cw.models import Config, Pipeline, Workflow
 
 def create():
     engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])

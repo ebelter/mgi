@@ -1,17 +1,11 @@
-import click, json, os, sys
-
-import cw.server
+import click, sys, tabulate
+from cw.app import connect, db, Workflow
 
 #curl --connect-timeout 5 --max-time 10 -s http://compute1-exec-226.ris.wustl.edu:8888/api/workflows/v1/c808fe24-0edd-46c4-ba23-ff881725e297/status {"status":"Succeeded","id":"c808fe24-0edd-46c4-ba23-ff881725e297"}
 
 @click.group()
 def cli():
     pass
-
-import click, os, sys, tabulate, yaml
-from cw.conf import CromwellConf
-from cw.db import connect, db, Workflow
-import cw.db
 
 @click.command(short_help="add a workflow")
 @click.argument("wf_id", required=True, nargs=1)
