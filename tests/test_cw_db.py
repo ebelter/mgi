@@ -20,9 +20,21 @@ class DbTest(BaseWithDb):
         create()
         self.assertTrue(os.path.exists(db_fn))
 
-    def test1_db(self):
+    def test0_db(self):
         from cw.db import db
         self.assertTrue(db)
+
+    def test1_config(self):
+        from cw.db import db, Config
+        c = Config(name="status", group="server", value="running")
+        db.session.add(c)
+        db.session.commit()
+        configs = Config.query.all()
+        self.assertTrue(configs)
+        self.assertEqual(len(configs), 1)
+        self.assertTrue(configs[0].name)
+        self.assertTrue(configs[0].group)
+        self.assertTrue(configs[0].value)
 
     def test2_pipeline(self):
         from cw.db import db, Pipeline
@@ -39,7 +51,7 @@ class DbTest(BaseWithDb):
 
     def test3_workflow(self):
         from cw.db import db, Workflow
-        wf = Workflow(name="SAMPLE", pipeline_id=0)
+        wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0)
         db.session.add(wf)
         db.session.commit()
         wfs = Workflow.query.all()
