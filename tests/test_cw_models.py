@@ -1,31 +1,11 @@
-import os, tempfile, unittest
+import unittest
 from tests.test_cw_base import BaseWithDb
-import cw.db
 
 class DbTest(BaseWithDb):
 
-    def test0(self):
-        from cw.db import app, connect, create, sqlite_uri_for_file
-        db_fn = os.path.join(self.temp_d.name, "newdb")
-        db_uri = sqlite_uri_for_file(db_fn)
-        self.assertEqual(sqlite_uri_for_file(db_fn), "sqlite:///"+os.path.join(self.temp_d.name, "newdb"))
-
-        self.assertFalse(os.path.exists(db_fn))
-        connect(db_uri)
-        self.assertEqual(app.config["SQLALCHEMY_DATABASE_URI"], db_uri)
-        self.assertFalse(app.config["SQLALCHEMY_TRACK_MODIFICATIONS"])
-        self.assertFalse(os.path.exists(db_fn))
-        db = connect(db_uri)
-        self.assertTrue(db)
-        create()
-        self.assertTrue(os.path.exists(db_fn))
-
-    def test0_db(self):
-        from cw.db import db
-        self.assertTrue(db)
-
     def test1_config(self):
-        from cw.db import db, Config
+        from cw.app import db
+        from cw.models import Config
         c = Config(name="status", group="server", value="running")
         db.session.add(c)
         db.session.commit()
@@ -37,7 +17,8 @@ class DbTest(BaseWithDb):
         self.assertTrue(configs[0].value)
 
     def test2_pipeline(self):
-        from cw.db import db, Pipeline
+        from cw.app import db
+        from cw.models import Pipeline
         p = Pipeline(name="align", wdl="wdl", imports=None)
         db.session.add(p)
         db.session.commit()
@@ -50,7 +31,8 @@ class DbTest(BaseWithDb):
         self.assertEqual(len(pipelines[0].workflows.all()), 0)
 
     def test3_workflow(self):
-        from cw.db import db, Workflow
+        from cw.app import db
+        from cw.models import Workflow
         wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0)
         db.session.add(wf)
         db.session.commit()
