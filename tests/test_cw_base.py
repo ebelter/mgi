@@ -1,5 +1,6 @@
 import os, tempfile, unittest
 import cw.app
+from cw.helpers import sqlite_uri_for_file
 
 class BaseWithDb(unittest.TestCase):
     @classmethod
@@ -8,7 +9,7 @@ class BaseWithDb(unittest.TestCase):
         os.chdir(self.temp_d.name)
         os.makedirs("server")
         self.db_fn = os.path.join(self.temp_d.name, "server", "db")
-        self.db_uri = cw.app.sqlite_uri_for_file(self.db_fn)
+        self.db_uri = sqlite_uri_for_file(self.db_fn)
         cw.app.connect(self.db_uri)
         cw.app.create()
 

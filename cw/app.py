@@ -11,14 +11,12 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 from cw.conf import CromwellConf
+from cw.helpers import sqlite_uri_for_file
 from cw.models import Config, Pipeline, Workflow
 
 def create():
     engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
     db.metadata.create_all(engine)
-
-def sqlite_uri_for_file(fn):
-    return 'sqlite:///' + os.path.abspath(fn)
 
 def connect(db_uri=None):
     if db_uri is None:
