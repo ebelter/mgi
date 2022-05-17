@@ -39,6 +39,9 @@ class Server(object):
 def cli():
     pass
 
+from cw.heartbeat_cmd import heartbeat_cmd as cmd
+cli.add_command(cmd, "heartbeat")
+
 @click.command(short_help="Start a cromwell server")
 def start_cmd():
     """
