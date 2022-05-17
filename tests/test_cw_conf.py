@@ -135,7 +135,8 @@ class CwCconfTest(unittest.TestCase):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
         server_db_fn = cc.server_db_fn()
-        self.assertEqual(server_db_fn, os.path.join(self.temp_d.name,"server", "db"))
+        self.assertEqual(server_db_fn, os.path.join("server", "db"))
+        #self.assertEqual(server_db_fn, os.path.join(self.temp_d.name, "server", "db"))
 
     def test_server_run(self):
         os.chdir(self.temp_d.name)

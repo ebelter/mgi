@@ -6,9 +6,10 @@ class BaseWithDb(unittest.TestCase):
     def setUpClass(self):
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
-        self.db_fn = os.path.join(self.temp_d.name, "db")
-        self.db_url = cw.db.sqlite_uri_for_file(os.path.join(self.temp_d.name, "db"))
-        cw.db.connect(self.db_url)
+        os.makedirs("server")
+        self.db_fn = os.path.join(self.temp_d.name, "server", "db")
+        self.db_uri = cw.db.sqlite_uri_for_file(self.db_fn)
+        cw.db.connect(self.db_uri)
         cw.db.create()
 
     def setUp(self):
@@ -23,7 +24,7 @@ class BaseWithDbTest(BaseWithDb):
         self.assertTrue(bool(self.temp_d))
         self.assertTrue(bool(self.db_fn))
         self.assertTrue(os.path.exists(self.db_fn))
-        self.assertEqual(cw.db.app.config["SQLALCHEMY_DATABASE_URI"], self.db_url)
+        self.assertEqual(cw.db.app.config["SQLALCHEMY_DATABASE_URI"], self.db_uri)
 #-- BaseWithDbTest
 
 if __name__ == '__main__':

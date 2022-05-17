@@ -15,7 +15,8 @@ class DbTest(BaseWithDb):
         self.assertEqual(app.config["SQLALCHEMY_DATABASE_URI"], db_uri)
         self.assertFalse(app.config["SQLALCHEMY_TRACK_MODIFICATIONS"])
         self.assertFalse(os.path.exists(db_fn))
-        connect(db_uri)
+        db = connect(db_uri)
+        self.assertTrue(db)
         create()
         self.assertTrue(os.path.exists(db_fn))
 
@@ -25,14 +26,13 @@ class DbTest(BaseWithDb):
 
     def test2_pipeline(self):
         from cw.db import db, Pipeline
-        p = Pipeline(name="align", kind="mgi", wdl="wdl", imports=None)
+        p = Pipeline(name="align", wdl="wdl", imports=None)
         db.session.add(p)
         db.session.commit()
         pipelines = Pipeline.query.all()
         self.assertTrue(pipelines)
         self.assertEqual(len(pipelines), 1)
         self.assertTrue(pipelines[0].name)
-        self.assertTrue(pipelines[0].kind)
         self.assertTrue(pipelines[0].wdl)
         self.assertFalse(pipelines[0].imports)
         self.assertEqual(len(pipelines[0].workflows.all()), 0)

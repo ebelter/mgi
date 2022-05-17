@@ -155,8 +155,9 @@ class CromwellConf(object):
         return template.render(attrs)
 
     ### db
-    def server_db_fn(self):
-        return os.path.join(self.dir_for("server"), "db")
+    @staticmethod
+    def server_db_fn():
+        return os.path.join("server", "db")
 
     ### run
     def server_run_fn(self):
