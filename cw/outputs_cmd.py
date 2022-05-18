@@ -1,6 +1,5 @@
 import click, json, os, re, shutil, sys, yaml
 
-from cw.conf import CromwellConf
 known_pipelines = {
         "encode_hic": {
             "hic.merge_replicates": ["bam"], # merged bam

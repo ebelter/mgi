@@ -5,8 +5,8 @@ import cw.cromshell
 
 def server_factory():
     cc = CromwellConf.load()
-    host = cc.getattr("CROMWELL_HOST")
-    port = cc.getattr("CROMWELL_PORT")
+    host = cc.get("CROMWELL_HOST")
+    port = cc.get("CROMWELL_PORT")
     return Server(host, port)
 #-- server_factory
 
@@ -52,20 +52,20 @@ def start_cmd():
     cc = CromwellConf.load()
     server = server_factory()
     if server.is_running():
-        sys.stdout.write(f"Server is already up and running at <{cc.getattr('CROMWELL_URL')}>\n")
+        sys.stdout.write(f"Server is already up and running at <{cc.get('CROMWELL_URL')}>\n")
         sys.exit(0)
 
     job_id = start_server(cc)
     sys.stdout.write(f"Waiting for job <{job_id}> to start to obtain HOST...\n")
 
     host = wait_for_host(job_id)
-    port = cc.getattr('CROMWELL_PORT')
+    port = cc.get('CROMWELL_PORT')
     sys.stdout.write(f"Server running on <{host}> port <{port}>\n")
 
-    cc.setattr("CROMWELL_JOB_ID", job_id)
-    cc.setattr("CROMWELL_HOST", host)
+    cc.set("CROMWELL_JOB_ID", job_id)
+    cc.set("CROMWELL_HOST", host)
     url = f"http://{host}:{port}"
-    cc.setattr("CROMWELL_URL", url)
+    cc.set("CROMWELL_URL", url)
     sys.stdout.write(f"Updating YAML file <{cc.yaml_fn()}>\n")
     cc.save()
     rv, msg = cw.cromshell.update_server(url)
@@ -112,18 +112,18 @@ def stop_cmd():
     Stop the Cromwell Server
     """
     cc = CromwellConf.load()
-    job_id = cc.getattr("CROMWELL_JOB_ID")
+    job_id = cc.get("CROMWELL_JOB_ID")
     if job_id is None:
         sys.stdout.write(f"No job id found in configuration, cannot stop server\n")
         return
-    url = cc.getattr("CROMWELL_URL")
+    url = cc.get("CROMWELL_URL")
     sys.stdout.write(f"Server URL: <{url}>\n")
     sys.stdout.write(f"Stopping job <{job_id}>\n")
     cmd = ["bkill", job_id]
     subprocess.call(cmd)
     sys.stdout.write(f"Updating YAML file <cw.yaml>\n")
-    url = cc.setattr("CROMWELL_JOB_ID", None)
-    url = cc.setattr("CROMWELL_HOST", None)
-    url = cc.setattr("CROMWELL_URL", None)
+    url = cc.set("CROMWELL_JOB_ID", None)
+    url = cc.set("CROMWELL_HOST", None)
+    url = cc.set("CROMWELL_URL", None)
     cc.save()
 cli.add_command(stop_cmd, name="stop")

@@ -6,6 +6,15 @@ class CromwellConf(object):
         self.is_validated = False
 
     ## ATTRIBUTES
+    def get(self, name, group="general"):
+        if name in self._attrs:
+            return self._attrs[name]
+        return None
+
+    def set(self, name, value, group="general"):
+        self._attrs[name] = value
+        return value
+
     def getattr(self, name):
         if name not in self.attribute_names():
             raise Exception(f"Unknown attribute <{name}>")
@@ -59,7 +68,7 @@ class CromwellConf(object):
     def validate_attributes(self):
         e = []
         for name in CromwellConf.required_attribute_names():
-            value = self.getattr(name)
+            value = self.get(name)
             if value is None:#if a not in attrs or attrs[a] is None or attrs[a] == "null":
                 e.append(name)
         if len(e):

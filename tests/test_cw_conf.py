@@ -44,6 +44,13 @@ class CwCconfTest(unittest.TestCase):
         self.assertEqual(cc.getattr("CROMWELL_PORT"), cc._attrs["CROMWELL_PORT"])
         self.assertEqual(cc.getattr("CROMWELL_PORT"), "9999")
 
+        self.assertEqual(cc.get("CROMWELL_PORT"), default_attributes["CROMWELL_PORT"])
+        self.assertEqual(cc.get("CROMWELL_PORT"), cc._attrs["CROMWELL_PORT"])
+        cc.CROMWELL_PORT = "9999"
+        self.assertEqual(cc.set("CROMWELL_PORT", "9999"), "9999")
+        self.assertEqual(cc.get("CROMWELL_PORT"), cc._attrs["CROMWELL_PORT"])
+        self.assertEqual(cc.get("CROMWELL_PORT"), "9999")
+
     def test_load(self):
         attrs_n = CromwellConf.attribute_names()
         self.assertEqual(len(attrs_n), 9)
