@@ -1,6 +1,6 @@
 import click, os, sys, tabulate, yaml
 
-from cw.app import connect, db, Pipeline
+from cw.models import db, Pipeline
 
 @click.group()
 def cli():
@@ -20,7 +20,6 @@ def add_cmd(name, wdl, imports):
         raise Exception(f"FAILED to add pipeline: WDL file <{wdl}> does not exist.\n")
     if imports is not None and not os.path.exists(imports):
         raise Exception(f"FAILED to add pipeline: Imports file <{imports}> does not exist.\n")
-    db = connect()
     p = Pipeline(name=name, wdl=wdl)
     db.session.add(p)
     db.session.commit()
@@ -32,7 +31,6 @@ def list_cmd():
     """
     List Pipelines
     """
-    db = connect()
     pipelines = Pipeline.query.all()
     if len(pipelines) == 0:
         sys.stderr.write(f"No pipelines found in pipleines db")

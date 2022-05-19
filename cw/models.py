@@ -1,4 +1,4 @@
-from cw.app import db
+from cw import db
 
 class Config(db.Model):
     __tablename__ = 'config'

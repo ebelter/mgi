@@ -1,10 +1,9 @@
-import unittest
-from tests.test_cw_base import BaseWithDb
+import os, unittest
+from tests.test_cw_base import BaseWithDb, db
 
 class DbTest(BaseWithDb):
 
     def test1_config(self):
-        from cw.app import db
         from cw.models import Config
         c = Config(name="status", group="server", value="running")
         db.session.add(c)
@@ -17,7 +16,6 @@ class DbTest(BaseWithDb):
         self.assertTrue(configs[0].value)
 
     def test2_pipeline(self):
-        from cw.app import db
         from cw.models import Pipeline
         p = Pipeline(name="align", wdl="wdl", imports=None)
         db.session.add(p)
@@ -31,7 +29,6 @@ class DbTest(BaseWithDb):
         self.assertEqual(len(pipelines[0].workflows.all()), 0)
 
     def test3_workflow(self):
-        from cw.app import db
         from cw.models import Workflow
         wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0)
         db.session.add(wf)

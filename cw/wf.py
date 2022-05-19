@@ -1,5 +1,5 @@
 import click, sys, tabulate
-from cw.app import connect, db, Workflow
+from cw import db, Workflow
 
 #curl --connect-timeout 5 --max-time 10 -s http://compute1-exec-226.ris.wustl.edu:8888/api/workflows/v1/c808fe24-0edd-46c4-ba23-ff881725e297/status {"status":"Succeeded","id":"c808fe24-0edd-46c4-ba23-ff881725e297"}
 
@@ -18,7 +18,6 @@ def add_cmd(wf_id, name, status, pipeline):
 
     Give workflow id, name, status, and pipeline. Optionally give the status and pipeline.
     """
-    db = connect()
     wf = Workflow(wf_id=wf_id, name=name, status=status, pipeline_id=pipeline)
     db.session.add(wf)
     db.session.commit()
@@ -30,7 +29,6 @@ def list_cmd():
     """
     List Workflows
     """
-    db = connect()
     workflows = Workflow.query.all()
     if len(workflows) == 0:
         sys.stderr.write(f"No workflows found in db")
