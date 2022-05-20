@@ -29,5 +29,24 @@ class BaseWithDbTest(BaseWithDb):
         self.assertEqual(flask_app.config["SQLALCHEMY_DATABASE_URI"], self.db_uri)
 #-- BaseWithDbTest
 
+class CwTest(BaseWithDb):
+    def test_db(self):
+        from cw import db
+        self.assertTrue(db)
+    def test_conf(self):
+        from cw import appcon, Config
+        self.assertTrue(appcon)
+        v = appcon.get("foo")
+        self.assertEqual(v, None)
+        v = appcon.set("foo", "bar")
+        self.assertEqual(v, "bar")
+        c = Config.query.filter(Config.group == "general", Config.name == "foo").one_or_none()
+        self.assertEqual(c.value, "bar")
+        v = appcon.set("foo", "baz")
+        self.assertEqual(v, "baz")
+        c = Config.query.filter(Config.group == "general", Config.name == "foo").one_or_none()
+        self.assertEqual(c.value, "baz")
+#-- CwTest
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
