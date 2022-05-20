@@ -1,6 +1,7 @@
 import click, os, sys, yaml
 
 from cw.conf import CromwellConf
+from cw import create_db, db
 
 @click.command(short_help="setup cromwell")
 def setup_cmd():
@@ -17,4 +18,5 @@ def setup_cmd():
         sys.exit(0)
     sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
     cc.setup()
+    create_db()
 #-- setup_cmd

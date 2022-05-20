@@ -1,9 +1,6 @@
 import click, os, tempfile, unittest, yaml
 from click.testing import CliRunner
 
-from cw.conf import CromwellConf
-from cw.setup_cmd import setup_cmd as cmd
-
 class Cc1SetupCmdTest(unittest.TestCase):
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
@@ -12,6 +9,8 @@ class Cc1SetupCmdTest(unittest.TestCase):
         self.temp_d.cleanup()
 
     def test_setup_cmd_no_yaml(self):
+        from cw.setup_cmd import setup_cmd as cmd
+        from cw.conf import CromwellConf
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
@@ -34,14 +33,18 @@ class Cc1SetupCmdTest(unittest.TestCase):
         self.assertTrue(attrs["CROMWELL_DIR"], self.temp_d.name)
 
     def test_setup_cmd(self):
+        os.chdir(self.temp_d.name)
+        from cw import Config
+        from cw.setup_cmd import setup_cmd as cmd
+        from cw.conf import CromwellConf
         runner = CliRunner()
 
         attrs = dict.fromkeys(CromwellConf.attribute_names(), "TEST")
         attrs["CROMWELL_DIR"] = self.temp_d.name
-        os.chdir(self.temp_d.name)
         yaml_fn = "cw.yaml"
         with open(yaml_fn, "w") as f:
             f.write(yaml.dump(attrs))
+
         result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
@@ -57,6 +60,9 @@ class Cc1SetupCmdTest(unittest.TestCase):
         for attr_n in cc._attrs.keys():
             if not attr_n.endswith("_DIR"): continue
             self.assertTrue(os.path.exists(cc._attrs[attr_n]))
+        self.assertTrue(os.path.exists(os.path.join("server", "db")))
+        objects = Config.query.all()
+        self.assertEqual(objects, [])
 #--
 
 if __name__ == '__main__':
