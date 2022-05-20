@@ -1,6 +1,6 @@
-import click, os, requests, subprocess, sys
+import click, requests, sys
 
-from cw.conf import CromwellConf
+from cw import appcon
 
 @click.command(name="heartbeat", short_help="Check if the cromwell server is running")
 def heartbeat_cmd():
@@ -11,14 +11,14 @@ def heartbeat_cmd():
 
     CROMWELL_HOST and CROMWELL_PORT must be set in the YAML configuration.
     """
-    cc = CromwellConf.load()
-    host = cc.get("CROMWELL_HOST")
+    host = appcon.get(group="server", name="host")
     if host is None:
-        sys.stderr.write("Please set CROMWELL_HOST in YAML file: {yaml_file}\n")
+        sys.stderr.write("Can't find server 'host' in application configuration.\n")
         sys.exit(1)
-    port = cc.get("CROMWELL_PORT", None)
+
+    port = appcon.get(group="server", name="port")
     if port is None:
-        sys.stderr.write("Please set CROMWELL_PORT in YAML file: {yaml_file}\n")
+        sys.stderr.write("Can't find server 'port' in application configuration.\n")
         sys.exit(1)
     url = f"http://{host}:{port}/engine/v1/version"
     sys.stdout.write(f"Checking host <{host}> listening on <{port}> ...\n")
