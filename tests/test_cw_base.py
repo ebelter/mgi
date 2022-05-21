@@ -55,6 +55,14 @@ class CwTest(BaseWithDb):
             self.assertTrue(os.path.exists(fn))
             fn = appcon.get(group="server", name=f"{n}_fn")
             self.assertTrue(os.path.join(appcon.dn, "server", "{f}"))
+
+    def test_appcon_known_directories(self):
+        from cw import appcon
+        self.assertTrue(appcon.known_directories)
+        for n in appcon.known_directories:
+            self.assertTrue(appcon.dn_for(n))
+        with self.assertRaisesRegex(Exception, "Unknown directory"):
+            appcon.dn_for("blah")
 #-- CwTest
 
 if __name__ == '__main__':

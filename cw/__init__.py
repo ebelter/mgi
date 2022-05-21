@@ -41,9 +41,9 @@ def create_db(uri=None):
             ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
             ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
             ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
-            ["server", "conf_fn", os.path.join(appcon.server_dn, "conf")],
-            ["server", "run_fn", os.path.join(appcon.server_dn, "run")],
-            ["server", "start_fn", os.path.join(appcon.server_dn, "start")],
+            ["server", "conf_fn", os.path.join(appcon.dn_for("server"), "conf")],
+            ["server", "run_fn", os.path.join(appcon.dn_for("server"), "run")],
+            ["server", "start_fn", os.path.join(appcon.dn_for("server"), "start")],
             ]
     for group, name, value in configs:
         appcon.set(group=group, name=name, value=value)
@@ -53,8 +53,12 @@ class AppCon(object):
     def __init__(self):
         self.dn = DN
         self.resources_dn = os.path.join(os.path.dirname(__file__), "resources")
-        self.server_dn = os.path.join(DN, "server")
-        #self.db_dn = os.path.join(DN, "db")
+        self.known_directories = set(["db", "logs", "runs", "server"])
+
+    def dn_for(self, name):
+        if name not in self.known_directories:
+            raise Exception(f"Unknown directory: {name}")
+        return os.path.join(self.dn, name)
 
     def get(self, name, group="general"):
         c = Config.query.filter(Config.group == group, Config.name == name).one_or_none()
@@ -70,9 +74,6 @@ class AppCon(object):
         db.session.add(c)
         db.session.commit()
         return c.value
-
-    def dn_for(self, name):
-        return os.path.join(DN, name)
 
     def server_start_fn(self):
         return os.path.join(self.dn_for("server"), "start")
