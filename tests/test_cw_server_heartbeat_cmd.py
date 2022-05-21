@@ -29,10 +29,9 @@ class CwHeartbeatCmdTest(BaseWithDb):
         except:
             print(result.output)
             raise
-
         expected_output = f"Can't find server 'port' in application configuration.\n"
-        port = "8888"
 
+        port = "8888"
         appcon.set(group="server", name="port", value=port)
         requests_p.return_value = MagicMock(ok=True, content="1")
         os.chdir(self.temp_d.name)

@@ -1,28 +1,19 @@
 import click, os, requests, subprocess, tempfile, time, unittest, yaml
+from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
 from cw.conf import CromwellConf
 import cw.cromshell, cw.server, subprocess
 
-class CwServerTest(unittest.TestCase):
+from tests.test_cw_base import BaseWithDb
+
+class CwServerTest(BaseWithDb):
     def setUp(self):
-        from cw.setup_cmd import setup_cmd as cmd
-        self.temp_d = tempfile.TemporaryDirectory()
-        os.chdir(self.temp_d.name)
-        cc = CromwellConf(CromwellConf.default_attributes())
-        cc.setattr("LSF_QUEUE", "general")
-        cc.setattr("LSF_JOB_GROUP", "job")
-        cc.setattr("LSF_USER_GROUP", "user")
-        cc.save()
-        self.cc = cc
-        cc.setup()
         self.server_job_id = "1234"
         self.server_host = "compute1-exec-225.ris.wustl.edu"
-        self.server_url = f"http://{self.server_host}:8888"
-
-    def tearDown(self):
-        self.temp_d.cleanup()
+        self.server_port = "8888"
+        self.server_url = f"http://{self.server_host}:{self.server_port}"
 
     @patch("requests.get")
     def test_server(self, requests_p):
@@ -47,22 +38,29 @@ class CwServerTest(unittest.TestCase):
         requests_p.assert_called_with(server.url())
 
     def test_server_cli(self):
-        runner = CliRunner()
         from cw.server import cli
+        runner = CliRunner()
+        cw.DN = self.temp_d.name
+        os.chdir(self.temp_d.name)
 
         result = runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
         result = runner.invoke(cli, [])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["heartbeat", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["heartbeat"], catch_exceptions=False)
+        self.assertEqual(result.exit_code, 1)
+
     @patch("subprocess.check_output")
     def test_start_server(self, co_p):
         from cw.server import start_server as fun
         co_p.return_value = f"Job <{self.server_job_id}> is submitted to queue <general>.\n".encode()
-        self.assertEqual(fun(self.cc), self.server_job_id)
+        self.assertEqual(fun(), self.server_job_id)
         co_p.return_value = b"Job not submitted"
         with self.assertRaisesRegex(Exception, "Failed to parse LSF bsub command output to get job id: "):
-            fun(self.cc)
+            fun()
 
     @patch("subprocess.check_output")
     @patch("time.sleep")
@@ -85,24 +83,25 @@ class CwServerTest(unittest.TestCase):
     @patch("cw.server.wait_for_host")
     @patch("cw.cromshell.config_dn")
     def test_start_cmd(self, dn_p, wait_p, start_p, factory_p):
+        import cw
+        from cw import appcon
         from cw.server import start_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-        server = MagicMock(host=self.server_host, port="8888", **{"is_running.return_value": False})
-        #attrs = {'method.return_value': 3, 'other.side_effect': KeyError}
-        #server.configure_mock(**attrs)
-
+        cw.DN = self.temp_d.name
+        os.chdir(self.temp_d.name)
+        Path(appcon.server_start_fn()).touch()
+        server = MagicMock(host=self.server_host, port=self.server_port, url=self.server_url, **{"is_running.return_value": False})
         factory_p.return_value = server
         start_p.return_value = self.server_job_id
-        host = "compute1-exec-225.ris.wustl.edu"
-        wait_p.return_value = host
-        url = f"http://{host}:8888"
+        wait_p.return_value = self.server_host
+        url = f"http://{self.server_host}:{self.server_port}"
         dn_p.return_value = "/blah"
+        appcon.set(group="server", name="port", value=self.server_port)
 
-        os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
@@ -110,18 +109,16 @@ class CwServerTest(unittest.TestCase):
             print(result.output)
             raise
         expected_output = f"""Waiting for job <{self.server_job_id}> to start to obtain HOST...
-Server running on <{host}> port <8888>
-Updating YAML file <cw.yaml>
+Server running on <{self.server_host}> port <{self.server_port}>
+Updating application configuration...
 No cromshell directory at </blah> detected, not updating url
 Server ready!
 """
         self.assertEqual(result.output, expected_output)
 
-        with open(self.cc.yaml_fn(), "r") as f:
-            updated_attrs = yaml.safe_load(f)
-        self.assertEqual(updated_attrs["CROMWELL_JOB_ID"], self.server_job_id)
-        self.assertEqual(updated_attrs["CROMWELL_HOST"], host)
-        self.assertEqual(updated_attrs["CROMWELL_URL"], url)
+        self.assertEqual(appcon.get(group="server", name="job_id"), self.server_job_id)
+        self.assertEqual(appcon.get(group="server", name="host"), self.server_host)
+        self.assertEqual(appcon.get(group="server", name="url"), self.server_url)
 
         # Try to run while server already running
         server.is_running.return_value = True
@@ -134,50 +131,6 @@ Server ready!
         expected_output = f"""Server is already up and running at <{url}>
 """
         self.assertEqual(result.output, expected_output)
-
-    @patch("subprocess.call")
-    def test_stop_cmd(self, call_p):
-        from cw.server import stop_cmd as cmd
-        runner = CliRunner()
-
-        result = runner.invoke(cmd, ["--help"])
-        self.assertEqual(result.exit_code, 0)
-
-        # no job id in config
-        os.chdir(self.temp_d.name)
-        result = runner.invoke(cmd, [], catch_exceptions=False)
-        try:
-            self.assertEqual(result.exit_code, 0)
-        except:
-            print(result.output)
-            raise
-        expected_output = f"""No job id found in configuration, cannot stop server
-"""
-        self.assertEqual(result.output, expected_output)
-
-        self.cc.setattr("CROMWELL_JOB_ID", self.server_job_id)
-        self.cc.setattr("CROMWELL_HOST", self.server_host)
-        self.cc.setattr("CROMWELL_URL", self.server_url)
-        self.cc.save()
-
-        # stop
-        result = runner.invoke(cmd, [], catch_exceptions=False)
-        try:
-            self.assertEqual(result.exit_code, 0)
-        except:
-            print(result.output)
-            raise
-        expected_output = f"""Server URL: <{self.server_url}>
-Stopping job <{self.server_job_id}>
-Updating YAML file <{self.cc.yaml_fn()}>
-"""
-        self.assertEqual(result.output, expected_output)
-
-        with open(self.cc.yaml_fn(), "r") as f:
-            updated_attrs = yaml.safe_load(f)
-        self.assertEqual(updated_attrs["CROMWELL_JOB_ID"], None)
-        self.assertEqual(updated_attrs["CROMWELL_HOST"], None)
-        self.assertEqual(updated_attrs["CROMWELL_URL"], None)
 #--
 
 if __name__ == '__main__':

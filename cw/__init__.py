@@ -59,5 +59,8 @@ class AppCon(object):
 
     def dn_for(self, name):
         return os.path.join(DN, name)
+
+    def server_start_fn(self):
+        return os.path.join(self.dn_for("server"), "start")
 #--
 appcon = AppCon()

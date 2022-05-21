@@ -1,12 +1,11 @@
 import click, os, re, requests, subprocess, sys, time, yaml
 
-from cw.conf import CromwellConf
+from cw import appcon
 import cw.cromshell
 
 def server_factory():
-    cc = CromwellConf.load()
-    host = cc.get("CROMWELL_HOST")
-    port = cc.get("CROMWELL_PORT")
+    host = appcon.get(group="server", name="host")
+    port = appcon.get(group="server", name="port")
     return Server(host, port)
 #-- server_factory
 
@@ -49,33 +48,31 @@ def start_cmd():
 
      This command will the run server script (server/start), then wait for the job to start and update the configuration YAML (cw.yaml) with the host name of the cromwell server.
     """
-    cc = CromwellConf.load()
     server = server_factory()
     if server.is_running():
-        sys.stdout.write(f"Server is already up and running at <{cc.get('CROMWELL_URL')}>\n")
+        sys.stdout.write(f"Server is already up and running at <{server.url}>\n")
         sys.exit(0)
 
-    job_id = start_server(cc)
+    job_id = start_server()
     sys.stdout.write(f"Waiting for job <{job_id}> to start to obtain HOST...\n")
 
     host = wait_for_host(job_id)
-    port = cc.get('CROMWELL_PORT')
+    port = appcon.get(group="server", name="port")
     sys.stdout.write(f"Server running on <{host}> port <{port}>\n")
 
-    cc.set("CROMWELL_JOB_ID", job_id)
-    cc.set("CROMWELL_HOST", host)
+    url = appcon.set(group="server", name="job_id", value=job_id)
+    url = appcon.set(group="server", name="host", value=host)
     url = f"http://{host}:{port}"
-    cc.set("CROMWELL_URL", url)
-    sys.stdout.write(f"Updating YAML file <{cc.yaml_fn()}>\n")
-    cc.save()
+    url = appcon.set(group="server", name="url", value=url)
+    sys.stdout.write(f"Updating application configuration...\n")
     rv, msg = cw.cromshell.update_server(url)
     sys.stderr.write(msg)
     sys.stdout.write("Server ready!\n")
 cli.add_command(start_cmd, name="start")
 
-def start_server(cc):
+def start_server():
     # Launch server, return lsf job id
-    server_start_fn = cc.server_start_fn()
+    server_start_fn = appcon.server_start_fn()
     if not os.path.exists(server_start_fn):
         raise Exception(f"Server start script [server_start_fn] not found. Has 'cw setup <YAMLFILE>' been run?")
     output = subprocess.check_output(["/bin/bash", server_start_fn])
@@ -111,19 +108,17 @@ def stop_cmd():
     """
     Stop the Cromwell Server
     """
-    cc = CromwellConf.load()
-    job_id = cc.get("CROMWELL_JOB_ID")
+    job_id = appcon.get(group="server", name="job_id")
     if job_id is None:
         sys.stdout.write(f"No job id found in configuration, cannot stop server\n")
         return
-    url = cc.get("CROMWELL_URL")
+    url = appcon.get(group="server", name="url")
     sys.stdout.write(f"Server URL: <{url}>\n")
     sys.stdout.write(f"Stopping job <{job_id}>\n")
     cmd = ["bkill", job_id]
     subprocess.call(cmd)
-    sys.stdout.write(f"Updating YAML file <cw.yaml>\n")
-    url = cc.set("CROMWELL_JOB_ID", None)
-    url = cc.set("CROMWELL_HOST", None)
-    url = cc.set("CROMWELL_URL", None)
-    cc.save()
+    sys.stdout.write(f"Updating application configuration...\n")
+    url = appcon.set(group="server", name="job_id", value=None)
+    url = appcon.set(group="server", name="host", value=None)
+    url = appcon.set(group="server", name="url", value=None)
 cli.add_command(stop_cmd, name="stop")
