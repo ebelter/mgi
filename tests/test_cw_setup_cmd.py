@@ -1,7 +1,7 @@
 import click, os, tempfile, unittest, yaml
 from click.testing import CliRunner
 
-class Cc1SetupCmdTest(unittest.TestCase):
+class CwSetupCmdTest(unittest.TestCase):
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
 
@@ -53,16 +53,14 @@ class Cc1SetupCmdTest(unittest.TestCase):
             print(result.output)
             raise
         #self.assertRegex(result.output, "^include")
-        cc = CromwellConf(attrs)
+        self.assertTrue(os.path.exists(os.path.join("server", "db")))
+        configs = Config.query.all()
+        self.assertEqual(len(configs), 7)
         self.assertTrue(os.path.exists(appcon.get(group="server", name="conf_fn")))
         self.assertTrue(os.path.exists(appcon.get(group="server", name="run_fn")))
         self.assertTrue(os.path.exists(appcon.get(group="server", name="start_fn")))
-        for attr_n in cc._attrs.keys():
-            if not attr_n.endswith("_DIR"): continue
-            self.assertTrue(os.path.exists(cc._attrs[attr_n]))
-        self.assertTrue(os.path.exists(os.path.join("server", "db")))
-        configs = Config.query.all()
-        self.assertEqual(len(configs), 10)
+        for name in ["db", "logs", "runs", "server"]:
+            self.assertTrue(os.path.exists(appcon.dn_for(name)))
 #--
 
 if __name__ == '__main__':

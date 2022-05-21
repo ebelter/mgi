@@ -38,9 +38,6 @@ def create_db(uri=None):
     db.metadata.create_all(engine)
     configs = [
             ["server", "port", "8888"],
-            ["general", "conf_fn", os.path.join(appcon.server_dn, "conf")],
-            ["general", "run_fn", os.path.join(appcon.server_dn, "run")],
-            ["general", "start_fn", os.path.join(appcon.server_dn, "start")],
             ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
             ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
             ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],

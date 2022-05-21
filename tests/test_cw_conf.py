@@ -114,13 +114,6 @@ class CwCconfTest(BaseWithDb):
         expected = os.path.join(expected_dn, "server.start.jinja")
         self.assertEqual(got, expected)
 
-    def test_makedirs(self):
-        os.chdir(self.temp_d.name)
-        cc = CromwellConf.load()
-        cc.makedirs()
-        for name in CromwellConf.known_dir_names():
-            self.assertTrue(os.path.exists(cc.dir_for(name)))
-
     def test_server_conf(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()

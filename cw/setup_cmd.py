@@ -17,7 +17,8 @@ def setup_cmd():
         sys.stderr.write(f"Saved YAML configuration to <{cc.yaml_fn()}>.\nFill out the 'LSF' attributes, then rerun this command.\n")
         sys.exit(0)
     sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
-    cc.makedirs()
+    for name in appcon.known_directories:
+        os.makedirs(appcon.dn_for(name), exist_ok=True)
     create_db()
     cc.write_server_files()
 #-- setup_cmd

@@ -123,11 +123,6 @@ class CromwellConf(object):
         for name in CromwellConf.known_dir_names():
             dir_attrs["_".join(["CROMWELL", name.upper(), "DIR"])] = self.dir_for(name)
         return dir_attrs
-
-    def makedirs(self):
-        for name in CromwellConf.known_dir_names():
-            os.makedirs(self.dir_for(name), exist_ok=True)
-
     ##--
 
     ## SETUP
