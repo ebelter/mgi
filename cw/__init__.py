@@ -54,6 +54,7 @@ def create_db(uri=None):
 
 class AppCon(object):
     def __init__(self):
+        self.dn = DN
         self.resources_dn = os.path.join(os.path.dirname(__file__), "resources")
         self.server_dn = os.path.join(DN, "server")
         #self.db_dn = os.path.join(DN, "db")

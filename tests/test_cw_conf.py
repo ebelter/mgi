@@ -1,12 +1,12 @@
-import os, re, tempfile, unittest, yaml
+import os, re, unittest, yaml
 from jinja2 import Template
 
+from cw import appcon
 from cw.conf import CromwellConf
+from tests.test_cw_base import BaseWithDb
 
-class CwCconfTest(unittest.TestCase):
-    
+class CwCconfTest(BaseWithDb):
     def setUp(self):
-        self.temp_d = tempfile.TemporaryDirectory()
         self.cc_attrs = {}
         for name in CromwellConf.attribute_names():
             self.cc_attrs[name] = "MINE"
@@ -14,9 +14,6 @@ class CwCconfTest(unittest.TestCase):
         self.yaml_fn = os.path.join(self.temp_d.name, CromwellConf.yaml_fn())
         with open(self.yaml_fn, "w") as f:
             f.write(yaml.dump(self.cc_attrs))
-
-    def tearDown(self):
-        self.temp_d.cleanup()
 
     def test_init(self):
         cc = CromwellConf({})
@@ -127,9 +124,6 @@ class CwCconfTest(unittest.TestCase):
     def test_server_conf(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
-
-        server_conf_fn = cc.server_conf_fn()
-        self.assertEqual(server_conf_fn, os.path.join(self.temp_d.name,"server", "conf"))
         server_conf = cc.server_conf_content()
         self.assertRegex(server_conf, f"root = \"{cc.dir_for('runs')}\"")
         self.assertRegex(server_conf, "LSF_DOCKER_VOLUMES='\$\{cwd\}:\$\{docker_cwd\} MINE'")
@@ -138,28 +132,16 @@ class CwCconfTest(unittest.TestCase):
         self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.dir_for('wf_logs')}\"")
         self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
 
-    def test_server_db(self):
-        os.chdir(self.temp_d.name)
-        cc = CromwellConf.load()
-        server_db_fn = cc.server_db_fn()
-        self.assertEqual(server_db_fn, os.path.join("server", "db"))
-        #self.assertEqual(server_db_fn, os.path.join(self.temp_d.name, "server", "db"))
-
     def test_server_run(self):
+        from cw import appcon
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
-
-        template_fn = cc.server_run_template_fn()
-        self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.run.jinja"))
         content = cc.server_run_content()
-        self.assertRegex(content, f"file={cc.server_conf_fn()}")
+        self.assertRegex(content, f"file={appcon.get(group='server', name='conf_fn')}")
 
     def test_server_start(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
-
-        template_fn = cc.server_start_template_fn()
-        self.assertEqual(template_fn, os.path.join(CromwellConf.resources_dn(), "server.start.jinja"))
         content = cc.server_start_content()
         self.assertRegex(content, f"LSF_DOCKER_VOLUMES='MINE")
 #--

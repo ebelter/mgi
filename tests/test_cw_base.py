@@ -33,7 +33,8 @@ class CwTest(BaseWithDb):
     def test_db(self):
         from cw import db
         self.assertTrue(db)
-    def test_conf(self):
+
+    def test_appcon_get_and_set(self):
         from cw import appcon, Config
         self.assertTrue(appcon)
         v = appcon.get("foo")
@@ -46,6 +47,14 @@ class CwTest(BaseWithDb):
         self.assertEqual(v, "baz")
         c = Config.query.filter(Config.group == "general", Config.name == "foo").one_or_none()
         self.assertEqual(c.value, "baz")
+
+    def test_appcon_server_fns(self):
+        from cw import appcon
+        for n in ["conf", "run", "start"]:
+            fn = appcon.get(group="resources", name=f"{n}_template_fn")
+            self.assertTrue(os.path.exists(fn))
+            fn = appcon.get(group="server", name=f"{n}_fn")
+            self.assertTrue(os.path.join(appcon.dn, "server", "{f}"))
 #-- CwTest
 
 if __name__ == '__main__':
