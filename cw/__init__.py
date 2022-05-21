@@ -36,11 +36,27 @@ def create_db(uri=None):
             raise Exception("No DB URI given or found!")
     engine = create_engine(uri)
     db.metadata.create_all(engine)
+    configs = [
+            ["server", "port", "8888"],
+            ["general", "conf_fn", os.path.join(appcon.server_dn, "conf")],
+            ["general", "run_fn", os.path.join(appcon.server_dn, "run")],
+            ["general", "start_fn", os.path.join(appcon.server_dn, "start")],
+            ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
+            ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
+            ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
+            ["server", "conf_fn", os.path.join(appcon.server_dn, "conf")],
+            ["server", "run_fn", os.path.join(appcon.server_dn, "run")],
+            ["server", "start_fn", os.path.join(appcon.server_dn, "start")],
+            ]
+    for group, name, value in configs:
+        appcon.set(group=group, name=name, value=value)
 #-- create_db
 
 class AppCon(object):
     def __init__(self):
-        pass
+        self.resources_dn = os.path.join(os.path.dirname(__file__), "resources")
+        self.server_dn = os.path.join(DN, "server")
+        #self.db_dn = os.path.join(DN, "db")
 
     def get(self, name, group="general"):
         c = Config.query.filter(Config.group == group, Config.name == name).one_or_none()

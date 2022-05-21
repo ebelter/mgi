@@ -34,7 +34,7 @@ class Cc1SetupCmdTest(unittest.TestCase):
 
     def test_setup_cmd(self):
         os.chdir(self.temp_d.name)
-        from cw import Config
+        from cw import appcon, Config
         from cw.setup_cmd import setup_cmd as cmd
         from cw.conf import CromwellConf
         runner = CliRunner()
@@ -54,15 +54,15 @@ class Cc1SetupCmdTest(unittest.TestCase):
             raise
         #self.assertRegex(result.output, "^include")
         cc = CromwellConf(attrs)
-        self.assertTrue(os.path.exists(cc.server_conf_fn()))
-        self.assertTrue(os.path.exists(cc.server_run_fn()))
-        self.assertTrue(os.path.exists(cc.server_start_fn()))
+        self.assertTrue(os.path.exists(appcon.get(group="server", name="conf_fn")))
+        self.assertTrue(os.path.exists(appcon.get(group="server", name="run_fn")))
+        self.assertTrue(os.path.exists(appcon.get(group="server", name="start_fn")))
         for attr_n in cc._attrs.keys():
             if not attr_n.endswith("_DIR"): continue
             self.assertTrue(os.path.exists(cc._attrs[attr_n]))
         self.assertTrue(os.path.exists(os.path.join("server", "db")))
-        objects = Config.query.all()
-        self.assertEqual(objects, [])
+        configs = Config.query.all()
+        self.assertEqual(len(configs), 10)
 #--
 
 if __name__ == '__main__':

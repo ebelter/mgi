@@ -1,7 +1,7 @@
 import click, os, sys, yaml
 
 from cw.conf import CromwellConf
-from cw import create_db, db
+from cw import appcon, create_db
 
 @click.command(short_help="setup cromwell")
 def setup_cmd():
@@ -17,6 +17,7 @@ def setup_cmd():
         sys.stderr.write(f"Saved YAML configuration to <{cc.yaml_fn()}>.\nFill out the 'LSF' attributes, then rerun this command.\n")
         sys.exit(0)
     sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
-    cc.setup()
+    cc.makedirs()
     create_db()
+    cc.write_server_files()
 #-- setup_cmd

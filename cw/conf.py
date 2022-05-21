@@ -1,5 +1,7 @@
 import jinja2, os, sys, yaml
 
+from cw import appcon
+
 class CromwellConf(object):
     def __init__(self, attrs):
         self._attrs = attrs
@@ -136,9 +138,9 @@ class CromwellConf(object):
     def write_server_files(self):
         server_dn = self.dir_for("server")
         for name in ("conf", "run", "start"):
-            fn =  getattr(self, f"server_{name}_fn")
+            fn = appcon.get(group="server", name=f"{name}_fn")
             fun = getattr(self, f"server_{name}_content")
-            with open(fn(), "w") as f:
+            with open(fn, "w") as f:
                 f.write(fun())
     ##--
 
@@ -153,9 +155,6 @@ class CromwellConf(object):
     ##-
 
     ### conf
-    def server_conf_fn(self):
-        return os.path.join(self.dir_for("server"), "conf")
-
     def server_conf_content(self):
         with open(CromwellConf.template_fn(), "r") as f:
             template = jinja2.Template(f.read())
@@ -163,29 +162,18 @@ class CromwellConf(object):
         attrs.update(self.dir_attrs())
         return template.render(attrs)
 
-    ### db
-    @staticmethod
-    def server_db_fn():
-        return os.path.join("server", "db")
-
     ### run
-    def server_run_fn(self):
-        return os.path.join(self.dir_for("server"), "run")
-
     @staticmethod
     def server_run_template_fn():
         return os.path.join(CromwellConf.resources_dn(), "server.run.jinja")
 
     def server_run_content(self):
-        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": self.server_conf_fn()})
+        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": appcon.get(group="server", name="conf_fn")})
 
     ### start
     @staticmethod
     def server_start_template_fn():
         return os.path.join(CromwellConf.resources_dn(), "server.start.jinja")
-
-    def server_start_fn(self):
-        return os.path.join(self.dir_for("server"), "start")
 
     def server_start_content(self):
         return self._generate_content(template_fn=CromwellConf.server_start_template_fn())
