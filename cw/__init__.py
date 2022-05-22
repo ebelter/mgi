@@ -29,27 +29,6 @@ db.uri(DB_URI)
 
 from cw.models import Config, Pipeline, Workflow
 
-def create_db(uri=None, extra_configs=[]):
-    if uri is None:
-        uri = db.uri()
-        if uri is None:
-            raise Exception("No DB URI given or found!")
-    engine = create_engine(uri)
-    db.metadata.create_all(engine)
-    configs = [
-            ["server", "port", "8888"],
-            ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
-            ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
-            ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
-            ["server", "conf_fn", os.path.join(appcon.dn_for("server"), "conf")],
-            ["server", "run_fn", os.path.join(appcon.dn_for("server"), "run")],
-            ["server", "start_fn", os.path.join(appcon.dn_for("server"), "start")],
-            ]
-    configs += extra_configs
-    for group, name, value in configs:
-        appcon.set(group=group, name=name, value=value)
-#-- create_db
-
 class AppCon(object):
     def __init__(self):
         self.dn = DN
@@ -80,3 +59,29 @@ class AppCon(object):
         return os.path.join(self.dn_for("server"), "start")
 #--
 appcon = AppCon()
+
+def create_db(uri=None, extra_configs=[]):
+    if uri is None:
+        uri = db.uri()
+        if uri is None:
+            raise Exception("No DB URI given or found!")
+    engine = create_engine(uri)
+    db.metadata.create_all(engine)
+    server_dn = os.path.join(appcon.dn, "server")
+    configs = [
+            ["general", "db_dn", os.path.join(appcon.dn, "db")],
+            ["general", "logs_dn", os.path.join(appcon.dn, "logs")],
+            ["general", "runs_dn", os.path.join(appcon.dn, "runs")],
+            ["general", "server_dn", server_dn],
+            ["server", "port", "8888"],
+            ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
+            ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
+            ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
+            ["server", "conf_fn", os.path.join(server_dn, "conf")],
+            ["server", "run_fn", os.path.join(server_dn, "run")],
+            ["server", "start_fn", os.path.join(server_dn, "start")],
+            ]
+    configs += extra_configs
+    for group, name, value in configs:
+        appcon.set(group=group, name=name, value=value)
+#-- create_db

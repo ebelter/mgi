@@ -1,17 +1,18 @@
 import os, tempfile, unittest
-from cw import db, create_db
 from cw.helpers import sqlite_uri_for_file
 
 class BaseWithDb(unittest.TestCase):
     @classmethod
     def setUpClass(self):
+        import cw
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
         os.makedirs("server")
         self.db_fn = os.path.join(self.temp_d.name, "server", "db")
         self.db_uri = sqlite_uri_for_file(self.db_fn)
-        db.uri(self.db_uri)
-        create_db()
+        cw.appcon.dn = self.temp_d.name
+        cw.db.uri(self.db_uri)
+        cw.create_db()
 
     def setUp(self):
         pass

@@ -4,14 +4,14 @@ class Config(db.Model):
     __tablename__ = 'config'
     __table_args__ = (
         db.UniqueConstraint(
-            "name",
             "group",
+            "name",
             name="uniq_config",
         ),
     )
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(length=32), nullable=False, index=True)
     group = db.Column(db.String(length=32), default="general", nullable=False, index=True)
+    name = db.Column(db.String(length=32), nullable=False, index=True)
     value = db.Column(db.String(length=128), nullable=True)
 #-- Config
 

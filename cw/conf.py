@@ -137,13 +137,31 @@ class CromwellConf(object):
     def server_conf_content(self):
         with open(appcon.get(group="resources", name="conf_template_fn"), "r") as f:
             template = jinja2.Template(f.read())
-        attrs = self._attrs.copy()
-        attrs.update(self.dir_attrs())
+        attrs = {
+                "RUNS_DIR": appcon.get("runs_dn"),
+                "DB_DIR": appcon.get("db_dn"),
+                "LOGS_DIR": appcon.get("logs_dn"),
+                "SERVER_PORT": appcon.get(group="server", name="port"),
+                "LSF_DOCKER_VOLUMES": appcon.get(group="lsf", name="docker_volumes"),
+                "LSF_JOB_GROUP": appcon.get(group="lsf", name="job_group"),
+                "LSF_QUEUE": appcon.get(group="lsf", name="user_group"),
+                "LSF_USER_GROUP": appcon.get(group="lsf", name="user_group"),
+                }
         return template.render(attrs)
 
     def server_run_content(self):
         template_fn = appcon.get(group="resources", name="run_template_fn")
-        return self._generate_content(template_fn=template_fn)
+        attrs = { # put in validating method
+                "SERVER_PORT": appcon.get(group="server", name="port"),
+                "SERVER_DN": appcon.dn_for("server"),
+                #"SERVER_LOG_FN": appcon.get(group="server", name="log_fn"),
+                #"SERVER_RUN_FN": appcon.get(group="server", name=run_fn"),
+                "LSF_DOCKER_VOLUMES": appcon.get(group="lsf", name="docker_volumes"),
+                "LSF_JOB_GROUP": appcon.get(group="lsf", name="job_group"),
+                "LSF_QUEUE": appcon.get(group="lsf", name="user_group"),
+                "LSF_USER_GROUP": appcon.get(group="lsf", name="user_group"),
+                }
+        return self._generate_content(template_fn=template_fn, attrs=attrs)
 
     def server_start_content(self):
         attrs = {"SERVER_CONF_FN": appcon.get(group="server", name="conf_fn")}

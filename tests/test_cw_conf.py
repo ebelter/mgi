@@ -1,7 +1,6 @@
 import os, re, unittest, yaml
 from jinja2 import Template
 
-from cw import appcon
 from cw.conf import CromwellConf
 from tests.test_cw_base import BaseWithDb
 
@@ -98,15 +97,20 @@ class CwCconfTest(BaseWithDb):
         CromwellConf.validate_attributes(cc)
 
     def test_server_conf(self):
+        from cw import appcon
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
+        configs = ["docker_volumes=MINE", "job_group=MINE", "queue=MINE", "user_group=MINE"]
+        for c in configs:
+            n, v = c.split("=")
+            appcon.set(group="lsf", name=n, value=v)
         server_conf = cc.server_conf_content()
-        self.assertRegex(server_conf, f"root = \"{cc.dir_for('runs')}\"")
+        self.assertRegex(server_conf, f"root = \"{appcon.get('runs_dn')}\"")
         self.assertRegex(server_conf, "LSF_DOCKER_VOLUMES='\$\{cwd\}:\$\{docker_cwd\} MINE'")
-        m = re.findall(f"\-oo {cc.dir_for('lsf_logs')}", server_conf)
+        m = re.findall(f"\-oo {appcon.get('logs_dn')}", server_conf)
         self.assertEqual(len(m), 1)
-        self.assertRegex(server_conf, f"workflow-log-dir = \"{cc.dir_for('wf_logs')}\"")
-        self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
+        self.assertRegex(server_conf, f"workflow-log-dir = \"{appcon.get('runs_dn')}\"")
+        self.assertRegex(server_conf, f"file:{appcon.get('db_dn')}/db")
 
     def test_server_run(self):
         os.chdir(self.temp_d.name)
@@ -115,6 +119,7 @@ class CwCconfTest(BaseWithDb):
         self.assertRegex(content, f"LSF_DOCKER_VOLUMES='MINE")
 
     def test_server_start(self):
+        from cw import appcon
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
         content = cc.server_start_content()
