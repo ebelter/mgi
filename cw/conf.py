@@ -125,11 +125,6 @@ class CromwellConf(object):
         return dir_attrs
     ##--
 
-    ## SETUP
-    def setup(self):
-        self.makedirs()
-        self.write_server_files()
-
     def write_server_files(self):
         server_dn = self.dir_for("server")
         for name in ("conf", "run", "start"):
@@ -139,39 +134,21 @@ class CromwellConf(object):
                 f.write(fun())
     ##--
 
-    ## RESOURCES
-    @staticmethod
-    def resources_dn():
-        return os.path.join(os.path.dirname(__file__), "resources")
-
-    @staticmethod
-    def template_fn():
-        return os.path.join(CromwellConf.resources_dn(), "server.conf.jinja")
-    ##-
-
-    ### conf
     def server_conf_content(self):
-        with open(CromwellConf.template_fn(), "r") as f:
+        with open(appcon.get(group="resources", name="conf_template_fn"), "r") as f:
             template = jinja2.Template(f.read())
         attrs = self._attrs.copy()
         attrs.update(self.dir_attrs())
         return template.render(attrs)
 
-    ### run
-    @staticmethod
-    def server_run_template_fn():
-        return os.path.join(CromwellConf.resources_dn(), "server.run.jinja")
-
     def server_run_content(self):
-        return self._generate_content(template_fn=CromwellConf.server_run_template_fn(), attrs={"CROMWELL_CONF_FN": appcon.get(group="server", name="conf_fn")})
-
-    ### start
-    @staticmethod
-    def server_start_template_fn():
-        return os.path.join(CromwellConf.resources_dn(), "server.start.jinja")
+        template_fn = appcon.get(group="resources", name="run_template_fn")
+        return self._generate_content(template_fn=template_fn)
 
     def server_start_content(self):
-        return self._generate_content(template_fn=CromwellConf.server_start_template_fn())
+        attrs = {"SERVER_CONF_FN": appcon.get(group="server", name="conf_fn")}
+        template_fn = appcon.get(group="resources", name="start_template_fn")
+        return self._generate_content(template_fn=template_fn, attrs=attrs)
 
     ###
     def _generate_content(self, template_fn, attrs={}):

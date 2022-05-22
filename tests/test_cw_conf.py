@@ -97,23 +97,6 @@ class CwCconfTest(BaseWithDb):
             cc._attrs[name] = "MINE"
         CromwellConf.validate_attributes(cc)
 
-    def test_resources(self):
-        resources_dn = CromwellConf.resources_dn()
-        expected_dn = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "cw", "resources")
-        self.assertEqual(resources_dn, expected_dn)
-
-        got = CromwellConf.template_fn()
-        expected = os.path.join(expected_dn, "server.conf.jinja")
-        self.assertEqual(got, expected)
-
-        got = CromwellConf.server_run_template_fn()
-        expected = os.path.join(expected_dn, "server.run.jinja")
-        self.assertEqual(got, expected)
-
-        got = CromwellConf.server_start_template_fn()
-        expected = os.path.join(expected_dn, "server.start.jinja")
-        self.assertEqual(got, expected)
-
     def test_server_conf(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
@@ -126,17 +109,16 @@ class CwCconfTest(BaseWithDb):
         self.assertRegex(server_conf, f"file:{cc.dir_for('db')}")
 
     def test_server_run(self):
-        from cw import appcon
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
         content = cc.server_run_content()
-        self.assertRegex(content, f"file={appcon.get(group='server', name='conf_fn')}")
+        self.assertRegex(content, f"LSF_DOCKER_VOLUMES='MINE")
 
     def test_server_start(self):
         os.chdir(self.temp_d.name)
         cc = CromwellConf.load()
         content = cc.server_start_content()
-        self.assertRegex(content, f"LSF_DOCKER_VOLUMES='MINE")
+        self.assertRegex(content, f"file={appcon.get(group='server', name='conf_fn')}")
 #--
 
 if __name__ == '__main__':
