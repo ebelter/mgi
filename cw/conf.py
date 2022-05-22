@@ -106,33 +106,13 @@ class CromwellConf(object):
         return self
     ##--
 
-    @staticmethod
-    def known_dir_names():
-        return set(["db", "lsf_logs", "runs", "server", "wf_logs"])
-
-    def dir_for(self, name):
-        cw_dn = self._attrs.get("CROMWELL_DIR", None)
-        if cw_dn is None:
-            raise Exception("No CROMWELL_DIR set in cromwell conf attributes!")
-        if name not in CromwellConf.known_dir_names():
-            raise Exception(f"Dir name <name> is not in the known directory names!")
-        return os.path.join(cw_dn, name)
-
-    def dir_attrs(self):
-        dir_attrs = {}
-        for name in CromwellConf.known_dir_names():
-            dir_attrs["_".join(["CROMWELL", name.upper(), "DIR"])] = self.dir_for(name)
-        return dir_attrs
-    ##--
-
     def write_server_files(self):
-        server_dn = self.dir_for("server")
+        server_dn = appcon.get("server_dn")
         for name in ("conf", "run", "start"):
             fn = appcon.get(group="server", name=f"{name}_fn")
             fun = getattr(self, f"server_{name}_content")
             with open(fn, "w") as f:
                 f.write(fun())
-    ##--
 
     def server_conf_content(self):
         with open(appcon.get(group="resources", name="conf_template_fn"), "r") as f:
@@ -169,11 +149,9 @@ class CromwellConf(object):
         return self._generate_content(template_fn=template_fn, attrs=attrs)
 
     ###
-    def _generate_content(self, template_fn, attrs={}):
+    def _generate_content(self, template_fn, attrs):
         if not os.path.exists(template_fn):
             raise Exception(f"Template file {template_fn} does not exist!")
-        attrs.update(self._attrs.copy())
-        attrs.update(self.dir_attrs())
         with open(template_fn, "r") as f:
             template = jinja2.Template(f.read())
         return template.render(**attrs)

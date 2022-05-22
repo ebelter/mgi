@@ -19,6 +19,12 @@ class BaseWithDb(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def add_lsf_config_to_db(self):
+        configs = ["docker_volumes=MINE", "job_group=MINE", "queue=MINE", "user_group=MINE"]
+        for c in configs:
+            n, v = c.split("=")
+            cw.appcon.set(group="lsf", name=n, value=v)
 #-- BaseWithDb
 
 class BaseWithDbTest(BaseWithDb):

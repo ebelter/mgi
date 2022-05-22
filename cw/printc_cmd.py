@@ -1,16 +1,14 @@
 import click, jinja2, os, sys, yaml
 
-from cw.conf import CromwellConf
+from cw import appcon
+from cw.setup_cmd import server_conf_content
 
 @click.command(short_help="print the cromwell server config")
-@click.argument("yaml-file", type=click.File('r'), nargs=1)
-def printc_cmd(yaml_file):
+def printc_cmd():
     """
-    Config Print [CPRINT]
+    Print Cromwell Config
 
-    Given a filled in config YAML file, apply it to the cromwell configuration and print.
+    Requires configured DB with LSF parameters. Prints to STDOUT.
     """
-    attrs = yaml.safe_load(yaml_file)
-    cc = CromwellConf(attrs)
-    sys.stdout.write(cc.server_conf_content())
+    sys.stdout.write(server_conf_content())
 #-- printc_cmd

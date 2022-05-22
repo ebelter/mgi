@@ -1,30 +1,17 @@
-import click, os, tempfile, unittest, yaml
+import click, unittest
 from click.testing import CliRunner
 
-from cw.conf import CromwellConf
-from cw.printc_cmd import printc_cmd as cmd
+from tests.test_cw_base import BaseWithDb
 
-class CwPrintCmdTest(unittest.TestCase):
-    def setUp(self):
-        self.temp_d = tempfile.TemporaryDirectory()
-
-    def tearDown(self):
-        self.temp_d.cleanup()
-
+class PrintConfCmdTest(BaseWithDb):
     def test_cprint_cmd(self):
+        from cw.printc_cmd import printc_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-        result = runner.invoke(cmd, [])
-        self.assertEqual(result.exit_code, 2)
-
-        data = dict.fromkeys(CromwellConf.attribute_names(), "TEST")
-        yaml_fn = os.path.join(self.temp_d.name, "cromwell-attrs.yaml")
-        with open(yaml_fn, "w") as f:
-            f.write(yaml.dump(data))
-        result = runner.invoke(cmd, [yaml_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
             self.assertEqual(result.exit_code, 0)

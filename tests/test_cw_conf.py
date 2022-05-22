@@ -56,11 +56,6 @@ class CwCconfTest(BaseWithDb):
         self.assertTrue(cc._attrs)
         self.assertTrue(cc.is_validated)
 
-        dir_names = CromwellConf.known_dir_names()
-        self.assertEqual(len(dir_names), 5)
-        for name in dir_names:
-            self.assertEqual(cc.dir_for(name), os.path.join(self.temp_d.name, name))
-
     def test_save(self):
         cc = CromwellConf(self.cc_attrs)
         os.chdir(self.temp_d.name)
