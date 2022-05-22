@@ -3,7 +3,6 @@ from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
-from cw.conf import CromwellConf
 import cw.cromshell, cw.server, subprocess
 
 from tests.test_cw_base import BaseWithDb

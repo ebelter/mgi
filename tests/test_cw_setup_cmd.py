@@ -12,14 +12,7 @@ class CwSetupCmdTest(unittest.TestCase):
         os.chdir(self.temp_d.name)
         from cw import appcon, Config
         from cw.setup_cmd import setup_cmd as cmd
-        from cw.conf import CromwellConf
         runner = CliRunner()
-
-        attrs = dict.fromkeys(CromwellConf.attribute_names(), "TEST")
-        attrs["CROMWELL_DIR"] = self.temp_d.name
-        yaml_fn = "cw.yaml"
-        with open(yaml_fn, "w") as f:
-            f.write(yaml.dump(attrs))
 
         result = runner.invoke(cmd, [], catch_exceptions=False)
         self.assertEqual(result.exit_code, 2)

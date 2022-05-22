@@ -2,10 +2,7 @@ import click, os, tempfile, unittest
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
-from cw.conf import CromwellConf
-import cw.wf
 from tests.test_cw_base import BaseWithDb
-
 class CwWfTest(BaseWithDb):
 
     def test_wf_cli(self):

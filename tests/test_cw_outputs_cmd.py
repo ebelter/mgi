@@ -3,8 +3,6 @@ from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cw.conf import CromwellConf
-
 class CwOutputsCmdTest(unittest.TestCase):
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()

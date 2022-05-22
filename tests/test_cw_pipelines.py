@@ -2,7 +2,6 @@ import click, os, requests, subprocess, tempfile, time, unittest, yaml
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
-from cw.conf import CromwellConf
 from tests.test_cw_base import BaseWithDb
 
 class CwServerTest(BaseWithDb):
