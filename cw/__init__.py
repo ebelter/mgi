@@ -29,7 +29,7 @@ db.uri(DB_URI)
 
 from cw.models import Config, Pipeline, Workflow
 
-def create_db(uri=None):
+def create_db(uri=None, extra_configs=[]):
     if uri is None:
         uri = db.uri()
         if uri is None:
@@ -45,6 +45,7 @@ def create_db(uri=None):
             ["server", "run_fn", os.path.join(appcon.dn_for("server"), "run")],
             ["server", "start_fn", os.path.join(appcon.dn_for("server"), "start")],
             ]
+    configs += extra_configs
     for group, name, value in configs:
         appcon.set(group=group, name=name, value=value)
 #-- create_db
