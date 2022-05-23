@@ -14,9 +14,6 @@ cli.add_command(cmd, "outputs")
 from cw.pipelines import cli as pipelines_cli
 cli.add_command(pipelines_cli, "pipelines")
 
-from cw.printc_cmd import printc_cmd as cmd
-cli.add_command(cmd, "printc")
-
 from cw.server import cli as server_cli
 cli.add_command(server_cli, "server")
 
@@ -25,3 +22,6 @@ cli.add_command(cmd, "setup")
 
 from cw.wf import cli as wf_cli
 cli.add_command(wf_cli, "wf")
+
+from cw.utils import cli as utils_cli
+cli.add_command(utils_cli, "utils")

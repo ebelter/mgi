@@ -2,10 +2,18 @@ import click, unittest
 from click.testing import CliRunner
 
 from tests.test_cw_base import BaseWithDb
+class UtilsTest(BaseWithDb):
+    def test0_cli(self):
+        from cw.utils import cli
+        runner = CliRunner()
 
-class PrintConfCmdTest(BaseWithDb):
-    def test_cprint_cmd(self):
-        from cw.printc_cmd import printc_cmd as cmd
+        result = runner.invoke(cli, [])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["--help"])
+        self.assertEqual(result.exit_code, 0)
+
+    def test1_cprint_cmd(self):
+        from cw.utils import printc_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
