@@ -12,14 +12,19 @@ class UtilsTest(BaseWithDb):
         result = runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
 
-    def test1_cprint_cmd(self):
-        from cw.utils import printc_cmd as cmd
+        result = runner.invoke(cli, ["printr", "--help"])
+        self.assertEqual(result.exit_code, 0)
+
+    def test1_printr_cmd(self):
+        from cw.utils import printr_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
         self.assertEqual(result.exit_code, 0)
-
         result = runner.invoke(cmd, [], catch_exceptions=False)
+        self.assertEqual(result.exit_code, 2)
+
+        result = runner.invoke(cmd, ["conf"], catch_exceptions=False)
         self.assertEqual(result.exit_code, 0)
         try:
             self.assertEqual(result.exit_code, 0)
