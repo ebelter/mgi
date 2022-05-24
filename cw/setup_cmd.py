@@ -69,6 +69,12 @@ def server_conf_content():
 
 def server_run_content():
     template_fn = appcon.get(group="resources", name="run_template_fn")
+    attrs = {"SERVER_CONF_FN": appcon.get(group="server", name="conf_fn")}
+    with open(template_fn, "r") as f:
+        template = jinja2.Template(f.read())
+    return template.render(**attrs)
+
+def server_start_content():
     attrs = { # put in validating method
             "SERVER_PORT": appcon.get(group="server", name="port"),
             "SERVER_DN": appcon.dn_for("server"),
@@ -79,12 +85,6 @@ def server_run_content():
             "LSF_QUEUE": appcon.get(group="lsf", name="user_group"),
             "LSF_USER_GROUP": appcon.get(group="lsf", name="user_group"),
             }
-    with open(template_fn, "r") as f:
-        template = jinja2.Template(f.read())
-    return template.render(**attrs)
-
-def server_start_content():
-    attrs = {"SERVER_CONF_FN": appcon.get(group="server", name="conf_fn")}
     template_fn = appcon.get(group="resources", name="start_template_fn")
     with open(template_fn, "r") as f:
         template = jinja2.Template(f.read())
