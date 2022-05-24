@@ -72,7 +72,7 @@ cli.add_command(start_cmd, name="start")
 
 def start_server():
     # Launch server, return lsf job id
-    server_start_fn = appcon.server_start_fn()
+    server_start_fn = appcon.get(group="server", name="server_start_fn")
     if not os.path.exists(server_start_fn):
         raise Exception(f"Server start script [server_start_fn] not found. Has 'cw setup <YAMLFILE>' been run?")
     output = subprocess.check_output(["/bin/bash", server_start_fn])

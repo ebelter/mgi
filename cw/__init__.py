@@ -54,9 +54,6 @@ class AppCon(object):
         db.session.add(c)
         db.session.commit()
         return c.value
-
-    def server_start_fn(self):
-        return os.path.join(self.dn_for("server"), "start")
 #--
 appcon = AppCon()
 
@@ -74,9 +71,10 @@ def create_db(uri=None, extra_configs=[]):
             ["general", "runs_dn", os.path.join(appcon.dn, "runs")],
             ["general", "server_dn", server_dn],
             ["server", "port", "8888"],
+            ["server", "server_start_fn", os.path.join(server_dn, "start"],
             ["resources", "conf_template_fn", os.path.join(appcon.resources_dn, "server.conf.jinja")],
-            ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
-            ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
+            ["resources", "run_template_fn", os.path.join(appcon.resources_dn, "server.run.jinja")],
+            ["resources", "start_template_fn", os.path.join(appcon.resources_dn, "server.start.jinja")],
             ["server", "conf_fn", os.path.join(server_dn, "conf")],
             ["server", "run_fn", os.path.join(server_dn, "run")],
             ["server", "start_fn", os.path.join(server_dn, "start")],

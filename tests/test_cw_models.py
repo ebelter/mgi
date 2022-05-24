@@ -10,7 +10,7 @@ class DbTest(BaseWithDb):
         db.session.commit()
         configs = Config.query.all()
         self.assertTrue(configs)
-        self.assertEqual(len(configs), 12)
+        self.assertEqual(len(configs), 13)
         self.assertTrue(configs[0].name)
         self.assertTrue(configs[0].group)
         self.assertTrue(configs[0].value)
