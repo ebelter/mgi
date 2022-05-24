@@ -37,7 +37,7 @@ def resolve_additional_configs(configs):
     for config in configs:
         n, v = config.split("=")
         seen_configs.add(n)
-        extra_configs.append(["lsf", f"lsf_{n}".upper(), v])
+        extra_configs.append(["lsf", n, v])
     missing_configs = required_configs - seen_configs
     if len(missing_configs) > 0:
         raise Exception(f"Missing these configurations: {' '.join(missing_configs)}\nPlease add them to the command arguments as name=value pairs.")
