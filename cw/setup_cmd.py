@@ -82,7 +82,7 @@ def server_start_content():
             #"SERVER_RUN_FN": appcon.get(group="server", name=run_fn"),
             "LSF_DOCKER_VOLUMES": appcon.get(group="lsf", name="docker_volumes"),
             "LSF_JOB_GROUP": appcon.get(group="lsf", name="job_group"),
-            "LSF_QUEUE": appcon.get(group="lsf", name="user_group"),
+            "LSF_QUEUE": appcon.get(group="lsf", name="queue"),
             "LSF_USER_GROUP": appcon.get(group="lsf", name="user_group"),
             }
     template_fn = appcon.get(group="resources", name="start_template_fn")
