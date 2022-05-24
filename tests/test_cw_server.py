@@ -92,7 +92,7 @@ class CwServerTest(BaseWithDb):
 
         cw.DN = self.temp_d.name
         os.chdir(self.temp_d.name)
-        Path(appcon.server_start_fn()).touch()
+        Path(appcon.get(group="server", name="server_start_fn")).touch()
         server = MagicMock(host=self.server_host, port=self.server_port, url=self.server_url, **{"is_running.return_value": False})
         factory_p.return_value = server
         start_p.return_value = self.server_job_id

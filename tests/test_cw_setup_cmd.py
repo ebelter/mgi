@@ -31,7 +31,7 @@ class CwSetupCmdTest(unittest.TestCase):
             raise
         self.assertTrue(os.path.exists(os.path.join("server", "db")))
         configs = Config.query.all()
-        self.assertEqual(len(configs), 15)
+        self.assertEqual(len(configs), 16)
         self.assertTrue(os.path.exists(appcon.get(group="server", name="conf_fn")))
         self.assertTrue(os.path.exists(appcon.get(group="server", name="run_fn")))
         self.assertTrue(os.path.exists(appcon.get(group="server", name="start_fn")))
