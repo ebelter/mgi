@@ -19,8 +19,9 @@ class Pipeline(db.Model):
     __tablename__ = 'pipeline'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=32), nullable=False, index=True, unique=True)
-    wdl = db.Column(db.String(length=128), nullable=False)
-    imports = db.Column(db.String(length=128), nullable=True)
+    wdl = db.Column(db.String(length=256), nullable=False)
+    imports = db.Column(db.String(length=256), nullable=True)
+    outputs = db.Column(db.String(length=256), nullable=True)
 
     workflows = db.relationship("Workflow", backref="pipeline", lazy="dynamic")
 #-- Pipeline
