@@ -3,6 +3,28 @@ import os, unittest
 from tests.test_cw_base import BaseWithDb
 class ModelHelpersTest(BaseWithDb):
 
+    def test_resolve_features(self):
+        from cw.model_helpers import resolve_features, pipeline_features
+
+        known_features = {
+            "name":   {"desc": "name",   "type": str,     "required": True},
+            "baller": {"desc": "baller", "type": bool, "required": True},
+            }
+        expected_features = {}
+        features = resolve_features([], known_features)
+        self.assertDictEqual(features, expected_features)
+
+        expected_features = {"name": "Barack", "baller": True}
+        given_features = ["name=Barack", "baller=Y"]
+        features = resolve_features(given_features, known_features)
+        self.assertDictEqual(features, expected_features)
+
+        with self.assertRaisesRegex(Exception, "Unknown feature: foo"):
+            resolve_features(given_features+["foo=bar"], known_features)
+
+        with self.assertRaisesRegex(Exception, "No value given for feature: name"):
+            resolve_features(["name="], known_features)
+
     def test_pipeline_helpers(self):
         from cw import db, Pipeline
         from cw.model_helpers import get_pipeline
