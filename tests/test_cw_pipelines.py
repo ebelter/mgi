@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from tests.test_cw_base import BaseWithDb
 
-class CwServerTest(BaseWithDb):
+class Pipelinestest(BaseWithDb):
 
     def test_pipelines_cli(self):
         runner = CliRunner()
@@ -50,11 +50,13 @@ class CwServerTest(BaseWithDb):
         self.assertEqual(result.exit_code, 2)
 
         with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: WDL file <blah.wdl> does not exist"):
-            runner.invoke(cmd, ["test", "blah.wdl", "-i", "blah.zip"], catch_exceptions=False)
-        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Imports file <blah.zip> does not exist"):
-            runner.invoke(cmd, ["test", __file__, "-i", "blah.zip"], catch_exceptions=False)
+            runner.invoke(cmd, ["name=test", "wdl=blah.wdl", "imports=i.zip"], catch_exceptions=False)
+        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Imports file <i.zip> does not exist"):
+            runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports=i.zip"], catch_exceptions=False)
+        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Outputs file <o.yaml> does not exist"):
+            runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports="+__file__, "outputs=o.yaml"], catch_exceptions=False)
 
-        result = runner.invoke(cmd, ["test", __file__, "-i", __file__], catch_exceptions=False)
+        result = runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -74,11 +76,10 @@ class CwServerTest(BaseWithDb):
             print(result.output)
             raise
         expected_output = f"""NAME    WDL                                               IMPORTS
-------  ------------------------------------------------  ---------
-test    /home/ebelter/dev/mgi/tests/test_cw_pipelines.py
+------  ------------------------------------------------  ------------------------------------------------
+test    /home/ebelter/dev/mgi/tests/test_cw_pipelines.py  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py
 """
         self.assertEqual(result.output, expected_output)
-#--
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
