@@ -5,6 +5,9 @@ class ModelHelpersTest(BaseWithDb):
     def setUp(self):
         self.pipeline_id = 10001
         self.pipeline_name = "__TESTER__"
+        self.wf_id = 10001
+        self.wf_name = "__SAMPLE__"
+        self.wf_wf_id = "__WF__"
 
     def test_resolve_features(self):
         from cw.model_helpers import resolve_features, pipeline_features
@@ -48,6 +51,34 @@ class ModelHelpersTest(BaseWithDb):
         self.assertEqual(p3, p)
         pnone = get_pipeline("foo")
         self.assertFalse(pnone)
+
+    def test02_wf_helpers(self):
+        from cw import db, Pipeline, Workflow
+        from cw.model_helpers import wf_features, wf_features_help, get_wf
+
+        self.assertTrue(type(wf_features()), dict)
+        self.assertTrue(type(wf_features_help()), str)
+
+        p = Pipeline.query.get(self.pipeline_id)
+        self.assertTrue(p)
+        wf = Workflow(id=self.wf_id, name=self.wf_name, wf_id=self.wf_wf_id, pipeline=p, status="succeeded")
+        db.session.add(wf)
+        db.session.commit()
+
+        wf2 = get_wf(self.wf_id)
+        self.assertTrue(wf2)
+        self.assertEqual(wf2, wf)
+        wf2 = get_wf(str(self.wf_id))
+        self.assertTrue(wf2)
+        self.assertEqual(wf2, wf)
+        wf3 = get_wf(self.wf_name)
+        self.assertTrue(wf3)
+        self.assertEqual(wf3, wf)
+        wf4 = get_wf(self.wf_name)
+        self.assertTrue(wf4)
+        self.assertEqual(wf4, wf)
+        wfnone = get_wf("foo")
+        self.assertFalse(wfnone)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

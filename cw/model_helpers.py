@@ -1,4 +1,4 @@
-from cw import Pipeline
+from cw import Pipeline, Workflow
 
 def resolve_features(given_features, known_features):
     features = {}
@@ -26,7 +26,6 @@ def pipeline_features():
             "outputs": { "desc": "yaml file of pipeline steps and outputs", "type": str, "requried": False},
         }
 def get_pipeline(identifier):
-    q = None
     if type(identifier) is int or identifier.isnumeric():
         pipeline = Pipeline.query.get(identifier)
     else:
@@ -34,3 +33,28 @@ def get_pipeline(identifier):
     #if pipeline is None: ...
     return pipeline
 #-- get_pipeline
+
+# Workflow
+def wf_features():
+    return {
+            "wf_id": {"desc": "cromwell workflow id", "type": str, "required": True},
+            "name": {"desc": "name for the workflow", "type": str, "required": True},
+            "status": {"desc": "workflow status", "type": str, "required": False},
+            #"pipeline_id": {"desc": "workflow status", "type": str, "required": True},
+        }
+
+def wf_features_help():
+    known_features = wf_features()
+    return list(map(lambda k: [k, known_features[k]["desc"]], known_features.keys()))
+#-- wf_features_help
+
+def get_wf(identifier):
+    if type(identifier) is int or identifier.isnumeric():
+        wf = Workflow.query.get(identifier)
+    else:
+        wf = Workflow.query.filter(Workflow.wf_id == identifier).one_or_none()
+        if wf is None:
+            wf = Workflow.query.filter(Workflow.name == identifier).one_or_none()
+    #if wf is None: ...
+    return wf
+#-- get_wf
