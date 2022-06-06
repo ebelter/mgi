@@ -6,6 +6,9 @@ from tests.test_cw_base import BaseWithDb
 
 class Pipelinestest(BaseWithDb):
 
+    def setUp(self):
+        self.pipeline_name = "__TESTER__"
+
     def test_pipelines_cli(self):
         runner = CliRunner()
         from cw.pipelines import cli
@@ -50,19 +53,19 @@ class Pipelinestest(BaseWithDb):
         self.assertEqual(result.exit_code, 2)
 
         with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: WDL file <blah.wdl> does not exist"):
-            runner.invoke(cmd, ["name=test", "wdl=blah.wdl", "imports=i.zip"], catch_exceptions=False)
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl=blah.wdl", "imports=i.zip"], catch_exceptions=False)
         with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Imports file <i.zip> does not exist"):
-            runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports=i.zip"], catch_exceptions=False)
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports=i.zip"], catch_exceptions=False)
         with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Outputs file <o.yaml> does not exist"):
-            runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports="+__file__, "outputs=o.yaml"], catch_exceptions=False)
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__, "outputs=o.yaml"], catch_exceptions=False)
 
-        result = runner.invoke(cmd, ["name=test", "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
+        result = runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
             print(result.output)
             raise
-        expected_output = f"""Add pipeline test {__file__} {__file__}
+        expected_output = f"""Add pipeline {self.pipeline_name} {__file__} {__file__}
 """
 
     def test13_list_cmd(self):
@@ -75,11 +78,43 @@ class Pipelinestest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""NAME    WDL                                               IMPORTS
-------  ------------------------------------------------  ------------------------------------------------
-test    /home/ebelter/dev/mgi/tests/test_cw_pipelines.py  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py
+        expected_output = f"""NAME        WDL                                               IMPORTS
+----------  ------------------------------------------------  ------------------------------------------------
+__TESTER__  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py
 """
         self.assertEqual(result.output, expected_output)
+
+    def test14_update_cmd(self):
+        from cw import db, Pipeline
+        from cw.pipelines import update_cmd as cmd
+        runner = CliRunner()
+        os.chdir(self.temp_d.name)
+
+        result = runner.invoke(cmd, ["--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cmd, [])
+        self.assertEqual(result.exit_code, 2)
+
+        pipeline_id = "1"
+        p = Pipeline.query.get(int(pipeline_id))
+        self.assertTrue(p)
+        self.assertEqual(p.name, self.pipeline_name)
+
+        pipeline_new_name = "__NEW__"
+        result = runner.invoke(cmd, [pipeline_id, f"name={pipeline_new_name}"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"""Update pipeline <1>
+ATTR    FROM        TO
+------  ----------  -------
+name    __TESTER__  __NEW__
+"""
+        self.assertEqual(result.output, expected_output)
+        db.session.refresh(p)
+        self.assertEqual(p.name, pipeline_new_name)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

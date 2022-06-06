@@ -21,7 +21,7 @@ def resolve_features(given_features, known_features):
 def pipeline_features():
     return {
             "name": {"desc": "name for the pipeline", "type": str, "required": True},
-            "wdl": { "desc": "pipeline wdl file", "type": str, "required": True},
+            "wdl": { "desc": "pipeline wdl file", "type": "file", "required": True},
             "imports": { "desc": "imports zip file of imports used by WDL", "type": str, "requried": False},
             "outputs": { "desc": "yaml file of pipeline steps and outputs", "type": str, "requried": False},
         }

@@ -1,10 +1,11 @@
 import click, os, sys, tabulate, yaml
 
 from cw import db, Pipeline
-from cw.model_helpers import resolve_features, pipeline_features
+from cw.model_helpers import resolve_features, pipeline_features, get_pipeline
 
 @click.group()
 def cli():
+    "Commands for Pipelines"
     pass
 
 known_features = pipeline_features()
@@ -53,3 +54,31 @@ def list_cmd():
         rows.append([p.name, p.wdl, p.imports])
     print(tabulate.tabulate(rows, ["NAME", "WDL", "IMPORTS"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
+
+update_pipeline_help = f"""
+Update a Pipeline
+
+\b
+Give a pipeline and features as key=value pairs to update.
+
+\b
+Pipeline features:
+{tabulate.tabulate(rows,tablefmt='plain')}
+"""
+@click.command(help=update_pipeline_help, short_help="update a pipeline")
+@click.argument("identifier", required=True, nargs=1)
+@click.argument("features", required=True, nargs=-1)
+def update_cmd(identifier, features):
+    p = get_pipeline(identifier)
+    if p is None:
+        sys.stderr.write(f"Failed to get pipeline for <{identifier}>")
+        sys.exit(1)
+    features = resolve_features(features, known_features)
+    rows = []
+    for k, v in features.items():
+        rows.append([k, getattr(p, k), v])
+        setattr(p, k, v)
+    db.session.add(p)
+    db.session.commit()
+    print(f"Update pipeline <{identifier}>\n{tabulate.tabulate(rows, ['ATTR', 'FROM', 'TO'], tablefmt='simple')}")
+cli.add_command(update_cmd, name="update")
