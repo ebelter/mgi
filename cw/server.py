@@ -24,6 +24,8 @@ class Server(object):
         if url is None:
             return False
         response = self.query(url)
+        if response is False:
+            return False
         return response.ok
 
     def query(self, url):
