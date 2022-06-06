@@ -13,6 +13,10 @@ class BaseWithDb(unittest.TestCase):
         cw.appcon.dn = self.temp_d.name
         cw.db.uri(self.db_uri)
         cw.create_db()
+        self._setUpClass(self)
+
+    def _setUpClass(self):
+        pass
 
     def setUp(self):
         pass

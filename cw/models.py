@@ -29,8 +29,8 @@ class Pipeline(db.Model):
 class Workflow(db.Model):
     __tablename__ = 'workflow'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    wf_id = db.Column(db.String(length=48), nullable=False, index=True)
     name = db.Column(db.String(length=32), nullable=False, index=True)
+    wf_id = db.Column(db.String(length=48), nullable=False, unique=True, index=True)
+    pipeline_id = db.Column(db.Integer, db.ForeignKey("pipeline.id"), nullable=False, index=True)
     status = db.Column(db.String(length=32), default="new", nullable=False)
-    pipeline_id = db.Column(db.Integer, db.ForeignKey("pipeline.id"), nullable=True, index=True)
 #-- Workflow

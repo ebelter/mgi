@@ -10,18 +10,19 @@ def cli():
 @click.command(short_help="add a workflow")
 @click.argument("wf_id", required=True, nargs=1)
 @click.argument("name", required=True, nargs=1)
+@click.argument("pipeline", required=True, nargs=1)
 @click.option("status", "-s", default="new", required=False, nargs=1)
-@click.option("pipeline","-p", default=0, required=False, nargs=1)
 def add_cmd(wf_id, name, status, pipeline):
     """
     Add Workflow
 
     Give workflow id, name, status, and pipeline. Optionally give the status and pipeline.
     """
-    wf = Workflow(wf_id=wf_id, name=name, status=status, pipeline_id=pipeline)
+    pipeline = get_pipeline(pipeline)
+    wf = Workflow(wf_id=wf_id, name=name, status=status, pipeline_id=pipeline.id)
     db.session.add(wf)
     db.session.commit()
-    print(f"Add workflow {id} {name} {status} {pipeline}")
+    print(f"Add workflow {wf.id} {wf_id} {name} {status} {pipeline.name}")
 cli.add_command(add_cmd, name="add")
 
 @click.command(short_help="list workflows")

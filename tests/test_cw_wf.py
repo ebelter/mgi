@@ -5,6 +5,17 @@ from unittest.mock import MagicMock, patch
 from tests.test_cw_base import BaseWithDb
 class CwWfTest(BaseWithDb):
 
+    def _setUpClass(self):
+        from cw import db, Pipeline
+        self.wf_id = 10001
+        self.wf_name = "__SAMPLE__"
+        self.wf_wf_id = "__WFID__"
+
+        p = Pipeline(name="__TESTER__", wdl=__file__, imports=None, outputs=None)
+        db.session.add(p)
+        db.session.commit()
+        self.pipeline = p
+
     def test_wf_cli(self):
         runner = CliRunner()
         from cw.wf import cli
@@ -21,6 +32,11 @@ class CwWfTest(BaseWithDb):
 
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
+
+        result = runner.invoke(cli, ["update", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["update"])
+        self.assertEqual(result.exit_code, 2)
 
     def test11_list_cmd(self):
         from cw.wf import list_cmd as cmd
@@ -48,14 +64,15 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cmd, [])
         self.assertEqual(result.exit_code, 2)
 
-        result = runner.invoke(cmd, ["d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", "sample1"], catch_exceptions=False)
+        result = runner.invoke(cmd, [self.wf_wf_id, self.wf_name, str(self.pipeline.id)], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
             print(result.output)
             raise
-        expected_output = f"""Add workflow test {__file__} {__file__}
+        expected_output = f"""Add workflow 1 {self.wf_wf_id} {self.wf_name} new {self.pipeline.name}
 """
+        self.assertEqual(result.output, expected_output)
 
     def test13_list_cmd(self):
         from cw.wf import list_cmd as cmd
@@ -67,12 +84,11 @@ class CwWfTest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""WF_ID                                 NAME     STATUS      PIPELINE
-------------------------------------  -------  --------  ----------
-d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a  sample1  new                0
+        expected_output = f"""WF_ID     NAME        STATUS    PIPELINE
+--------  ----------  --------  ----------
+{self.wf_wf_id}  {self.wf_name}  new       {self.pipeline.name}
 """
         self.assertEqual(result.output, expected_output)
-#--
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
