@@ -1,3 +1,4 @@
+import os
 from cw import Pipeline, Workflow
 
 def resolve_features(given_features, known_features):
@@ -9,10 +10,12 @@ def resolve_features(given_features, known_features):
         if v == "":
             raise Exception(f"No value given for feature: {k}")
         if known_features[k]["type"] is bool:
-            if v in [None, "", "false", "False", "n", "N"]:
+            if v in [None, "false", "False", "n", "N"]:
                 v = False
             else:
                 v = True
+        if known_features[k]["type"] == "file" and not os.path.exists(v):
+            raise Exception(f"Feature <{k}> is a file, but given value <{v}> does not exist")
         features[k] = v
     return features
 #-- resolve_features
@@ -22,8 +25,8 @@ def pipeline_features():
     return {
             "name": {"desc": "name for the pipeline", "type": str, "required": True},
             "wdl": { "desc": "pipeline wdl file", "type": "file", "required": True},
-            "imports": { "desc": "imports zip file of imports used by WDL", "type": str, "requried": False},
-            "outputs": { "desc": "yaml file of pipeline steps and outputs", "type": str, "requried": False},
+            "imports": { "desc": "imports zip file of imports used by WDL", "type": "file", "requried": False},
+            "outputs": { "desc": "yaml file of pipeline steps and outputs", "type": "file", "requried": False},
         }
 def get_pipeline(identifier):
     if type(identifier) is int or identifier.isnumeric():
@@ -39,7 +42,7 @@ def wf_features():
     return {
             "wf_id": {"desc": "cromwell workflow id", "type": str, "required": True},
             "name": {"desc": "name for the workflow", "type": str, "required": True},
-            "pipeline": {"desc": "pipeline", "type": int, "required": True},
+            "pipeline": {"desc": "pipeline id or name", "type": int, "required": True},
             "status": {"desc": "workflow status", "type": str, "required": False},
         }
 

@@ -28,8 +28,6 @@ def add_cmd(features):
         raise Exception(f"FAILED to add pipeline: 'name' is required\n")
     if "wdl" not in features.keys():
         raise Exception(f"FAILED to add pipeline: 'wdl' is required\n")
-    if not os.path.exists(features["wdl"]):
-        raise Exception(f"FAILED to add pipeline: WDL file <{features['wdl']}> does not exist\n")
     if "imports" in features.keys() is not None and not os.path.exists(features["imports"]):
         raise Exception(f"FAILED to add pipeline: Imports file <{features['imports']}> does not exist\n")
     if "outputs"in features.keys() is not None and not os.path.exists(features["outputs"]):

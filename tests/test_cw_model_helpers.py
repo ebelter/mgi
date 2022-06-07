@@ -15,13 +15,14 @@ class ModelHelpersTest(BaseWithDb):
         known_features = {
             "name":   {"desc": "name",   "type": str,     "required": True},
             "baller": {"desc": "baller", "type": bool, "required": True},
+            "birth_cert": {"desc": "birth_cert", "type": "file", "required": True},
             }
         expected_features = {}
         features = resolve_features([], known_features)
         self.assertDictEqual(features, expected_features)
 
-        expected_features = {"name": "Barack", "baller": True}
-        given_features = ["name=Barack", "baller=Y"]
+        expected_features = {"name": "Barack", "baller": True, "birth_cert": __file__}
+        given_features = ["name=Barack", "baller=Y", f"birth_cert={__file__}"]
         features = resolve_features(given_features, known_features)
         self.assertDictEqual(features, expected_features)
 
@@ -30,6 +31,9 @@ class ModelHelpersTest(BaseWithDb):
 
         with self.assertRaisesRegex(Exception, "No value given for feature: name"):
             resolve_features(["name="], known_features)
+
+        with self.assertRaisesRegex(Exception, "Feature <birth_cert> is a file, but given value <blah> does not exist"):
+            resolve_features(["birth_cert=blah"], known_features)
 
     def test01_pipeline_helpers(self):
         from cw import db, Pipeline

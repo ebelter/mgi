@@ -52,12 +52,12 @@ class Pipelinestest(BaseWithDb):
         result = runner.invoke(cmd, [])
         self.assertEqual(result.exit_code, 2)
 
-        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: WDL file <blah.wdl> does not exist"):
-            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl=blah.wdl", "imports=i.zip"], catch_exceptions=False)
-        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Imports file <i.zip> does not exist"):
-            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports=i.zip"], catch_exceptions=False)
-        with self.assertRaisesRegex(Exception, f"FAILED to add pipeline: Outputs file <o.yaml> does not exist"):
-            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__, "outputs=o.yaml"], catch_exceptions=False)
+        with self.assertRaisesRegex(Exception, f"Feature <wdl> is a file, but given value <blah.wdl> does not exist"):
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl=blah.wdl", "imports=blah.zip"], catch_exceptions=False)
+        with self.assertRaisesRegex(Exception, f"Feature <imports> is a file, but given value <blah.zip> does not exist"):
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports=blah.zip"], catch_exceptions=False)
+        with self.assertRaisesRegex(Exception, f"Feature <outputs> is a file, but given value <blah.yaml> does not exist"):
+            runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__, "outputs=blah.yaml"], catch_exceptions=False)
 
         result = runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
         try:
