@@ -39,8 +39,8 @@ def wf_features():
     return {
             "wf_id": {"desc": "cromwell workflow id", "type": str, "required": True},
             "name": {"desc": "name for the workflow", "type": str, "required": True},
+            "pipeline": {"desc": "pipeline", "type": int, "required": True},
             "status": {"desc": "workflow status", "type": str, "required": False},
-            #"pipeline_id": {"desc": "workflow status", "type": str, "required": True},
         }
 
 def wf_features_help():
