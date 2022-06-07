@@ -90,5 +90,35 @@ class CwWfTest(BaseWithDb):
 """
         self.assertEqual(result.output, expected_output)
 
+    def test14_update_cmd(self):
+        from cw import db, Workflow
+        from cw.wf import update_cmd as cmd
+        runner = CliRunner()
+        #os.chdir(self.temp_d.name)
+
+        result = runner.invoke(cmd, ["--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cmd, [])
+        self.assertEqual(result.exit_code, 2)
+
+        wf = Workflow.query.get(1)
+        self.assertTrue(wf)
+
+        new_name = "__SAMPLE2__"
+        result = runner.invoke(cmd, [str(wf.id), f"name={new_name}"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"""Update workflow <1>
+ATTR    FROM        TO
+------  ----------  -----------
+name    {self.wf_name}  {new_name}
+"""
+        self.assertEqual(result.output, expected_output)
+        db.session.refresh(wf)
+        self.assertEqual(wf.name, new_name)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
