@@ -8,22 +8,32 @@ from cw.model_helpers import get_wf, get_pipeline, resolve_features, wf_features
 def cli():
     pass
 
-@click.command(short_help="add a workflow")
-@click.argument("wf_id", required=True, nargs=1)
-@click.argument("name", required=True, nargs=1)
-@click.argument("pipeline", required=True, nargs=1)
-@click.option("status", "-s", default="new", required=False, nargs=1)
-def add_cmd(wf_id, name, status, pipeline):
-    """
-    Add Workflow
+add_help = f"""
+Add a Workflow:w
 
-    Give workflow id, name, status, and pipeline. Optionally give the status and pipeline.
-    """
-    pipeline = get_pipeline(pipeline)
-    wf = Workflow(wf_id=wf_id, name=name, status=status, pipeline_id=pipeline.id)
+\b
+Give workflow features as key=value pairs.
+
+\b
+Workflow features:
+{tabulate.tabulate(wf_features_help(),tablefmt='plain')}
+"""
+@click.command(short_help="add a workflow", help=add_help)
+@click.argument("features", required=True, nargs=-1)
+def add_cmd(features):
+    features = resolve_features(features, wf_features())
+    if "pipeline" not in features:
+        sys.stderr.write("[ERROR] Missing pipeline to create workflow")
+        return
+    pipeline = get_pipeline(features.pop("pipeline"))
+    if not pipeline:
+        sys.stderr.write("[ERROR] Could not create workflow, failed to get pipeline for <{features['pipeline']}>")
+        return
+    features["pipeline_id"] = pipeline.id
+    wf = Workflow(**features)
     db.session.add(wf)
     db.session.commit()
-    print(f"Add workflow {wf.id} {wf_id} {name} {status} {pipeline.name}")
+    print(f"Add workflow {wf.id} {wf.wf_id} {wf.name} {wf.status} {wf.pipeline.name}")
 cli.add_command(add_cmd, name="add")
 
 @click.command(short_help="list workflows")

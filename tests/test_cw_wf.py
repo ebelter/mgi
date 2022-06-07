@@ -64,7 +64,7 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cmd, [])
         self.assertEqual(result.exit_code, 2)
 
-        result = runner.invoke(cmd, [self.wf_wf_id, self.wf_name, str(self.pipeline.id)], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"wf_id={self.wf_wf_id}", f"name={self.wf_name}", f"pipeline={str(self.pipeline.id)}"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
