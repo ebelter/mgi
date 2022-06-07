@@ -16,6 +16,20 @@ class CwWfOutputsTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
+    def test_cli(self):
+        runner = CliRunner()
+        from cw.wf_outputs import cli
+
+        result = runner.invoke(cli, ["--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, [])
+        self.assertEqual(result.exit_code, 0)
+
+        result = runner.invoke(cli, ["gather", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["gather"])
+        self.assertEqual(result.exit_code, 2)
+
     def test_resolve_tasks_and_outputs(self):
         from cw.wf_outputs import resolve_tasks_and_outputs as fun
 
@@ -105,8 +119,8 @@ class CwWfOutputsTest(unittest.TestCase):
         with open(fn, "r") as f:
             self.assertEqual(f.read(), expected)
 
-    def test_outputs_cmd(self):
-        from cw.wf_outputs import outputs_cmd as cmd
+    def test_gather_cmd(self):
+        from cw.wf_outputs import gather_cmd as cmd
         runner = CliRunner()
 
         # create files

@@ -4,8 +4,9 @@ from cw.model_helpers import get_wf, get_pipeline, resolve_features, wf_features
 
 #curl --connect-timeout 5 --max-time 10 -s http://compute1-exec-226.ris.wustl.edu:8888/api/workflows/v1/c808fe24-0edd-46c4-ba23-ff881725e297/status {"status":"Succeeded","id":"c808fe24-0edd-46c4-ba23-ff881725e297"}
 
-@click.group()
+@click.group(short_help="commands for workflows")
 def cli():
+    "Commands for Workflows"
     pass
 
 add_help = f"""
@@ -61,8 +62,8 @@ cli.add_command(cmd, name="status")
 from cw.wf_submit_cmd import submit_cmd as cmd
 cli.add_command(cmd, name="submit")
 
-from cw.wf_outputs import outputs_cmd as cmd
-cli.add_command(cmd, "outputs")
+from cw.wf_outputs import cli as outputs_cli
+cli.add_command(outputs_cli, name="outputs")
 
 update_help = f"""
 Update a Workflow

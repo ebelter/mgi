@@ -20,12 +20,17 @@ known_pipelines = {
         }
 }
 
+@click.group(short_help="commands for wf outputs")
+def cli():
+    "Command for Workflow Outputs"
+    pass
+
 @click.command(short_help="gather outputs from a cromwell run")
 @click.argument("metadata-file", type=str, required=True, nargs=1)
 @click.argument("destination", type=str, required=True, nargs=1)
 @click.argument("tasks_and_outputs", type=str, required=True, nargs=1)
 @click.option("--list-outputs", "-l", is_flag=True, default=False, help="List, do not copy, the outputs found in the workflow")
-def outputs_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
+def gather_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
     """
     Gather Outputs from a Cromwell Run
 
@@ -79,7 +84,7 @@ def outputs_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
             dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
             copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
-#-- outputs_cmd
+cli.add_command(gather_cmd, name="gather")
 
 def resolve_tasks_and_outputs(tasks_and_outputs):
     if os.path.exists(tasks_and_outputs):
