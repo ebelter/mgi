@@ -9,7 +9,7 @@ def cli():
     pass
 
 add_help = f"""
-Add a Workflow:w
+Add a Workflow
 
 \b
 Give workflow features as key=value pairs.
@@ -25,9 +25,10 @@ def add_cmd(features):
     if "pipeline" not in features:
         sys.stderr.write("[ERROR] Missing pipeline to create workflow")
         return
-    pipeline = get_pipeline(features.pop("pipeline"))
+    pipeline_identifier = features.pop("pipeline")
+    pipeline = get_pipeline(pipeline_identifier)
     if not pipeline:
-        sys.stderr.write("[ERROR] Could not create workflow, failed to get pipeline for <{features['pipeline']}>")
+        sys.stderr.write(f"[ERROR] Could not create workflow, failed to get pipeline for <{pipeline_identifier}>")
         return
     features["pipeline_id"] = pipeline.id
     wf = Workflow(**features)
@@ -59,6 +60,9 @@ cli.add_command(cmd, name="status")
 
 from cw.wf_submit_cmd import submit_cmd as cmd
 cli.add_command(cmd, name="submit")
+
+from cw.wf_outputs import outputs_cmd as cmd
+cli.add_command(cmd, "outputs")
 
 update_help = f"""
 Update a Workflow

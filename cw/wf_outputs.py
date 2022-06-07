@@ -20,7 +20,7 @@ known_pipelines = {
         }
 }
 
-@click.command(short_help="Start a cromwell server")
+@click.command(short_help="gather outputs from a cromwell run")
 @click.argument("metadata-file", type=str, required=True, nargs=1)
 @click.argument("destination", type=str, required=True, nargs=1)
 @click.argument("tasks_and_outputs", type=str, required=True, nargs=1)

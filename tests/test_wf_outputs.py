@@ -1,9 +1,9 @@
-import click, glob, json, os, shutil, sys, tempfile, unittest, yaml
+import json, os, sys, tempfile, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-class CwOutputsCmdTest(unittest.TestCase):
+class CwWfOutputsTest(unittest.TestCase):
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
         self.destination = os.path.join(self.temp_d.name, "outputs")
@@ -17,7 +17,7 @@ class CwOutputsCmdTest(unittest.TestCase):
         self.temp_d.cleanup()
 
     def test_resolve_tasks_and_outputs(self):
-        from cw.outputs_cmd import resolve_tasks_and_outputs as fun
+        from cw.wf_outputs import resolve_tasks_and_outputs as fun
 
         # file
         got = fun(self.tasks_and_outputs_fn)
@@ -32,7 +32,7 @@ class CwOutputsCmdTest(unittest.TestCase):
             fun("unknown")
 
     def test_collect_shards_outputs(self):
-        from cw.outputs_cmd import collect_shards_outputs as fun
+        from cw.wf_outputs import collect_shards_outputs as fun
 
         task_name = "test.task2"
         task = [
@@ -74,7 +74,7 @@ class CwOutputsCmdTest(unittest.TestCase):
         self.assertEqual(shard_idxs, set([0, 1, 2]))
 
     def test_copy_shards_outputs(self):
-        from cw.outputs_cmd import copy_shards_outputs as fun
+        from cw.wf_outputs import copy_shards_outputs as fun
         with open(os.devnull, 'w') as stdout:
             sys.stdout = stdout
             shards = [[0, ["file2", "file3"]], [1, ["file2", "file3"]]]
@@ -86,7 +86,7 @@ class CwOutputsCmdTest(unittest.TestCase):
         sys.stdout = sys.__stdout__
 
     def test_list_shards_outputs(self):
-        from cw.outputs_cmd import  list_shards_outputs as fun
+        from cw.wf_outputs import  list_shards_outputs as fun
         fn = os.path.join(self.temp_d.name, "stdout")
         with open(fn, "w") as f:
             sys.stdout = f
@@ -106,7 +106,7 @@ class CwOutputsCmdTest(unittest.TestCase):
             self.assertEqual(f.read(), expected)
 
     def test_outputs_cmd(self):
-        from cw.outputs_cmd import outputs_cmd as cmd
+        from cw.wf_outputs import outputs_cmd as cmd
         runner = CliRunner()
 
         # create files
