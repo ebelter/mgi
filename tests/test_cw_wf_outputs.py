@@ -2,8 +2,13 @@ import json, os, sys, tempfile, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+import cw.wf_outputs
 
-class CwWfOutputsTest(unittest.TestCase):
+from tests.test_cw_base import BaseWithDb
+class CwWfOutputsTest(BaseWithDb):
+    def _setUpClass(self):
+        self.add_workflow_to_db(self)
+
     def setUp(self):
         self.temp_d = tempfile.TemporaryDirectory()
         self.destination = os.path.join(self.temp_d.name, "outputs")
@@ -119,7 +124,8 @@ class CwWfOutputsTest(unittest.TestCase):
         with open(fn, "r") as f:
             self.assertEqual(f.read(), expected)
 
-    def test_gather_cmd(self):
+    @patch("cw.wf_outputs.get_metadata")
+    def test_gather_cmd(self, metadata_p):
         from cw.wf_outputs import gather_cmd as cmd
         runner = CliRunner()
 
@@ -204,11 +210,12 @@ class CwWfOutputsTest(unittest.TestCase):
                 ],
             }
         }
-        metadata_fn = os.path.join(self.temp_d.name, "metadata.json")
-        with open(metadata_fn, "w") as f:
-            json.dump(metadata, f)
+        metadata_p.return_value = metadata
+        #metadata_fn = os.path.join(self.temp_d.name, "metadata.json")
+        #with open(metadata_fn, "w") as f:
+        #json.dump(metadata, f)
 
-        result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn, "-l"], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-t", self.tasks_and_outputs_fn, "-l"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -238,7 +245,7 @@ test.task2
         self.maxDiff = 10000
         self.assertEqual(result.output, expected)
 
-        result = runner.invoke(cmd, [metadata_fn, self.destination, self.tasks_and_outputs_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-t", self.tasks_and_outputs_fn], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:

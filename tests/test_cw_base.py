@@ -24,6 +24,23 @@ class BaseWithDb(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def add_pipeline_to_db(self):
+        if getattr(self, "pipeline", None) is not None:
+            return
+        from cw import db, Pipeline
+        p = Pipeline(id=10001, name="__TESTER__", wdl=__file__, imports=__file__, outputs=__file__)
+        db.session.add(p)
+        db.session.commit()
+        self.pipeline = p
+
+    def add_workflow_to_db(self):
+        if getattr(self, "wf", None) is not None:
+            return
+        from cw import db, Workflow
+        self.add_pipeline_to_db(self)
+        wf = Workflow(id=10001, wf_id="__WF_ID__", name="__SAMPLE__", pipeline=self.pipeline)
+        self.wf = wf
+
     def add_lsf_config_to_db(self):
         configs = ["docker_volumes=MINE", "job_group=MINE", "queue=MINE", "user_group=MINE"]
         for c in configs:
@@ -46,6 +63,7 @@ class CwTest(BaseWithDb):
         self.assertTrue(db)
 
     def test_appcon_get_and_set(self):
+
         from cw import appcon, Config
         self.assertTrue(appcon)
         v = appcon.get("foo")
@@ -74,6 +92,14 @@ class CwTest(BaseWithDb):
             self.assertTrue(appcon.dn_for(n))
         with self.assertRaisesRegex(Exception, "Unknown directory"):
             appcon.dn_for("blah")
+
+    def test_add_objectgs_to_db(self):
+        self.assertFalse(getattr(self, "pipeline", None))
+        self.add_pipeline_to_db()
+        self.assertTrue(self.pipeline)
+        self.assertFalse(getattr(self, "wf", None))
+        self.add_workflow_to_db()
+        self.assertTrue(self.wf)
 #-- CwTest
 
 if __name__ == '__main__':

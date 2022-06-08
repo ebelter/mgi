@@ -1,4 +1,6 @@
 import click, json, os, re, shutil, sys, yaml
+from cw.model_helpers import get_wf
+import cw.server
 
 known_pipelines = {
         "encode_hic": {
@@ -26,11 +28,11 @@ def cli():
     pass
 
 @click.command(short_help="gather outputs from a cromwell run")
-@click.argument("metadata-file", type=str, required=True, nargs=1)
+@click.argument("workflow-identifier", type=str, required=True, nargs=1)
 @click.argument("destination", type=str, required=True, nargs=1)
-@click.argument("tasks_and_outputs", type=str, required=True, nargs=1)
+@click.option("--tasks_and_outputs", "-t", type=str, required=True)
 @click.option("--list-outputs", "-l", is_flag=True, default=False, help="List, do not copy, the outputs found in the workflow")
-def gather_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
+def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs):
     """
     Gather Outputs from a Cromwell Run
 
@@ -52,10 +54,12 @@ def gather_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
 
     Outputs will be copied into the destination into task subdirectories. If the task has multiple shards, files will be copied into the shard subdirectory.
     """
-    if not os.path.exists(metadata_file):
-        raise Exception(f"Metadata file <{metadata_file}> does not exist!")
-    with open(metadata_file, "r") as f:
-        metadata = json.load(f)
+    wf = get_wf(workflow_identifier)
+    if wf is None:
+        raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
+    metadata = get_metadata(wf)
+    if metadata is None:
+        raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
     calls = metadata.get("calls", None)
     if calls is None:
         raise Exception(f"Failed to find <calls> in workflow metadata!")
@@ -85,6 +89,16 @@ def gather_cmd(metadata_file, destination, tasks_and_outputs, list_outputs):
             copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
 cli.add_command(gather_cmd, name="gather")
+
+def get_metadata(wf):
+    server = cw.server.server_factory()
+    url = f"{server.url()}/api/workflows/v1/{wf.wf_id}/metadata?excludeKey=submittedFiles&expandSubWorkflows=true"
+    response = server.query(url)
+    if not response or not response.ok:
+        #sys.stderr.write(f"Failed to get response from server at {url}\n")
+        return None
+    return json.loads(response.content.decode())
+#-- get_metadata
 
 def resolve_tasks_and_outputs(tasks_and_outputs):
     if os.path.exists(tasks_and_outputs):
