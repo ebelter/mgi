@@ -14,8 +14,10 @@ def resolve_features(given_features, known_features):
                 v = False
             else:
                 v = True
-        if known_features[k]["type"] == "file" and not os.path.exists(v):
-            raise Exception(f"Feature <{k}> is a file, but given value <{v}> does not exist")
+        if known_features[k]["type"] == "file":
+            if not os.path.exists(v):
+                raise Exception(f"Feature <{k}> is a file, but given value <{v}> does not exist")
+            v = os.path.abspath(v)
         features[k] = v
     return features
 #-- resolve_features
@@ -50,6 +52,18 @@ def wf_features_help():
     known_features = wf_features()
     return list(map(lambda k: [k, known_features[k]["desc"]], known_features.keys()))
 #-- wf_features_help
+
+def resolve_wf_features(features, enfore_required=False):
+    features = resolve_features(features, wf_features())
+    if "pipeline" not in features:
+        sys.stderr.write("[ERROR] Missing pipeline to create workflow")
+        return
+    pipeline = get_pipeline(features.pop("pipeline"))
+    if not pipeline:
+        sys.stderr.write("[ERROR] Could not create workflow, failed to get pipeline for <{features['pipeline']}>")
+        return
+    return features
+#-- resolve_wf_features
 
 def get_wf(identifier):
     if type(identifier) is int or identifier.isnumeric():
