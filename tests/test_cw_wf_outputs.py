@@ -1,4 +1,4 @@
-import json, os, sys, tempfile, unittest, yaml
+import json, os, sys, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -7,19 +7,20 @@ import cw.wf_metadata
 from tests.test_cw_base import BaseWithDb
 class CwWfOutputsTest(BaseWithDb):
     def _setUpClass(self):
-        self.add_workflow_to_db(self)
-
-    def setUp(self):
-        self.temp_d = tempfile.TemporaryDirectory()
+        from cw import db
+        os.chdir(self.temp_d.name)
         self.destination = os.path.join(self.temp_d.name, "outputs")
         os.makedirs(self.destination, exist_ok=True)
-        self.tasks_and_outputs = { "test.task1": ["file1"], "test.task2": ["file2", "file3"], "test.missing_task": ["?"]}
-        self.tasks_and_outputs_fn = os.path.join(self.temp_d.name, "mypipe_tno.yaml")
-        with open(self.tasks_and_outputs_fn, "w") as f:
-            f.write(yaml.dump(self.tasks_and_outputs))
 
-    def tearDown(self):
-        self.temp_d.cleanup()
+        self.add_workflow_to_db(self)
+        self.tasks_and_outputs = {"test.task1": ["file1"], "test.task2": ["file2", "file3"], "test.missing_task": ["?"]}
+        self.pipeline.outputs = os.path.join(self.temp_d.name, "pipelines", "outputs.yaml")
+        os.makedirs(os.path.dirname(self.pipeline.outputs))
+        with open(self.pipeline.outputs, "w") as f:
+            f.write(yaml.dump(self.tasks_and_outputs))
+        db.session.add(self.pipeline)
+        db.session.commit()
+        db.session.refresh(self.pipeline)
 
     def test_cli(self):
         runner = CliRunner()
@@ -38,17 +39,13 @@ class CwWfOutputsTest(BaseWithDb):
     def test_resolve_tasks_and_outputs(self):
         from cw.wf_outputs import resolve_tasks_and_outputs as fun
 
-        # file
-        got = fun(self.tasks_and_outputs_fn)
+        # pipeline
+        got = fun(self.wf.pipeline, None)
         self.assertDictEqual(got, self.tasks_and_outputs)
 
-        # encode hic
-        got = fun("encode_hic")
-        self.assertTrue(type(got), dict)
-
-        # error
-        with self.assertRaisesRegex(Exception, f"No such known pipeline <unknown>."):
-            fun("unknown")
+        # file
+        got = fun(self.wf, self.wf.pipeline.outputs)
+        self.assertDictEqual(got, self.tasks_and_outputs)
 
     def test_collect_shards_outputs(self):
         from cw.wf_outputs import collect_shards_outputs as fun
@@ -211,11 +208,8 @@ class CwWfOutputsTest(BaseWithDb):
             }
         }
         metadata_p.return_value = metadata
-        #metadata_fn = os.path.join(self.temp_d.name, "metadata.json")
-        #with open(metadata_fn, "w") as f:
-        #json.dump(metadata, f)
 
-        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-t", self.tasks_and_outputs_fn, "-l"], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-l"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -245,7 +239,7 @@ test.task2
         self.maxDiff = 10000
         self.assertEqual(result.output, expected)
 
-        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-t", self.tasks_and_outputs_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:

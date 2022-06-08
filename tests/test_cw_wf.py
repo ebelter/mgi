@@ -33,6 +33,9 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["outputs", "--help"])
+        self.assertEqual(result.exit_code, 0)
+
         result = runner.invoke(cli, ["update", "--help"])
         self.assertEqual(result.exit_code, 0)
         result = runner.invoke(cli, ["update"])

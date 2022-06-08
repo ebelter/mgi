@@ -30,7 +30,7 @@ def cli():
 @click.command(short_help="gather outputs from a cromwell run")
 @click.argument("workflow-identifier", type=str, required=True, nargs=1)
 @click.argument("destination", type=str, required=True, nargs=1)
-@click.option("--tasks_and_outputs", "-t", type=str, required=True)
+@click.option("--tasks_and_outputs", "-t", type=str, required=False)
 @click.option("--list-outputs", "-l", is_flag=True, default=False, help="List, do not copy, the outputs found in the workflow")
 def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs):
     """
@@ -67,7 +67,7 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs
     if not os.path.exists(destination):
         raise Exception(f"Destination directory <{destination}> does not exist!")
 
-    tasks_and_outputs = resolve_tasks_and_outputs(tasks_and_outputs)
+    tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
     rm_wf_name_re = re.compile(rf"^{metadata['workflowName']}\.")
     for task_name, file_keys in tasks_and_outputs.items():
         sys.stdout.write(f"[INFO] Task <{task_name}> files: <{' '.join(file_keys)}>\n")
@@ -90,16 +90,17 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs
     sys.stdout.write(f"[INFO] Done\n")
 cli.add_command(gather_cmd, name="gather")
 
-def resolve_tasks_and_outputs(tasks_and_outputs):
-    if os.path.exists(tasks_and_outputs):
-        with open(tasks_and_outputs, "r") as f:
-            tasks_and_outputs = yaml.safe_load(f)
-    elif tasks_and_outputs in known_pipelines:
-        tasks_and_outputs = known_pipelines[tasks_and_outputs]
+def resolve_tasks_and_outputs(pipeline, tasks_and_outputs):
+    if tasks_and_outputs is not None and os.path.exists(tasks_and_outputs):
+        fn = tasks_and_outputs
+    elif pipeline.outputs is not None:
+        fn = pipeline.outputs
     else:
-        raise Exception(f"No such known pipeline <{tasks_and_outputs}>.")
+        raise Exception(f"No outputs found for pipeline <{wf.pipeline.name}>\nAdd outputs with the 'cw pipelines update' command or provide them with tasks_and_outputs option")
+    with open(fn, "r") as f:
+        tasks_and_outputs = yaml.safe_load(f)
     return tasks_and_outputs
-#-- tasks_and_outputs
+#-- resolve_tasks_and_outputs
 
 def collect_shards_outputs(task, output_keys):
     shards = []
