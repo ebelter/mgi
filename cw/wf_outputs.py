@@ -24,50 +24,46 @@ known_pipelines = {
 
 @click.group(short_help="commands for wf outputs")
 def cli():
-    "Command for Workflow Outputs"
-    pass
-
-@click.command(short_help="gather outputs from a cromwell run")
-@click.argument("workflow-identifier", type=str, required=True, nargs=1)
-@click.argument("destination", type=str, required=True, nargs=1)
-@click.option("--tasks_and_outputs", "-t", type=str, required=False)
-@click.option("--list-outputs", "-l", is_flag=True, default=False, help="List, do not copy, the outputs found in the workflow")
-def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs):
     """
-    Gather Outputs from a Cromwell Run
+    Command for Workflow Outputs
 
-    Give the metadata file, destination path, and the outputs to gather
-
-    Make sure the destination exists
-
-    Generate metadata file with `cromshell metadata <WORKFLOW_ID>`
-
-    For tasks and outputs, give a known pipeline or yaml formatted file of tasks and outputs to gather
-
-    Ex:
+    If giving YAML file of outputs, format tasks and outputs as so:
 
     pipeline.task1:
     - output_file1
     pipeline.task2:
     - output_file1
     - output_file2
+"""
+    pass
+
+@click.command(short_help="gather outputs from a cromwell run")
+@click.argument("workflow-identifier", type=str, required=True, nargs=1)
+@click.argument("destination", type=str, required=True, nargs=1)
+@click.option("--tasks_and_outputs", "-t", type=str, required=False)
+def gather_cmd(workflow_identifier, destination, tasks_and_outputs):
+    """
+    Gather Outputs from a Cromwell Run
+
+    Give the workflow cromwell id, name, or local db id and  the existing destination path.
+
+    Optionally, give the tasks and outputs as a YAML file, see man outputs help for formatting.
 
     Outputs will be copied into the destination into task subdirectories. If the task has multiple shards, files will be copied into the shard subdirectory.
     """
     wf = get_wf(workflow_identifier)
     if wf is None:
         raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
+    tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
     metadata = cw.wf_metadata.metadata_for_wf(wf)
     if metadata is None:
         raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
     calls = metadata.get("calls", None)
     if calls is None:
         raise Exception(f"Failed to find <calls> in workflow metadata!")
-
     if not os.path.exists(destination):
         raise Exception(f"Destination directory <{destination}> does not exist!")
 
-    tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
     rm_wf_name_re = re.compile(rf"^{metadata['workflowName']}\.")
     for task_name, file_keys in tasks_and_outputs.items():
         sys.stdout.write(f"[INFO] Task <{task_name}> files: <{' '.join(file_keys)}>\n")
@@ -78,17 +74,46 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs
 
         shards, shard_idxs = collect_shards_outputs(task, file_keys)
         sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
-
-        if list_outputs:
-            # List the outputs found in the workflow
-            sys.stdout.write(f"[INFO] Listing files for {task_name}\n")
-            list_shards_outputs(task_name, shards)
-        else:
-            # Copy shards files, use separate directory if multiple shards
-            dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
-            copy_shards_outputs(shards, dest_dn)
+        dest_dn = os.path.join(destination, re.sub(rm_wf_name_re, "", task_name))
+        copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
 cli.add_command(gather_cmd, name="gather")
+
+@click.command(short_help="list outputs from a cromwell run")
+@click.argument("workflow-identifier", type=str, required=True, nargs=1)
+@click.option("--tasks_and_outputs", "-t", type=str, required=False)
+def list_cmd(workflow_identifier, tasks_and_outputs):
+    """
+    List Outputs from a Cromwell Run
+
+    Give the workflow cromwell id, name, or local db id.
+
+    Optionally, give the tasks and outputs as a YAML file, see man outputs help for formatting.
+"""
+    wf = get_wf(workflow_identifier)
+    if wf is None:
+        raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
+    tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
+    metadata = cw.wf_metadata.metadata_for_wf(wf)
+    if metadata is None:
+        raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
+    calls = metadata.get("calls", None)
+    if calls is None:
+        raise Exception(f"Failed to find <calls> in workflow metadata!")
+
+    rm_wf_name_re = re.compile(rf"^{metadata['workflowName']}\.")
+    for task_name, file_keys in tasks_and_outputs.items():
+        sys.stdout.write(f"[INFO] Task <{task_name}> files: <{' '.join(file_keys)}>\n")
+        task = calls.get(task_name, None)
+        if task is None:
+            sys.stderr.write(f"[WARN] No task found for <{task_name}> ... skipping\n")
+            continue
+
+        shards, shard_idxs = collect_shards_outputs(task, file_keys)
+        sys.stdout.write(f"[INFO] Found {len(shards)} of {len(shard_idxs)} tasks DONE\n")
+        sys.stdout.write(f"[INFO] Listing files for {task_name}\n")
+        list_shards_outputs(task_name, shards)
+cli.add_command(list_cmd, name="list")
 
 def resolve_tasks_and_outputs(pipeline, tasks_and_outputs):
     if tasks_and_outputs is not None and os.path.exists(tasks_and_outputs):

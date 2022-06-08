@@ -36,6 +36,11 @@ class CwWfOutputsTest(BaseWithDb):
         result = runner.invoke(cli, ["gather"])
         self.assertEqual(result.exit_code, 2)
 
+        result = runner.invoke(cli, ["list", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["list"])
+        self.assertEqual(result.exit_code, 2)
+
     def test_resolve_tasks_and_outputs(self):
         from cw.wf_outputs import resolve_tasks_and_outputs as fun
 
@@ -209,36 +214,6 @@ class CwWfOutputsTest(BaseWithDb):
         }
         metadata_p.return_value = metadata
 
-        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination, "-l"], catch_exceptions=False)
-        try:
-            self.assertEqual(result.exit_code, 0)
-        except:
-            print(result.output)
-            raise
-        expected = f"""[INFO] Task <test.missing_task> files: <?>
-[WARN] No task found for <test.missing_task> ... skipping
-[INFO] Task <test.task1> files: <file1>
-[INFO] Found 3 of 3 tasks DONE
-[INFO] Listing files for test.task1
-test.task1
- shard 0
-  {self.temp_d.name}/runs/test/UUID/call-task1/file1-1
- shard 1
-  {self.temp_d.name}/runs/test/UUID/call-task1/file1-2
- shard 2
-
-[INFO] Task <test.task2> files: <file2 file3>
-[INFO] Found 1 of 1 tasks DONE
-[INFO] Listing files for test.task2
-test.task2
- shard 0
-  {self.temp_d.name}/runs/test/UUID/call-task2/file2
-  {self.temp_d.name}/runs/test/UUID/call-task2/file3
-[INFO] Done
-"""
-        self.maxDiff = 10000
-        self.assertEqual(result.output, expected)
-
         result = runner.invoke(cmd, [f"{self.wf.id}", self.destination], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
@@ -267,6 +242,123 @@ test.task2
         expected = ["task1/shard0/file1-1", "task1/shard1/file1-2", "task2/file2", "task2/file3"]
         expected = list(map(lambda f: os.path.join(self.destination, f), expected))
         self.assertEqual(got.sort(), expected.sort())
+
+    @patch("cw.wf_metadata.metadata_for_wf")
+    def test_list_cmd(self, metadata_p):
+        from cw.wf_outputs import list_cmd as cmd
+        runner = CliRunner()
+
+        # create files
+        # create metadata
+        task1_shard0_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task1")
+        task1_shard1_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task1")
+        task2_dn = os.path.join(self.temp_d.name, "runs", "test", "UUID", "call-task2")
+        for dn in task1_shard0_dn, task1_shard1_dn, task2_dn:
+            os.makedirs(dn, exist_ok=True)
+        task1_file1_1 = os.path.join(task1_shard0_dn, "file1-1")
+        task1_file1_2 = os.path.join(task1_shard1_dn, "file1-2")
+        task2_file2 = os.path.join(task2_dn, "file2")
+        task2_file3 = os.path.join(task2_dn, "file3")
+        for fn in task1_file1_1, task1_file1_2, task2_file2, task2_file3:
+            Path(fn).touch()
+        metadata = {
+            "workflowName": "test",
+            "calls": {
+                "test.task1": [
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file1": task1_file1_1,
+                            "nocopy": "nocopy",
+                        },
+                    },
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Failed",
+                        "outputs": {
+                            "file1": "failed",
+                            "nocopy": "nocopy",
+                        },
+                    },
+                    {
+                        "shardIndex": 1,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file1": task1_file1_2,
+                            "nocopy": "failed",
+                        },
+                    },
+                    {
+                        "shardIndex": 2,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file1": None,
+                            "nocopy": "failed",
+                        },
+                    },
+                ],
+                "test.task2": [
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file2": task2_file2,
+                            "file3": task2_file3,
+                            "nocopy": "nocopy",
+                        },
+                    },
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Failed",
+                        "outputs": {
+                            "file2": "failed",
+                            "file3": "failed",
+                            "nocopy": "nocopy",
+                        },
+                    },
+                ],
+                "test.task3": [ # ignored
+                    {
+                        "shardIndex": 0,
+                        "executionStatus": "Done",
+                        "outputs": {
+                            "file": "ignored",
+                        },
+                    },
+                ],
+            }
+        }
+        metadata_p.return_value = metadata
+
+        result = runner.invoke(cmd, [f"{self.wf.id}"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected = f"""[INFO] Task <test.missing_task> files: <?>
+[WARN] No task found for <test.missing_task> ... skipping
+[INFO] Task <test.task1> files: <file1>
+[INFO] Found 3 of 3 tasks DONE
+[INFO] Listing files for test.task1
+test.task1
+ shard 0
+  {self.temp_d.name}/runs/test/UUID/call-task1/file1-1
+ shard 1
+  {self.temp_d.name}/runs/test/UUID/call-task1/file1-2
+ shard 2
+
+[INFO] Task <test.task2> files: <file2 file3>
+[INFO] Found 1 of 1 tasks DONE
+[INFO] Listing files for test.task2
+test.task2
+ shard 0
+  {self.temp_d.name}/runs/test/UUID/call-task2/file2
+  {self.temp_d.name}/runs/test/UUID/call-task2/file3
+"""
+        self.maxDiff = 10000
+        self.assertEqual(result.output, expected)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
