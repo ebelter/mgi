@@ -1,0 +1,27 @@
+rna.align:
+- anno_flagstat
+- anno_flagstat_json
+- annobam
+- genome_flagstat
+- genome_flagstat_json
+- genomebam
+- log
+- log_json
+rna.bam_to_signals:
+- unique_minus
+- unique_plus
+- unique_unstranded
+- all_minus
+- all_plus
+- all_unstranded
+rna.kallisto:
+- quants
+rna.mad_qc:
+- madQCmetrics
+- madQCplot
+rna.rna_qc:
+- rnaQC
+rna.rsem_quant:
+- genes_results
+- isoforms_results
+- number_of_genes

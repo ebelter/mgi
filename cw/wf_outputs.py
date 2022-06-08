@@ -2,26 +2,6 @@ import click, json, os, re, shutil, sys, yaml
 from cw.model_helpers import get_wf
 import cw.wf_metadata
 
-known_pipelines = {
-        "encode_hic": {
-            "hic.merge_replicates": ["bam"], # merged bam
-            "hic.calculate_stats": ["stats", "stats_json"],
-            "hic.add_norm": ["output_hic"],
-            "hic.create_eigenvector": ["eigenvector_bigwig", "eigenvector_wig"],
-            "hic.create_eigenvector_10kb": ["eigenvector_bigwig", "eigenvector_wig"],
-            "hic.arrowhead": ["out_file"],
-            "hic.hiccups": ["merged_loops"],
-        },
-        "encode_rna": {
-            "rna.align": ["anno_flagstat", "anno_flagstat_json", "annobam", "genome_flagstat", "genome_flagstat_json", "genomebam", "log", "log_json"],
-            "rna.bam_to_signals": ["unique_minus", "unique_plus", "unique_unstranded", "all_minus", "all_plus", "all_unstranded" ], # "all_" not generated maybe because one replicate?
-            "rna.kallisto": [ "quants" ],
-            "rna.mad_qc": ["madQCmetrics", "madQCplot"], # if replicates == 2
-            "rna.rna_qc": ["rnaQC"],
-            "rna.rsem_quant": ["genes_results", "isoforms_results", "number_of_genes"],
-        }
-}
-
 @click.group(short_help="commands for wf outputs")
 def cli():
     """

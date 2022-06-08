@@ -23,14 +23,13 @@ WORKDIR /apps/cromshell/.cromshell/
 
 WORKDIR /apps/build/
 COPY ./ ./
-RUN mv ./jar/ /apps/cromwell/
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
-RUN rm -rf /apps/build/
-
+RUN mv ./jar/ /apps/cromwell/
+RUN mv ./wdl/ /apps/cromwell/
 WORKDIR /apps/
-RUN find . -type d -exec chmod go+w {} \; && \
-  find . -type f -exec chmod go+w {} \;
+RUN rm -rf /apps/build/
+RUN chmod -R go+w .
 
 ENV TZ America/Chicago
 ENV LANG C
