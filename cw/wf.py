@@ -53,7 +53,7 @@ def list_cmd():
     print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
 
-from cw.wf_metadata_cmd import metadata_cmd as cmd
+from cw.wf_metadata import metadata_cmd as cmd
 cli.add_command(cmd, name="metadata")
 
 from cw.wf_status_cmd import status_cmd as cmd

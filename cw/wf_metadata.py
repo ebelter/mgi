@@ -15,3 +15,13 @@ def metadata_cmd(workflow_id):
         sys.stderr.write(f"Failed to get response from server at {url}\n")
         return 3
     sys.stdout.write(f"{json.dumps(json.loads(response.content.decode()), indent=4)}")
+#-- metadata_cmd
+
+def metadata_for_wf(wf):
+    server = cw.server.server_factory()
+    url = f"{server.url()}/api/workflows/v1/{wf.wf_id}/metadata?excludeKey=submittedFiles&expandSubWorkflows=true"
+    response = server.query(url)
+    if not response or not response.ok:
+        return None
+    return json.loads(response.content.decode())
+#-- metadata_for_wf

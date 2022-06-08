@@ -1,6 +1,6 @@
 import click, json, os, re, shutil, sys, yaml
 from cw.model_helpers import get_wf
-import cw.server
+import cw.wf_metadata
 
 known_pipelines = {
         "encode_hic": {
@@ -57,7 +57,7 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs
     wf = get_wf(workflow_identifier)
     if wf is None:
         raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
-    metadata = get_metadata(wf)
+    metadata = cw.wf_metadata.metadata_for_wf(wf)
     if metadata is None:
         raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
     calls = metadata.get("calls", None)
@@ -89,16 +89,6 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs, list_outputs
             copy_shards_outputs(shards, dest_dn)
     sys.stdout.write(f"[INFO] Done\n")
 cli.add_command(gather_cmd, name="gather")
-
-def get_metadata(wf):
-    server = cw.server.server_factory()
-    url = f"{server.url()}/api/workflows/v1/{wf.wf_id}/metadata?excludeKey=submittedFiles&expandSubWorkflows=true"
-    response = server.query(url)
-    if not response or not response.ok:
-        #sys.stderr.write(f"Failed to get response from server at {url}\n")
-        return None
-    return json.loads(response.content.decode())
-#-- get_metadata
 
 def resolve_tasks_and_outputs(tasks_and_outputs):
     if os.path.exists(tasks_and_outputs):

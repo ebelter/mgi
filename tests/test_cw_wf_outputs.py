@@ -2,7 +2,7 @@ import json, os, sys, tempfile, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-import cw.wf_outputs
+import cw.wf_metadata
 
 from tests.test_cw_base import BaseWithDb
 class CwWfOutputsTest(BaseWithDb):
@@ -124,7 +124,7 @@ class CwWfOutputsTest(BaseWithDb):
         with open(fn, "r") as f:
             self.assertEqual(f.read(), expected)
 
-    @patch("cw.wf_outputs.get_metadata")
+    @patch("cw.wf_metadata.metadata_for_wf")
     def test_gather_cmd(self, metadata_p):
         from cw.wf_outputs import gather_cmd as cmd
         runner = CliRunner()

@@ -16,7 +16,7 @@ class CwWfTest(BaseWithDb):
 
     @patch("requests.get")
     def test_metadata_cmd(self, requests_p):
-        from cw.wf_metadata_cmd import metadata_cmd as cmd
+        from cw.wf_metadata import metadata_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
