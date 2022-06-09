@@ -76,7 +76,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(bool(rv), co_p.return_value)
         self.assertEqual(f"{out.read()}", "")
         server = cw.server.server_factory()
-        co_p.assert_called_with(["java", "-jar", "/apps/cromwell/cromwell.jar", pipeline.wdl, "-i", self.wf_inputs, "--host", server.url()])
+        co_p.assert_called_with(["java", "-jar", "/apps/cromwell/cromwell.jar", "submit", pipeline.wdl, "-i", self.wf_inputs, "--host", server.url()])
 
         sys.stdout = sys.__stdout__
 

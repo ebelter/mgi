@@ -50,7 +50,7 @@ def submit_wf(pipeline, inputs_json):
     if not server.is_running():
         sys.stdout.write(f"Cromwell server is not running or misconfigured.\n")
         return
-    cmd = ["java", "-jar", "/apps/cromwell/cromwell.jar", pipeline.wdl, "-i", inputs_json, "--host", server.url()]
+    cmd = ["java", "-jar", "/apps/cromwell/cromwell.jar", "submit", pipeline.wdl, "-i", inputs_json, "--host", server.url()]
     if pipeline.imports is not None:
         cmd.append("--imports", pipeline.imports)
     return subprocess.check_output(cmd)
