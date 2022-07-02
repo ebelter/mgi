@@ -23,7 +23,7 @@ class CwWfTest(BaseWithDb):
 
     def test0_submit_fails(self):
         import cw
-        from cw.wf_submit_cmd import submit_cmd as cmd
+        from cw.wf_submit import submit_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, [])
@@ -49,7 +49,7 @@ class CwWfTest(BaseWithDb):
     @patch("requests.get")
     def test1_submit_wf(self, requests_p, co_p):
         import cw
-        from cw.wf_submit_cmd import submit_wf
+        from cw.wf_submit import submit_wf
 
         pipeline = cw.Pipeline.query.get(1)
         self.assertTrue(pipeline)
@@ -81,7 +81,7 @@ class CwWfTest(BaseWithDb):
         sys.stdout = sys.__stdout__
 
     def test3_resolve_wf_id_from_submit_output(self):
-        from cw.wf_submit_cmd import resolve_wf_id_from_submit_output
+        from cw.wf_submit import resolve_wf_id_from_submit_output
         wf_id = resolve_wf_id_from_submit_output(self.co_output)
         self.assertEqual(wf_id, self.wf_id)
 
@@ -89,7 +89,7 @@ class CwWfTest(BaseWithDb):
     @patch("requests.get")
     def test4_submit_cmd(self, requests_p, co_p):
         import cw
-        from cw.wf_submit_cmd import submit_cmd as cmd
+        from cw.wf_submit import submit_cmd as cmd
         runner = CliRunner()
 
         pipeline = cw.Pipeline.query.get(1)

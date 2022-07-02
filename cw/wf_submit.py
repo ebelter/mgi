@@ -20,6 +20,8 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
 
     Workflow id and name will be saved to the database.
     """
+    #if not force:
+    #    verify_duplicate_wfs_not_running(name)
     pipeline = get_pipeline(pipeline_identifier)
     if pipeline is None:
         sys.stderr.write(f"Failed to find pipeline for <{pipeline_identifier}>!\n")
@@ -27,19 +29,42 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
     if not os.path.exists(inputs_json):
         sys.stderr.write(f"Inputs json <{inputs_json}> does not exists!\n")
         sys.exit(1)
-    sys.stdout.write("Pipeline:    {pipeline.name}\n")
-    sys.stdout.write("Inputs json: {inputs_json}\n")
+    sys.stdout.write(f"Pipeline:    {pipeline.name}\n")
+    sys.stdout.write(f"Inputs json: {inputs_json}\n")
     output = submit_wf(pipeline, inputs_json)
     sys.stdout.write(f"{output}")
     wf_id = resolve_wf_id_from_submit_output(output)
-    print(f"{wf_id}")
-    sys.stdout.write("Workflow ID: {wf_id}\n")
+    sys.stdout.write(f"Workflow ID: {wf_id}\n")
     wf = Workflow(name=name, wf_id=wf_id, status="new", pipeline=pipeline)
-    sys.stdout.write("Adding workflow to database\n")
     db.session.add(wf)
     db.session.commit()
-    sys.stdout.write("Workflow submitted\n")
+    sys.stdout.write("Workflow submitted and added to the database\n")
 #-- submit_cmd
+
+def verify_duplicate_wfs_not_running(wf_name):
+    wfs = Workflow.query.filter(Workflow.name == name).all()
+    if len(wfs) == 0:
+        return
+    for wf in wfs:
+        status = get_wf_startus(wf)
+        if status in ["New", "Running"]:
+            sys.stderr.write(f"Found running workflow: {wf.wf_id}\n")
+            sys.exit(1)
+        if status in ["Succeeded"]:
+            sys.stderr.write(f"Found succeeded workflow: {wf.wf_id}\n")
+            sys.exit(1)
+#-- verify_duplicate_wfs_not_running
+
+def get_wf_status(wf_id):
+    server = cw.server.server_factory()
+    url = f"{server.url()}/api/workflows/v1/{workflow_id}/status"
+    sys.stdout.write(f"URL: {url}\n")
+    response = server.query(url)
+    if not response or not response.ok:
+        return None
+    info = json.loads(response.content.decode())
+    return info["status"]
+#-- get_wf_status()
 
 def submit_wf(pipeline, inputs_json):
     wdl = pipeline.wdl
@@ -52,7 +77,7 @@ def submit_wf(pipeline, inputs_json):
         return
     cmd = ["java", "-jar", "/apps/cromwell/cromwell.jar", "submit", pipeline.wdl, "-i", inputs_json, "--host", server.url()]
     if pipeline.imports is not None:
-        cmd.append("--imports", pipeline.imports)
+        cmd += ["--imports", pipeline.imports]
     return subprocess.check_output(cmd)
 #-- submit_wf
 

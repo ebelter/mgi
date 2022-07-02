@@ -59,7 +59,7 @@ cli.add_command(cmd, name="metadata")
 from cw.wf_status_cmd import status_cmd as cmd
 cli.add_command(cmd, name="status")
 
-from cw.wf_submit_cmd import submit_cmd as cmd
+from cw.wf_submit import submit_cmd as cmd
 cli.add_command(cmd, name="submit")
 
 from cw.wf_outputs import cli as outputs_cli
