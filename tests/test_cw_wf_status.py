@@ -28,7 +28,7 @@ class CwWfTest(BaseWithDb):
 
     @patch("requests.get")
     def test_status_cmd(self, requests_p):
-        from cw.wf_status_cmd import status_cmd as cmd
+        from cw.wf_status import status_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
