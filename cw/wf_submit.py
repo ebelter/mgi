@@ -32,7 +32,7 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
     sys.stdout.write(f"Pipeline:    {pipeline.name}\n")
     sys.stdout.write(f"Inputs json: {inputs_json}\n")
     output = submit_wf(pipeline, inputs_json)
-    sys.stdout.write(f"{output}")
+    sys.stdout.write(f"{output.decode()}")
     wf_id = resolve_wf_id_from_submit_output(output)
     sys.stdout.write(f"Workflow ID: {wf_id}\n")
     wf = Workflow(name=name, wf_id=wf_id, status="new", pipeline=pipeline)
