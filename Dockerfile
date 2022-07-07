@@ -25,11 +25,16 @@ WORKDIR /apps/build/
 COPY ./ ./
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
-RUN mv ./jar/ /apps/cromwell/
+#RUN mv ./jar/ /apps/cromwell/
 RUN mv ./wdl/ /apps/cromwell/
 WORKDIR /apps/
 RUN rm -rf /apps/build/
 RUN chmod -R go+w .
+
+ARG CROMWELL_VERSION=81
+WORKDIR /apps/cromwell/
+RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/cromwell-${CROMWELL_VERSION}.jar"
+RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/womtool-${CROMWELL_VERSION}.jar"
 
 ENV TZ America/Chicago
 ENV LANG C
