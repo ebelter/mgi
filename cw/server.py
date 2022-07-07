@@ -34,6 +34,17 @@ class Server(object):
         except:
             return False
         return response
+
+    def status_for_workflow(self, wf_id):
+        url = f"{self.url()}/api/workflows/v1/{wf_id}/status"
+        response = self.query(url)
+        if not response or not response.ok:
+            sys.stderr.write(f"Failed to get response from server at {url}\n")
+            return None
+       # info = json.loads(response.content.decode())
+        info = response.json()
+        return info.get("status", "unknown").lower()
+    #-- status_for_wf_id
 #-- Server
 
 @click.group()

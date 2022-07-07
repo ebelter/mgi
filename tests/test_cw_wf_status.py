@@ -16,21 +16,21 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.exit_code, 0)
 
         server = Mock()
-        server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": False, "query.return_value": Mock(ok=False)})
         server_p.return_value = server
 
+        server.configure_mock(**{"status_for_wf_id.return_value": None})
         result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 1)
         except:
             print(result.output)
             raise
-        expected_output = f"""Failed to get response from server at __URL__/api/workflows/v1/{self.wf.wf_id}/status
+        expected_output = f"""Failed to get status for workflow {self.wf.wf_id} ... see above errors.
 """
         self.assertEqual(result.output, expected_output)
         self.assertEqual(server_p.call_count, 1)
 
-        server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "query.return_value": Mock(ok=True, content='{"status":"Succeeded","id":"__WF_ID__"}'.encode())})
+        server.configure_mock(**{"status_for_wf_id.return_value": "succeeded"})
         result = runner.invoke(cmd, [str(self.wf.id), "--update"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)

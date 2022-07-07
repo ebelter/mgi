@@ -1,7 +1,7 @@
-import click, os, requests, subprocess, tempfile, time, unittest, yaml
+import click, io, os, requests, subprocess, sys, tempfile, time, unittest, yaml
 from pathlib import Path
 from click.testing import CliRunner
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import cw.cromshell, cw.server, subprocess
 
@@ -35,6 +35,36 @@ class CwServerTest(BaseWithDb):
         requests_p.return_value = MagicMock(ok=True, content="1")
         self.assertTrue(server.is_running())
         requests_p.assert_called_with(server.url())
+
+    @patch("requests.get")
+    def test_server_status_for_workflow(self, requests_p):
+        from cw.server import server_factory
+        server = server_factory()
+        self.assertTrue(bool(server))
+
+        stderr = io.StringIO()
+        sys.stderr = stderr
+
+        wf_id = "__WF_ID__"
+        url = f"{server.url()}/api/workflows/v1/{wf_id}/status"
+
+        requests_p.return_value = Mock(ok=False)
+        status = server.status_for_workflow(wf_id)
+        self.assertEqual(status, None)
+        requests_p.assert_called_with(url)
+        stderr.seek(0, 0)
+        self.assertEqual(stderr.read(), f"Failed to get response from server at {url}\n")
+
+        stderr.truncate(0)
+        response = Mock(ok=True)
+        response.configure_mock(**{"json.return_value": {"status": "Succeeded", "id": "__WF_ID__"},})
+        requests_p.return_value = response
+        status = server.status_for_workflow(wf_id)
+        self.assertEqual(status, "succeeded")
+        requests_p.assert_called_with(url)
+        self.assertEqual(requests_p.call_count, 2)
+        stderr.seek(0, 0)
+        self.assertEqual(stderr.read(), f"")
 
     def test_server_cli(self):
         from cw.server import cli
