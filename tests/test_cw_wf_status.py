@@ -19,7 +19,6 @@ class CwWfTest(BaseWithDb):
         server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": False, "query.return_value": Mock(ok=False)})
         server_p.return_value = server
 
-        os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
@@ -32,8 +31,6 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(server_p.call_count, 1)
 
         server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "query.return_value": Mock(ok=True, content='{"status":"Succeeded","id":"__WF_ID__"}'.encode())})
-
-        os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [str(self.wf.id), "--update"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
