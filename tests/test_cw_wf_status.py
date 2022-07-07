@@ -29,12 +29,12 @@ class CwWfTest(BaseWithDb):
         expected_output = f"""Failed to get response from server at __URL__/api/workflows/v1/{self.wf.wf_id}/status
 """
         self.assertEqual(result.output, expected_output)
-        server_p.assert_called()
+        self.assertEqual(server_p.call_count, 1)
 
         server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "query.return_value": Mock(ok=True, content='{"status":"Succeeded","id":"__WF_ID__"}'.encode())})
 
         os.chdir(self.temp_d.name)
-        result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
+        result = runner.invoke(cmd, [str(self.wf.id), "--update"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -44,7 +44,8 @@ class CwWfTest(BaseWithDb):
 Status:      Succeeded
 """
         self.assertEqual(result.output, expected_output)
-        server_p.assert_called()
+        self.assertEqual(server_p.call_count, 2)
+        self.assertEqual(self.wf.status, "succeeded")
 #--
 
 if __name__ == '__main__':
