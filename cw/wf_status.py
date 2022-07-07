@@ -18,16 +18,22 @@ def status_cmd(workflow_id, update):
     wf = get_wf(workflow_id)
     if wf is not None:
         workflow_id = wf.wf_id
+    status = status_for_wf_id(workflow_id)
+    if wf is not None:
+        wf.status = status
+        db.session.add(wf)
+        db.session.commit()
+    sys.stdout.write(f"Workflow ID: {workflow_id}\n")
+    sys.stdout.write(f"Status:      {status}\n")
+#-- status_cmd
+
+def status_for_wf_id(wf_id):
     server = cw.server.server_factory()
-    url = f"{server.url()}/api/workflows/v1/{workflow_id}/status"
+    url = f"{server.url()}/api/workflows/v1/{wf_id}/status"
     response = server.query(url)
     if not response or not response.ok:
         sys.stderr.write(f"Failed to get response from server at {url}\n")
-        return 3
+        sys.exit(1)
     info = json.loads(response.content.decode())
-    if wf is not None:
-        wf.status = info["status"].lower()
-        db.session.add(wf)
-        db.session.commit()
-    sys.stdout.write(f"Workflow ID: {info['id']}\n")
-    sys.stdout.write(f"Status:      {info['status']}\n")
+    return info.get("status", "unknown").lower()
+#-- status_for_wf_id

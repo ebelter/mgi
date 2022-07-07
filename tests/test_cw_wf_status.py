@@ -21,7 +21,7 @@ class CwWfTest(BaseWithDb):
 
         result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
         try:
-            self.assertEqual(result.exit_code, 0)
+            self.assertEqual(result.exit_code, 1)
         except:
             print(result.output)
             raise
@@ -38,7 +38,7 @@ class CwWfTest(BaseWithDb):
             print(result.output)
             raise
         expected_output = f"""Workflow ID: {self.wf.wf_id}
-Status:      Succeeded
+Status:      succeeded
 """
         self.assertEqual(result.output, expected_output)
         self.assertEqual(server_p.call_count, 2)
