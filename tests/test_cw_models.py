@@ -31,7 +31,7 @@ class DbTest(BaseWithDb):
 
     def test3_workflow(self):
         from cw import db, Workflow
-        wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0)
+        wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0, inputs=__file__)
         db.session.add(wf)
         db.session.commit()
         wfs = Workflow.query.all()
@@ -40,6 +40,7 @@ class DbTest(BaseWithDb):
         self.assertEqual(wfs[0].name, "SAMPLE")
         self.assertEqual(wfs[0].pipeline_id, 0)
         self.assertEqual(wfs[0].pipeline, None)
+        self.assertEqual(wfs[0].inputs, __file__)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

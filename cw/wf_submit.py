@@ -35,7 +35,7 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
     sys.stdout.write(f"{output.decode()}")
     wf_id = resolve_wf_id_from_submit_output(output)
     sys.stdout.write(f"Workflow ID: {wf_id}\n")
-    wf = Workflow(name=name, wf_id=wf_id, status="new", pipeline=pipeline)
+    wf = Workflow(name=name, wf_id=wf_id, status="new", pipeline=pipeline, inputs=inputs_json)
     db.session.add(wf)
     db.session.commit()
     sys.stdout.write("Workflow submitted and added to the database\n")

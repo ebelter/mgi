@@ -49,8 +49,8 @@ def list_cmd():
         return
     rows = []
     for w in workflows:
-        rows.append([w.wf_id, w.name, w.status, w.pipeline.name])
-    print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE"], tablefmt="simple"))
+        rows.append([w.wf_id, w.name, w.status, w.pipeline.name, w.inputs])
+    print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE", "INPUTS"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
 
 from cw.wf_metadata import metadata_cmd as cmd

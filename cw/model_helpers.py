@@ -46,6 +46,7 @@ def wf_features():
             "name": {"desc": "name for the workflow", "type": str, "required": True},
             "pipeline": {"desc": "pipeline id or name", "type": int, "required": True},
             "status": {"desc": "workflow status", "type": str, "required": False},
+            "inputs": { "desc": "json file of pipeline inputs", "type": "file", "requried": False},
         }
 
 def wf_features_help():

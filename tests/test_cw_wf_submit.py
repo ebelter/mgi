@@ -109,10 +109,13 @@ class CwWfTest(BaseWithDb):
         expected_output = f"""
 """
         #self.assertEqual(result.output, expected_output)
+        # 2022-07-04 21:22:30,283 cromwell-system-akka.dispatchers.api-dispatcher-49 INFO  - Unspecified type (Unspecified version) workflow 5724eb84-cbf5-422b-ac77-4b6790a26bdc submitted
+
         requests_p.assert_called()
         co_p.assert_called()
         wf = cw.Workflow.query.filter(cw.Workflow.wf_id == self.wf_id).one_or_none()
         self.assertTrue(wf)
+        self.assertEqual(wf.inputs, self.wf_inputs)
 #--
 
 if __name__ == '__main__':

@@ -33,4 +33,5 @@ class Workflow(db.Model):
     wf_id = db.Column(db.String(length=48), nullable=False, unique=True, index=True)
     pipeline_id = db.Column(db.Integer, db.ForeignKey("pipeline.id"), nullable=False, index=True)
     status = db.Column(db.String(length=32), default="new", nullable=False)
+    inputs = db.Column(db.String(length=256), nullable=True)
 #-- Workflow

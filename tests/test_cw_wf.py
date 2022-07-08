@@ -72,7 +72,7 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cmd, [])
         self.assertEqual(result.exit_code, 2)
 
-        result = runner.invoke(cmd, [f"wf_id={self.wf_wf_id}", f"name={self.wf_name}", f"pipeline={str(self.pipeline.id)}"], catch_exceptions=False)
+        result = runner.invoke(cmd, [f"wf_id={self.wf_wf_id}", f"name={self.wf_name}", f"pipeline={str(self.pipeline.id)}", f"inputs={__file__}"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -92,9 +92,9 @@ class CwWfTest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""WF_ID     NAME        STATUS    PIPELINE
---------  ----------  --------  ----------
-{self.wf_wf_id}  {self.wf_name}  new       {self.pipeline.name}
+        expected_output = f"""WF_ID     NAME        STATUS    PIPELINE    INPUTS
+--------  ----------  --------  ----------  {len(__file__) * "-"}
+__WFID__  __SAMPLE__  new       __TESTER__  {__file__}
 """
         self.assertEqual(result.output, expected_output)
 
