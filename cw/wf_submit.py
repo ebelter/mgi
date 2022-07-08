@@ -1,8 +1,8 @@
-import click, os, subprocess, sys
+import click, os, subprocess, time, sys
 
 from cw import db, Workflow
 from cw.model_helpers import get_pipeline
-from cw.server import server_factory
+import  cw.server
 
 @click.command(short_help="submit a workflow")
 @click.argument("name", required=True, nargs=1)
@@ -20,8 +20,6 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
 
     Workflow id and name will be saved to the database.
     """
-    #if not force:
-    #    verify_duplicate_wfs_not_running(name)
     pipeline = get_pipeline(pipeline_identifier)
     if pipeline is None:
         sys.stderr.write(f"Failed to find pipeline for <{pipeline_identifier}>!\n")
@@ -34,44 +32,23 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
     output = submit_wf(pipeline, inputs_json)
     sys.stdout.write(f"{output.decode()}")
     wf_id = resolve_wf_id_from_submit_output(output)
-    sys.stdout.write(f"Workflow ID: {wf_id}\n")
-    wf = Workflow(name=name, wf_id=wf_id, status="new", pipeline=pipeline, inputs=inputs_json)
+    sys.stdout.write(f"Workflow {wf_id} submitted, waiting for it to start...\n")
+    status = wait_for_workflow_to_start(wf_id)
+    wf = Workflow(name=name, wf_id=wf_id, status=status, pipeline=pipeline, inputs=inputs_json)
     db.session.add(wf)
     db.session.commit()
-    sys.stdout.write("Workflow submitted and added to the database\n")
+    if status == "running":
+        sys.stdout.write("Workflow is running and saved DB!\n")
+    else:
+        sys.stdout.write("Workflow failed to start. Please verify by checking server logs in <server/log>. Typically failures are due to misconfiguration of inputs or missing files.\n")
 #-- submit_cmd
-
-def verify_duplicate_wfs_not_running(wf_name):
-    wfs = Workflow.query.filter(Workflow.name == name).all()
-    if len(wfs) == 0:
-        return
-    for wf in wfs:
-        status = get_wf_startus(wf)
-        if status in ["New", "Running"]:
-            sys.stderr.write(f"Found running workflow: {wf.wf_id}\n")
-            sys.exit(1)
-        if status in ["Succeeded"]:
-            sys.stderr.write(f"Found succeeded workflow: {wf.wf_id}\n")
-            sys.exit(1)
-#-- verify_duplicate_wfs_not_running
-
-def get_wf_status(wf_id):
-    server = cw.server.server_factory()
-    url = f"{server.url()}/api/workflows/v1/{workflow_id}/status"
-    sys.stdout.write(f"URL: {url}\n")
-    response = server.query(url)
-    if not response or not response.ok:
-        return None
-    info = json.loads(response.content.decode())
-    return info["status"]
-#-- get_wf_status()
 
 def submit_wf(pipeline, inputs_json):
     wdl = pipeline.wdl
     if not os.path.exists(wdl):
         sys.stdout.write(f"Pipeline {pipeline.name} WDL {wdl} does not exist!\n")
         return
-    server = server_factory()
+    server = cw.server.server_factory()
     if not server.is_running():
         sys.stdout.write(f"Cromwell server is not running or misconfigured.\n")
         return
@@ -90,3 +67,16 @@ def resolve_wf_id_from_submit_output(output):
             return tokens[4]
             break
 #-- resolve_wf_id_from_submit_output
+
+def wait_for_workflow_to_start(wf_id):
+    server = cw.server.server_factory()
+    cnt = 0
+    status = "unknown"
+    while cnt < 20:
+        status = server.status_for_workflow(wf_id)
+        if status != "submitted":
+            break
+        time.sleep(1)
+        cnt += 1
+    return status
+#-- wait_for_workflow_to_start
