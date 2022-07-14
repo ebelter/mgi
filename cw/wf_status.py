@@ -19,7 +19,7 @@ def status_cmd(workflow_id, update):
     if wf is not None:
         workflow_id = wf.wf_id
     server = cw.server.server_factory()
-    status = server.status_for_wf_id(workflow_id)
+    status = server.status_for_workflow(workflow_id)
     if status is None:
         sys.stderr.write(f"Failed to get status for workflow {workflow_id} ... see above errors.\n")
         sys.exit(1)

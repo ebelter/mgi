@@ -29,6 +29,7 @@ class Server(object):
         return response.ok
 
     def query(self, url):
+        # Response ok status_code reason json content
         try:
             response = requests.get(url)
         except:
@@ -44,7 +45,7 @@ class Server(object):
        # info = json.loads(response.content.decode())
         info = response.json()
         return info.get("status", "unknown").lower()
-    #-- status_for_wf_id
+    #-- status_for_workflow
 #-- Server
 
 @click.group()
@@ -72,6 +73,9 @@ def start_cmd():
     host = wait_for_host(job_id)
     port = appcon.get(group="server", name="port")
     sys.stdout.write(f"Server running on <{host}> port <{port}>\n")
+
+    #2022-07-07 17:07:03,041 cromwell-system-akka.dispatchers.engine-dispatcher-4 INFO  - Cromwell 60 service started on 0.0.0.0:8888...
+
 
     url = appcon.set(group="server", name="job_id", value=job_id)
     url = appcon.set(group="server", name="host", value=host)
