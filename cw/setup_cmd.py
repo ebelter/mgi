@@ -62,7 +62,7 @@ def server_conf_content():
             "SERVER_PORT": appcon.get(group="server", name="port"),
             "LSF_DOCKER_VOLUMES": appcon.get(group="lsf", name="docker_volumes"),
             "LSF_JOB_GROUP": appcon.get(group="lsf", name="job_group"),
-            "LSF_QUEUE": appcon.get(group="lsf", name="user_group"),
+            "LSF_QUEUE": appcon.get(group="lsf", name="queue"),
             "LSF_USER_GROUP": appcon.get(group="lsf", name="user_group"),
             }
     return template.render(attrs)
