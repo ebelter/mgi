@@ -72,6 +72,7 @@ def wait_for_workflow_to_start(wf_id):
     server = cw.server.server_factory()
     cnt = 0
     status = "unknown"
+    time.sleep(3)
     while cnt < 20:
         status = server.status_for_workflow(wf_id)
         if status != "submitted":
