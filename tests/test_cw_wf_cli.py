@@ -18,7 +18,7 @@ class CwWfTest(BaseWithDb):
 
     def test_wf_cli(self):
         runner = CliRunner()
-        from cw.wf import cli
+        from cw.wf_cli import cli
 
         result = runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
@@ -32,6 +32,9 @@ class CwWfTest(BaseWithDb):
 
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
+
+        #result = runner.invoke(cli, ["inputs", "--help"])
+        #self.assertEqual(result.exit_code, 0)
 
         result = runner.invoke(cli, ["outputs", "--help"])
         self.assertEqual(result.exit_code, 0)
@@ -47,7 +50,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.exit_code, 2)
 
     def test11_list_cmd(self):
-        from cw.wf import list_cmd as cmd
+        from cw.wf_cli import list_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
@@ -63,7 +66,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.output, expected_output)
 
     def test12_add_cmd(self):
-        from cw.wf import add_cmd as cmd
+        from cw.wf_cli import add_cmd as cmd
         runner = CliRunner()
         os.chdir(self.temp_d.name)
 
@@ -83,7 +86,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.output, expected_output)
 
     def test13_list_cmd(self):
-        from cw.wf import list_cmd as cmd
+        from cw.wf_cli import list_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, [], catch_exceptions=False)
@@ -100,7 +103,7 @@ __WFID__  __SAMPLE__  new       __TESTER__  {__file__}
 
     def test14_update_cmd(self):
         from cw import db, Workflow
-        from cw.wf import update_cmd as cmd
+        from cw.wf_cli import update_cmd as cmd
         runner = CliRunner()
         #os.chdir(self.temp_d.name)
 
