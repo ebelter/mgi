@@ -39,7 +39,7 @@ class ModelHelpersTest(BaseWithDb):
         from cw import db, Pipeline
         from cw.model_helpers import get_pipeline
 
-        p = Pipeline(id=self.pipeline_id, name=self.pipeline_name, wdl="wdl", imports=None)
+        p = Pipeline(id=self.pipeline_id, name=self.pipeline_name, wdl="wdl", imports="IMPORTS")
         db.session.add(p)
         db.session.commit()
         self.assertEqual(p.id, self.pipeline_id)

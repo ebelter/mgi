@@ -17,7 +17,7 @@ class DbTest(BaseWithDb):
 
     def test2_pipeline(self):
         from cw import db, Pipeline
-        p = Pipeline(name="align", wdl="wdl", imports=None)
+        p = Pipeline(name="align", wdl="align.wdl", inputs="align.inputs.json", outputs="align.outputs.yaml", imports="align.imports.zip")
         db.session.add(p)
         db.session.commit()
         pipelines = Pipeline.query.all()
@@ -25,13 +25,14 @@ class DbTest(BaseWithDb):
         self.assertEqual(len(pipelines), 1)
         self.assertTrue(pipelines[0].name)
         self.assertTrue(pipelines[0].wdl)
-        self.assertFalse(pipelines[0].imports)
-        self.assertFalse(pipelines[0].outputs)
+        self.assertTrue(pipelines[0].inputs)
+        self.assertTrue(pipelines[0].outputs)
+        self.assertTrue(pipelines[0].imports)
         self.assertEqual(len(pipelines[0].workflows.all()), 0)
 
     def test3_workflow(self):
         from cw import db, Workflow
-        wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0, inputs=__file__)
+        wf = Workflow(wf_id="d10d2b6b-7f7e-4b20-a5dc-d4d0388e6d1a", name="SAMPLE", pipeline_id=0, inputs="IN", outputs="OUT")
         db.session.add(wf)
         db.session.commit()
         wfs = Workflow.query.all()
@@ -40,7 +41,8 @@ class DbTest(BaseWithDb):
         self.assertEqual(wfs[0].name, "SAMPLE")
         self.assertEqual(wfs[0].pipeline_id, 0)
         self.assertEqual(wfs[0].pipeline, None)
-        self.assertEqual(wfs[0].inputs, __file__)
+        self.assertEqual(wfs[0].inputs, "IN")
+        self.assertEqual(wfs[0].outputs, "OUT")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

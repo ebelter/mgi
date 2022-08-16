@@ -14,9 +14,9 @@ def resolve_features(given_features, known_features):
                 v = False
             else:
                 v = True
-        if known_features[k]["type"] == "file":
+        if known_features[k]["type"] in ("dir", "file"):
             if not os.path.exists(v):
-                raise Exception(f"Feature <{k}> is a file, but given value <{v}> does not exist")
+                raise Exception(f"Feature <{k}> is a {known_features[k]['type']}, but given value <{v}> does not exist")
             v = os.path.abspath(v)
         features[k] = v
     return features
@@ -27,8 +27,9 @@ def pipeline_features():
     return {
             "name": {"desc": "name for the pipeline", "type": str, "required": True},
             "wdl": { "desc": "pipeline wdl file", "type": "file", "required": True},
-            "imports": { "desc": "imports zip file of imports used by WDL", "type": "file", "requried": False},
+            "inputs": { "desc": "json file of inputs, may be a template", "type": "file", "requried": False},
             "outputs": { "desc": "yaml file of pipeline steps and outputs", "type": "file", "requried": False},
+            "imports": { "desc": "imports zip file of imports used by WDL", "type": "file", "requried": False},
         }
 def get_pipeline(identifier):
     if type(identifier) is int or identifier.isnumeric():
@@ -47,6 +48,7 @@ def wf_features():
             "pipeline": {"desc": "pipeline id or name", "type": int, "required": True},
             "status": {"desc": "workflow status", "type": str, "required": False},
             "inputs": { "desc": "json file of pipeline inputs", "type": "file", "requried": False},
+            "outputs": { "desc": "destination of outputs", "type": "file", "requried": False},
         }
 
 def wf_features_help():

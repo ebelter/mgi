@@ -20,8 +20,9 @@ class Pipeline(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(length=32), nullable=False, index=True, unique=True)
     wdl = db.Column(db.String(length=256), nullable=False)
-    imports = db.Column(db.String(length=256), nullable=True)
+    inputs = db.Column(db.String(length=256), nullable=True)
     outputs = db.Column(db.String(length=256), nullable=True)
+    imports = db.Column(db.String(length=256), nullable=True)
 
     workflows = db.relationship("Workflow", backref="pipeline", lazy="dynamic")
 #-- Pipeline
@@ -34,4 +35,5 @@ class Workflow(db.Model):
     pipeline_id = db.Column(db.Integer, db.ForeignKey("pipeline.id"), nullable=False, index=True)
     status = db.Column(db.String(length=32), default="new", nullable=False)
     inputs = db.Column(db.String(length=256), nullable=True)
+    outputs = db.Column(db.String(length=256), nullable=True)
 #-- Workflow
