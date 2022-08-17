@@ -28,5 +28,6 @@ def status_cmd(workflow_id, update):
         db.session.add(wf)
         db.session.commit()
     sys.stdout.write(f"Workflow ID: {workflow_id}\n")
+    sys.stdout.write(f"Name:        {wf.name}\n")
     sys.stdout.write(f"Status:      {status}\n")
 #-- status_cmd

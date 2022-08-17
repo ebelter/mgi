@@ -45,7 +45,7 @@ class BaseWithDb(unittest.TestCase):
         if getattr(self, "wf", None) is not None:
             return
         from cw import db, Workflow
-        self.add_pipeline_to_db()
+        self.add_pipeline_to_db(self)
         wf = Workflow(id=10001, wf_id="__WF_ID__", name="__SAMPLE__", pipeline=self.pipeline)
         self.wf = wf
 

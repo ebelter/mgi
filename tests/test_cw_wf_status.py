@@ -38,6 +38,7 @@ class CwWfTest(BaseWithDb):
             print(result.output)
             raise
         expected_output = f"""Workflow ID: {self.wf.wf_id}
+Name:        {self.wf.name}
 Status:      succeeded
 """
         self.assertEqual(result.output, expected_output)
