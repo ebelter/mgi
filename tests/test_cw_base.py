@@ -8,6 +8,8 @@ class BaseWithDb(unittest.TestCase):
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
         os.makedirs("server")
+        self.pipelines_dn = os.path.join(self.temp_d.name, "pipelines")
+        os.makedirs(self.pipelines_dn)
         self.db_fn = os.path.join(self.temp_d.name, "server", "db")
         self.db_uri = sqlite_uri_for_file(self.db_fn)
         cw.appcon.dn = self.temp_d.name
@@ -28,7 +30,13 @@ class BaseWithDb(unittest.TestCase):
         if getattr(self, "pipeline", None) is not None:
             return
         from cw import db, Pipeline
-        p = Pipeline(id=10001, name="__TESTER__", wdl=__file__, imports=__file__, outputs=__file__)
+        p = Pipeline(
+                id=10001, name="__TESTER__",
+                wdl=os.path.join(self.pipelines_dn, "t.wdl"),
+                inputs=os.path.join(self.pipelines_dn, "t.inputs.yaml"),
+                outputs=os.path.join(self.pipelines_dn, "t.outputs.yaml"),
+                imports=os.path.join(self.pipelines_dn, "t.imports.zip"),
+                )
         db.session.add(p)
         db.session.commit()
         self.pipeline = p
@@ -37,7 +45,7 @@ class BaseWithDb(unittest.TestCase):
         if getattr(self, "wf", None) is not None:
             return
         from cw import db, Workflow
-        self.add_pipeline_to_db(self)
+        self.add_pipeline_to_db()
         wf = Workflow(id=10001, wf_id="__WF_ID__", name="__SAMPLE__", pipeline=self.pipeline)
         self.wf = wf
 
@@ -63,7 +71,6 @@ class CwTest(BaseWithDb):
         self.assertTrue(db)
 
     def test_appcon_get_and_set(self):
-
         from cw import appcon, Config
         self.assertTrue(appcon)
         v = appcon.get("foo")
