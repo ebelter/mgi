@@ -37,10 +37,13 @@ def submit_cmd(name, pipeline_identifier, inputs_json):
     wf = Workflow(name=name, wf_id=wf_id, status=status, pipeline=pipeline, inputs=inputs_json)
     db.session.add(wf)
     db.session.commit()
+    sys.stdout.write(f"Workflow status: {status}\n")
     if status == "running":
         sys.stdout.write("Workflow is running and saved DB!\n")
-    else:
+    elif status == "failed":
         sys.stdout.write("Workflow failed to start. Please verify by checking server logs in <server/log>. Typically failures are due to misconfiguration of inputs or missing files.\n")
+    else:
+        sys.stdout.write(f"Workflow has been submitted, but has not started running. Please verify if it is running with the command 'cw wf status {wf_id}', or the server logs in <server/log>.\n")
 #-- submit_cmd
 
 def submit_wf(pipeline, inputs_json):

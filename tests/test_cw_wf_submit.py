@@ -111,6 +111,7 @@ class CwWfTest(BaseWithDb):
         expected_output = f"""Pipeline:    {self.p_name}
 Inputs json: {self.wf_inputs}
 {self.co_output.decode()}Workflow {self.wf_id} submitted, waiting for it to start...
+Workflow status: running
 Workflow is running and saved DB!
 """
         self.assertEqual(result.output, expected_output)
