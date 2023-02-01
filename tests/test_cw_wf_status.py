@@ -42,6 +42,27 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.output, expected_output)
         self.assertEqual(server_p.call_count, 2)
         self.assertEqual(self.wf.status, "succeeded")
+
+    @patch("cw.server.server_factory")
+    def test_status_detailed_cmd(self, server_p):
+        from cw.wf_status import status_cmd as cmd
+        runner = CliRunner()
+
+        server = Mock()
+        server_p.return_value = server
+
+        server.configure_mock(**{"status_for_workflow.return_value": "succeeded"})
+        result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        expected_output = f"""succeeded
+"""
+        self.assertEqual(result.output, expected_output)
+        self.assertEqual(server_p.call_count, 1)
+        self.assertEqual(self.wf.status, "succeeded")
 #--
 
 if __name__ == '__main__':
