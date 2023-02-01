@@ -31,7 +31,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(server_p.call_count, 1)
 
         server.configure_mock(**{"status_for_workflow.return_value": "succeeded"})
-        result = runner.invoke(cmd, [str(self.wf.id), "--update"], catch_exceptions=False)
+        result = runner.invoke(cmd, [str(self.wf.id)], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
