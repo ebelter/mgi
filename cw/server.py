@@ -1,4 +1,4 @@
-import click, os, re, requests, subprocess, sys, time, yaml
+import click, json, os, re, requests, subprocess, sys, time, yaml
 
 from cw import appcon
 import cw.cromshell
@@ -42,10 +42,17 @@ class Server(object):
         if not response or not response.ok:
             sys.stderr.write(f"Failed to get response from server at {url}\n")
             return None
-       # info = json.loads(response.content.decode())
         info = response.json()
         return info.get("status", "unknown").lower()
     #-- status_for_workflow
+    
+    def metadata_for_wf(self, wf_id):
+        url = f"{self.url()}/api/workflows/v1/{wf_id}/metadata?excludeKey=submittedFiles&expandSubWorkflows=true"
+        response = self.query(url)
+        if not response or not response.ok:
+            raise Exception(f"Server error encountered getting metadata with <{url}>")
+        return response.json()
+    #-- metadata_for_wf
 #-- Server
 
 @click.group()

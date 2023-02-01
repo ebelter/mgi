@@ -1,4 +1,4 @@
-import click, io, os, requests, subprocess, sys, tempfile, time, unittest, yaml
+import click, io, json, os, requests, subprocess, sys, tempfile, time, unittest, yaml
 from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
@@ -65,6 +65,47 @@ class CwServerTest(BaseWithDb):
         self.assertEqual(requests_p.call_count, 2)
         stderr.seek(0, 0)
         self.assertEqual(stderr.read(), f"")
+
+    @patch("requests.get")
+    def test_metadata_for_wf(self, requests_p):
+        from cw.server import server_factory
+        server = server_factory()
+        self.assertTrue(bool(server))
+        stderr = io.StringIO()
+        sys.stderr = stderr
+        wf_id = "__WF_ID__"
+
+        requests_p.return_value = Mock(ok=False)
+        status = server.status_for_workflow(wf_id)
+        self.assertEqual(status, None)
+        requests_p.assert_called()
+        stderr.seek(0, 0)
+
+        server.host = self.server_host
+        server.port = self.server_port
+        requests_p.return_value = None
+        with self.assertRaisesRegex(Exception, f"Server error encountered getting metadata with <{server.url()}"):
+            server.metadata_for_wf(wf_id)
+        requests_p.assert_called()
+        requests_p.reset_mock()
+
+        response = Mock(ok=False)
+        response.configure_mock(**{"json.return_value": {"status": "Succeeded", "id": "__WF_ID__"},})
+        requests_p.return_value = response
+        with self.assertRaisesRegex(Exception, f"Server error encountered getting metadata with <{server.url()}"):
+            server.metadata_for_wf(wf_id)
+        requests_p.assert_called()
+        requests_p.reset_mock()
+
+        response = Mock(ok=True)
+        with open(os.path.join(self.data_dn, "953a393c-d966-40ef-b301-c0e68cf54f09.md"), "r") as f:
+            expected_md_s = f.read()
+            expected_md = json.loads(expected_md_s)
+        response.configure_mock(**{"json.return_value": expected_md})
+        requests_p.return_value = response
+        metadata = server.metadata_for_wf(wf_id)
+        self.assertDictEqual(metadata, expected_md)
+        requests_p.assert_called()
 
     def test_server_cli(self):
         from cw.server import cli
