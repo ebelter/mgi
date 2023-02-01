@@ -37,9 +37,7 @@ class CwWfTest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""Workflow ID: {self.wf.wf_id}
-Name:        {self.wf.name}
-Status:      succeeded
+        expected_output = f"""succeeded
 """
         self.assertEqual(result.output, expected_output)
         self.assertEqual(server_p.call_count, 2)
