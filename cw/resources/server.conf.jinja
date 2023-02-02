@@ -20,8 +20,8 @@ backend {
         -cwd ${cwd} \
         -oo {{LOGS_DIR}}/%J.out \
         -q '{{LSF_QUEUE}}' \
-        -g '{{LSF_JOB_GROUP}}' \
-        -G '{{LSF_USER_GROUP}}' \
+        -G '{{LSF_JOB_GROUP}}' \
+        -g '{{LSF_USER_GROUP}}' \
         -a "docker(${docker})" \
         -M ${memory_gb}G \
         -n ${cpu} \
