@@ -1,6 +1,7 @@
 import click, sys, tabulate
 from cw import db, Workflow
 from cw.model_helpers import get_wf, get_pipeline, resolve_features, wf_features, wf_features_help
+import cw.server
 
 #curl --connect-timeout 5 --max-time 10 -s http://compute1-exec-226.ris.wustl.edu:8888/api/workflows/v1/c808fe24-0edd-46c4-ba23-ff881725e297/status {"status":"Succeeded","id":"c808fe24-0edd-46c4-ba23-ff881725e297"}
 
@@ -39,7 +40,8 @@ def add_cmd(features):
 cli.add_command(add_cmd, name="add")
 
 @click.command(short_help="list workflows")
-def list_cmd():
+@click.option("--update", is_flag=True, default=False, help="Update the workflow status before listing.")
+def list_cmd(update):
     """
     List Workflows
     """
@@ -48,6 +50,16 @@ def list_cmd():
         sys.stderr.write(f"No workflows found in db")
         return
     rows = []
+    if update:
+        for w in workflows:
+            if w.status in ("aborted", "failed", "succeeded"):
+                continue
+            server = cw.server.server_factory()
+            status = server.status_for_workflow(w.wf_id)
+            if status is not None:
+                w.status = status
+            db.session.add(w)
+        db.session.commit()
     for w in workflows:
         rows.append([w.wf_id, w.name, w.status, w.pipeline.name, w.inputs])
     print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE", "INPUTS"], tablefmt="simple"))
