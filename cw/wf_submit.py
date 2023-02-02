@@ -75,12 +75,13 @@ def wait_for_workflow_to_start(wf_id):
     server = cw.server.server_factory()
     cnt = 0
     status = "unknown"
-    time.sleep(3)
-    while cnt < 20:
+    time.sleep(4)
+    while cnt < 10:
         status = server.status_for_workflow(wf_id)
-        if status != "submitted":
+        sys.stdout.write(f"Current workflow status: {status}\n")
+        if status is not None and status != "submitted":
             break
-        time.sleep(1)
+        time.sleep(2)
         cnt += 1
     return status
 #-- wait_for_workflow_to_start
