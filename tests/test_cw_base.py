@@ -5,6 +5,7 @@ class BaseWithDb(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         import cw
+        self.data_dn = os.path.join(os.path.dirname(__file__), "data")
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
         os.makedirs("server")
