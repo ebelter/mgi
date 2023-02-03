@@ -35,7 +35,7 @@ def gather_cmd(workflow_identifier, destination, tasks_and_outputs):
     if wf is None:
         raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
     tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
-    metadata = cw.wf_metadata.metadata_for_wf(wf)
+    metadata = cw.wf_metadata.metadata_for_workflow(wf.wf_id)
     if metadata is None:
         raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
     calls = metadata.get("calls", None)
@@ -74,7 +74,7 @@ def list_cmd(workflow_identifier, tasks_and_outputs):
     if wf is None:
         raise Exception(f"Failed to get workflow for <{workflow_identifier}>")
     tasks_and_outputs = resolve_tasks_and_outputs(wf.pipeline, tasks_and_outputs)
-    metadata = cw.wf_metadata.metadata_for_wf(wf)
+    metadata = cw.wf_metadata.metadata_for_workflow(wf.wf_id)
     if metadata is None:
         raise Exception(f"Failed to get workflow metadata for <{workflow_identifier}>")
     calls = metadata.get("calls", None)

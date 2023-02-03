@@ -21,7 +21,7 @@ def metadata_cmd(identifier):
         sys.stderr.write("Cromwell server is not running\n")
         sys.exit(1)
     try:
-        metadata = server.metadata_for_wf(wf)
+        metadata = server.metadata_for_workflow(wf.wf_id)
     except Exception as e:
         sys.stderr.write(f"Failed to get metdata workflow <{wf.wf_id}>: {e.args[0]}\n")
         sys.exit(1)

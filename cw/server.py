@@ -46,7 +46,7 @@ class Server(object):
         return info.get("status", "unknown").lower()
     #-- status_for_workflow
     
-    def metadata_for_wf(self, wf_id):
+    def metadata_for_worklflow(self, wf_id):
         url = f"{self.url()}/api/workflows/v1/{wf_id}/metadata?excludeKey=submittedFiles&expandSubWorkflows=true"
         response = self.query(url)
         if not response or not response.ok:

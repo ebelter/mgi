@@ -37,7 +37,7 @@ def detailed_status(server, wf):
     known_statuses = ["done", "running", "preempted", "failed"]
     tasks = []
     now = datetime.now()
-    md = server.metadata_for_wf(wf)
+    md = server.metadata_for_workflow(wf.wf_id)
     for task_name, calls in md["calls"].items():
         time_elapsed = timedelta(seconds=0)
         call_statuses = collections.defaultdict(lambda: 0)
