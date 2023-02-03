@@ -12,7 +12,7 @@ tests_require = [
 
 install_requires=[
     "click>=8.0",
-    "flask<2.2.0",
+    "flask",
     "flask-migrate",
     "flask-sqlalchemy",
     "Jinja2>=3.0",

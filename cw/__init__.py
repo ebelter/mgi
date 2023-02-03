@@ -6,26 +6,26 @@ from sqlalchemy import create_engine
 
 from cw.helpers import sqlite_uri_for_file
 
-flask_app = Flask(__name__)
-flask_app.config['SQLALCHEMY_DATABASE_URI'] = None
-flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(flask_app)
 def db_uri(db_uri=None):
     if db_uri is not None:
         flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     return flask_app.config['SQLALCHEMY_DATABASE_URI']
-db.uri = db_uri
 
-migrate = Migrate(flask_app, db)
 DN = os.environ.get("CW_DN", None)
 if DN is None:
     DN = os.getcwd()
 DB_URI = os.environ.get("CW_DB_URI", None)
 if DB_URI is None:
     DB_URI = sqlite_uri_for_file(os.path.join(DN, "server", "db"))
-    #DB_URI = sqlite_uri_for_file(os.path.join(DN, "cw.db"))
-db.uri(DB_URI)
+flask_app = Flask(__name__)
+flask_app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
+flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db_uri(db_uri=DB_URI)
+flask_app.app_context().push()
+
+db = SQLAlchemy(flask_app)
+db.uri = db_uri
+migrate = Migrate(flask_app, db)
 
 from cw.models import Config, Pipeline, Workflow
 
