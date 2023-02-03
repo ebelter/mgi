@@ -69,16 +69,14 @@ Workflow name:    __SAMPLE__
 Workflow inputs:  None
 Workflow name:
 Tasks:
-name                                         time               done    running    preempted    failed
-long_read_rna_pipeline.clean_reference       0:01:17               1          0            0         0
-long_read_rna_pipeline.get_splice_junctions  0:00:29               1          0            0         0
-long_read_rna_pipeline.minimap2              4:15:26               1          0            0         0
-long_read_rna_pipeline.init_talon_db         1:15:19               1          0            0         0
-long_read_rna_pipeline.combined_fastq        0:00:53               1          0            0         0
-long_read_rna_pipeline.decompressed_gtf      0:00:06               1          0            0         0
+name                                         time                done    running    preempted    failed
+long_read_rna_pipeline.clean_reference       0:01:17                1          0            0         0
+long_read_rna_pipeline.get_splice_junctions  0:00:29                1          0            0         0
+long_read_rna_pipeline.minimap2              4:15:26                1          0            0         0
+long_read_rna_pipeline.init_talon_db         1:15:19                1          0            0         0
+long_read_rna_pipeline.combined_fastq        0:00:53                1          0            0         0
+long_read_rna_pipeline.decompressed_gtf      0:00:06                1          0            0         0
 """
-       # return s[:s.rfind('\n')]
-
         self.assertRegex(result.output, expected_output)
         self.assertEqual(server_p.call_count, 1)
         self.assertEqual(self.wf.status, "running")
