@@ -11,8 +11,8 @@ class CwCromshellTest(unittest.TestCase):
         self.temp_d.cleanup()
 
     def test_cromshell_dirs_and_files(self ):
-        self.assertEqual(config_dn(), os.path.join("apps", "cromshell", ".cromshell"))
-        self.assertEqual(server_fn(), os.path.join("apps", "cromshell", ".cromshell", "cromwell_server.config"))
+        self.assertEqual(config_dn(), os.path.join(os.sep, "apps", "cromshell", ".cromshell"))
+        self.assertEqual(server_fn(), os.path.join(os.sep, "apps", "cromshell", ".cromshell", "cromwell_server.config"))
 
     @patch("cw.cromshell.config_dn")
     def test_update_server(self, p):

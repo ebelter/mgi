@@ -1,10 +1,8 @@
 import os, tempfile, unittest
-from cw.helpers import sqlite_uri_for_file
 
 class BaseWithDb(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        import cw
         self.data_dn = os.path.join(os.path.dirname(__file__), "data")
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
@@ -12,10 +10,12 @@ class BaseWithDb(unittest.TestCase):
         self.pipelines_dn = os.path.join(self.temp_d.name, "pipelines")
         os.makedirs(self.pipelines_dn)
         self.db_fn = os.path.join(self.temp_d.name, "server", "db")
-        self.db_uri = sqlite_uri_for_file(self.db_fn)
+        self.db_uri = 'sqlite:///' + os.path.abspath(self.db_fn)
+        os.environ["CW_DB_URI"] = self.db_uri
+        import cw
         cw.appcon.dn = self.temp_d.name
-        cw.db.uri(self.db_uri)
-        cw.create_db()
+        cw.db_uri(self.db_uri)
+        cw.create_db(uri=self.db_uri)
         self._setUpClass(self)
 
     def _setUpClass(self):
@@ -46,7 +46,7 @@ class BaseWithDb(unittest.TestCase):
         if getattr(self, "wf", None) is not None:
             return
         from cw import db, Workflow
-        self.add_pipeline_to_db(self)
+        self.add_pipeline_to_db()
         wf = Workflow(id=10001, wf_id="__WF_ID__", name="__SAMPLE__", pipeline=self.pipeline)
         self.wf = wf
 
@@ -101,7 +101,7 @@ class CwTest(BaseWithDb):
         with self.assertRaisesRegex(Exception, "Unknown directory"):
             appcon.dn_for("blah")
 
-    def test_add_objectgs_to_db(self):
+    def test_add_objects_to_db(self):
         self.assertFalse(getattr(self, "pipeline", None))
         self.add_pipeline_to_db()
         self.assertTrue(self.pipeline)

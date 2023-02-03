@@ -1,7 +1,6 @@
 import click, json, os, tempfile, unittest
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
-import cw.server
 
 from tests.test_cw_base import BaseWithDb
 class CwWfTest(BaseWithDb):
@@ -9,7 +8,7 @@ class CwWfTest(BaseWithDb):
         self.metadata_str = b'{\n    "workflowName": "hic",\n    "id": "9d5ffbbc-b246-449b-9685-9db84016c44e"\n}'
         self.metadata = json.loads(self.metadata_str.decode())
         self.add_workflow_to_db(self)
-        self.add_pipeline_to_db(self)
+        self.add_pipeline_to_db()
         with open(self.pipeline.inputs, "w") as f:
             f.write("""{\n  "t.sample": "{{_S_}}"\n}""")
 

@@ -1,7 +1,6 @@
 import click, json, os, tempfile, unittest
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
-import cw.server
 
 from tests.test_cw_base import BaseWithDb
 class CwWfTest(BaseWithDb):
@@ -24,8 +23,7 @@ class CwWfTest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = """Failed to get workflow for <BLAH>
-"""
+        expected_output = """Failed to get workflow for <BLAH>\n"""
         self.assertEqual(result.output, expected_output)
 
         server = Mock()
@@ -44,7 +42,7 @@ class CwWfTest(BaseWithDb):
         #server.is_running.assert_called_once()
         server.reset_mock()
 
-        server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "metadata_for_wf.return_value": self.metadata})
+        server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "metadata_for_workflow.return_value": self.metadata})
         result = runner.invoke(cmd, [f"{self.wf.wf_id}"])
         try:
             self.assertEqual(result.exit_code, 0)
@@ -55,7 +53,7 @@ class CwWfTest(BaseWithDb):
         self.assertEqual(result.output, json.dumps(self.metadata, indent=4))
         factory_p.assert_called_once()
         server.is_running.assert_called_once()
-        server.metadata_for_wf.assert_called_once()
+        server.metadata_for_workflow.assert_called_once()
 #--
 
 if __name__ == '__main__':

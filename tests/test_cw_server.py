@@ -3,8 +3,6 @@ from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
 
-import cw.cromshell, cw.server, subprocess
-
 from tests.test_cw_base import BaseWithDb
 
 class CwServerTest(BaseWithDb):
@@ -67,7 +65,7 @@ class CwServerTest(BaseWithDb):
         self.assertEqual(stderr.read(), f"")
 
     @patch("requests.get")
-    def test_metadata_for_wf(self, requests_p):
+    def test_metadata_for_workflow(self, requests_p):
         from cw.server import server_factory
         server = server_factory()
         self.assertTrue(bool(server))
@@ -85,7 +83,7 @@ class CwServerTest(BaseWithDb):
         server.port = self.server_port
         requests_p.return_value = None
         with self.assertRaisesRegex(Exception, f"Server error encountered getting metadata with <{server.url()}"):
-            server.metadata_for_wf(wf_id)
+            server.metadata_for_workflow(wf_id)
         requests_p.assert_called()
         requests_p.reset_mock()
 
@@ -93,7 +91,7 @@ class CwServerTest(BaseWithDb):
         response.configure_mock(**{"json.return_value": {"status": "Succeeded", "id": "__WF_ID__"},})
         requests_p.return_value = response
         with self.assertRaisesRegex(Exception, f"Server error encountered getting metadata with <{server.url()}"):
-            server.metadata_for_wf(wf_id)
+            server.metadata_for_workflow(wf_id)
         requests_p.assert_called()
         requests_p.reset_mock()
 
@@ -103,14 +101,13 @@ class CwServerTest(BaseWithDb):
             expected_md = json.loads(expected_md_s)
         response.configure_mock(**{"json.return_value": expected_md})
         requests_p.return_value = response
-        metadata = server.metadata_for_wf(wf_id)
+        metadata = server.metadata_for_workflow(wf_id)
         self.assertDictEqual(metadata, expected_md)
         requests_p.assert_called()
 
     def test_server_cli(self):
         from cw.server import cli
         runner = CliRunner()
-        cw.DN = self.temp_d.name
         os.chdir(self.temp_d.name)
 
         result = runner.invoke(cli, ["--help"])

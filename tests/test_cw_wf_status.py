@@ -55,8 +55,8 @@ class CwWfTest(BaseWithDb):
         with open(self.metadata_fn, "r") as f:
             md = json.load(f)
 
-        server.configure_mock(**{"metadata_for_wf.return_value": md})
-        result = runner.invoke(cmd, [str(self.wf.id), "--detailed"], catch_exceptions=False)
+        server.configure_mock(**{"metadata_for_workflow.return_value": md})
+        result = runner.invoke(cmd, [str(self.wf.wf_id), "--detailed"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
