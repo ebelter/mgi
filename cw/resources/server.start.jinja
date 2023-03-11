@@ -1,2 +1,2 @@
 #!/bin/bash
-LSF_DOCKER_VOLUMES='{{LSF_DOCKER_VOLUMES}}' LSF_DOCKER_PORTS='{{SERVER_PORT}}:{{SERVER_PORT}}' bsub -q {{LSF_QUEUE}} -G {{LSF_JOB_GROUP}} -g {{LSF_USER_GROUP}} -R 'span[hosts=1] select[port{{SERVER_PORT}}=1 && mem>4G] rusage[mem=4G]' -M 4G -a 'docker(ebelter/mgi:cromwell)' -oo {{SERVER_DN}}/log /bin/bash {{SERVER_DN}}/run
+LSF_DOCKER_VOLUMES='{{LSF_DOCKER_VOLUMES}}' LSF_DOCKER_PORTS='{{SERVER_PORT}}:{{SERVER_PORT}}' bsub -q {{LSF_QUEUE}} -g {{LSF_JOB_GROUP}} -G {{LSF_USER_GROUP}} -R 'span[hosts=1] select[port{{SERVER_PORT}}=1 && mem>4G] rusage[mem=4G]' -M 4G -a 'docker(ebelter/mgi:cromwell)' -oo {{SERVER_DN}}/log /bin/bash {{SERVER_DN}}/run
