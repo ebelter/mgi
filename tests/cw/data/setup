@@ -1,0 +1,1 @@
+cw setup docker_volumes='/home/ebelter:/home/ebelter /scratch1/fs1/hprc:/scratch1/fs1/hprc /storage1/fs1/hprc:/storage1/fs1/hprc' user_group=/ebelter/default job_group=compute-hprc queue=ccdg

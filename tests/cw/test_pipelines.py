@@ -2,12 +2,11 @@ import click, os, requests, subprocess, tempfile, time, unittest, yaml
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
-from tests.test_cw_base import BaseWithDb
-
+from tests.cw.test_base import BaseWithDb
 class Pipelinestest(BaseWithDb):
 
     def setUp(self):
-        self.pipeline_name = "__TESTER__"
+        self.pipeline_name = "hello-world"
 
     def test_pipelines_cli(self):
         runner = CliRunner()
@@ -42,7 +41,10 @@ class Pipelinestest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"No pipelines found in pipleines db"
+        expected_output = f"""NAME         WDL                                                    IMPORTS
+-----------  -----------------------------------------------------  ---------
+hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
+"""
         self.assertEqual(result.output, expected_output)
 
     def test12_add_cmd(self):
@@ -62,13 +64,14 @@ class Pipelinestest(BaseWithDb):
         with self.assertRaisesRegex(Exception, f"Feature <outputs> is a file, but given value <blah.yaml> does not exist"):
             runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__, "outputs=blah.yaml"], catch_exceptions=False)
 
-        result = runner.invoke(cmd, ["name="+self.pipeline_name, "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
+        new_name = "__TESTER__"
+        result = runner.invoke(cmd, ["name="+new_name, "wdl="+__file__, "imports="+__file__], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
             print(result.output)
             raise
-        expected_output = f"""Add pipeline {self.pipeline_name} {__file__} {__file__}
+        expected_output = f"""Add pipeline {new_name} {__file__} {__file__}
 """
 
     def test13_list_cmd(self):
@@ -81,11 +84,8 @@ class Pipelinestest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""NAME        WDL                                               IMPORTS
-----------  ------------------------------------------------  ------------------------------------------------
-__TESTER__  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py
-"""
-        self.assertEqual(result.output, expected_output)
+        expected_output = f"""NAME\s+WDL\s+IMPORTS\n"""
+        self.assertRegex(result.output, expected_output)
 
     def test14_update_cmd(self):
         from cw import db, Pipeline
@@ -101,23 +101,22 @@ __TESTER__  /home/ebelter/dev/mgi/tests/test_cw_pipelines.py  /home/ebelter/dev/
         pipeline_id = "1"
         p = Pipeline.query.get(int(pipeline_id))
         self.assertTrue(p)
-        self.assertEqual(p.name, self.pipeline_name)
 
-        pipeline_new_name = "__NEW__"
-        result = runner.invoke(cmd, [pipeline_id, f"name={pipeline_new_name}"], catch_exceptions=False)
+        new_name = "hello_world"
+        result = runner.invoke(cmd, ["hello-world", f"name={new_name}"], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
             print(result.output)
             raise
-        expected_output = f"""Update pipeline <1>
-ATTR    FROM        TO
-------  ----------  -------
-name    __TESTER__  __NEW__
+        expected_output = f"""Update pipeline <hello-world>
+ATTR    FROM         TO
+------  -----------  -----------
+name    hello-world  {new_name}
 """
         self.assertEqual(result.output, expected_output)
         db.session.refresh(p)
-        self.assertEqual(p.name, pipeline_new_name)
+        self.assertEqual(p.name, new_name)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

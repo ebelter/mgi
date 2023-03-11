@@ -2,12 +2,11 @@ import click, json, os, tempfile, unittest
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 class CwWfTest(BaseWithDb):
     def _setUpClass(self):
         self.metadata_str = b'{\n    "workflowName": "hic",\n    "id": "9d5ffbbc-b246-449b-9685-9db84016c44e"\n}'
         self.metadata = json.loads(self.metadata_str.decode())
-        self.add_workflow_to_db(self)
 
     @patch("cw.server.server_factory")
     def test_metadata_cmd(self, factory_p):
@@ -29,7 +28,7 @@ class CwWfTest(BaseWithDb):
         server = Mock()
         server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": False})
         factory_p.return_value = server
-        result = runner.invoke(cmd, [f"{self.wf.wf_id}"])
+        result = runner.invoke(cmd, [f"{1}"])
         try:
             self.assertEqual(result.exit_code, 1)
         except:
@@ -43,7 +42,7 @@ class CwWfTest(BaseWithDb):
         server.reset_mock()
 
         server.configure_mock(**{"url.return_value": "__URL__", "is_running.return_value": True, "metadata_for_workflow.return_value": self.metadata})
-        result = runner.invoke(cmd, [f"{self.wf.wf_id}"])
+        result = runner.invoke(cmd, [f"{1}"])
         try:
             self.assertEqual(result.exit_code, 0)
         except:

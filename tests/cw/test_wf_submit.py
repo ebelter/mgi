@@ -3,7 +3,7 @@ from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 class CwWfTest(BaseWithDb):
     def setUp(self):
         import cw
@@ -111,6 +111,7 @@ class CwWfTest(BaseWithDb):
         expected_output = f"""Pipeline:    {self.p_name}
 Inputs json: {self.wf_inputs}
 {self.co_output.decode()}Workflow {self.wf_id} submitted, waiting for it to start...
+Current workflow status: running
 Workflow status: running
 Workflow is running and saved DB!
 """
@@ -124,7 +125,9 @@ Workflow is running and saved DB!
     @patch("time.sleep")
     @patch("cw.server.server_factory")
     def test4_wait_for_workflow_to_start(self, server_p, sleep_p):
+        import sys, io
         from cw.wf_submit import wait_for_workflow_to_start as fun
+        sys.stdout = io.StringIO()
         server = Mock()
         server_p.return_value = server
 
@@ -132,8 +135,8 @@ Workflow is running and saved DB!
         server.configure_mock(**{"status_for_workflow.return_value": "submitted"})
         status = fun("__WF_ID__")
         self.assertEqual(status, "submitted")
-        self.assertEqual(server.status_for_workflow.call_count, 20)
-        self.assertEqual(sleep_p.call_count, 20)
+        self.assertEqual(server.status_for_workflow.call_count, 10)
+        self.assertEqual(sleep_p.call_count, 11)
 
         server.reset_mock()
         sleep_p.reset_mock()
@@ -143,8 +146,10 @@ Workflow is running and saved DB!
         status = fun("__WF_ID__")
         self.assertEqual(status, "running")
         self.assertEqual(server.status_for_workflow.call_count, 1)
-        self.assertEqual(sleep_p.call_count, 0)
+        self.assertEqual(sleep_p.call_count, 1)
         sleep_p.reset_mock()
+
+        sys.stdout = sys.__stdout__
 #--
 
 if __name__ == '__main__':

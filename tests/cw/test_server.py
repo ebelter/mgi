@@ -3,7 +3,7 @@ from pathlib import Path
 from click.testing import CliRunner
 from unittest.mock import MagicMock, Mock, patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 
 class CwServerTest(BaseWithDb):
     def setUp(self):
@@ -96,7 +96,7 @@ class CwServerTest(BaseWithDb):
         requests_p.reset_mock()
 
         response = Mock(ok=True)
-        with open(os.path.join(self.data_dn, "953a393c-d966-40ef-b301-c0e68cf54f09.md"), "r") as f:
+        with open(os.path.join(self.data_dn, "wf", "67c1c73d-9b92-408e-9f7a-5ad0c9df2a36.md"), "r") as f:
             expected_md_s = f.read()
             expected_md = json.loads(expected_md_s)
         response.configure_mock(**{"json.return_value": expected_md})

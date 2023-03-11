@@ -1,7 +1,7 @@
 import click, unittest
 from click.testing import CliRunner
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 class UtilsTest(BaseWithDb):
     def test0_cli(self):
         from cw.utils import cli

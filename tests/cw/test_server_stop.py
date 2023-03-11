@@ -2,7 +2,7 @@ import click, os, subprocess, unittest
 from click.testing import CliRunner
 from unittest.mock import patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 
 class CwServerStopTest(BaseWithDb):
     def setUp(self):

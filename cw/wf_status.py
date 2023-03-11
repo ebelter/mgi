@@ -34,7 +34,7 @@ def status_cmd(workflow_id, detailed):
 #-- status_cmd
 
 def detailed_status(server, wf):
-    known_statuses = ["done", "running", "preempted", "failed"]
+    known_statuses = ["aborted", "done", "running", "preempted", "failed"]
     tasks = []
     now = datetime.now()
     md = server.metadata_for_workflow(wf.wf_id)

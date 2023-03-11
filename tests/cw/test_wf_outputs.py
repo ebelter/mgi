@@ -1,26 +1,20 @@
 import json, os, sys, unittest, yaml
 from click.testing import CliRunner
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-import cw.wf_metadata
+from unittest.mock import Mock, patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 class CwWfOutputsTest(BaseWithDb):
     def _setUpClass(self):
-        from cw import db
         os.chdir(self.temp_d.name)
         self.destination = os.path.join(self.temp_d.name, "outputs")
         os.makedirs(self.destination, exist_ok=True)
 
-        self.add_workflow_to_db(self)
         self.tasks_and_outputs = {"test.task1": ["file1"], "test.task2": ["file2", "file3"], "test.missing_task": ["?"]}
-        self.pipeline.outputs = os.path.join(self.temp_d.name, "pipelines", "outputs.yaml")
-        os.makedirs(os.path.dirname(self.pipeline.outputs))
-        with open(self.pipeline.outputs, "w") as f:
+        self.tasks_and_outputs_fn = os.path.join(self.temp_d.name, "pipelines", "outputs.yaml")
+        os.makedirs(os.path.dirname(self.tasks_and_outputs_fn))
+        with open(self.tasks_and_outputs_fn, "w") as f:
             f.write(yaml.dump(self.tasks_and_outputs))
-        db.session.add(self.pipeline)
-        db.session.commit()
-        db.session.refresh(self.pipeline)
 
     def test_cli(self):
         runner = CliRunner()
@@ -42,14 +36,16 @@ class CwWfOutputsTest(BaseWithDb):
         self.assertEqual(result.exit_code, 2)
 
     def test_resolve_tasks_and_outputs(self):
+        from cw import Pipeline
         from cw.wf_outputs import resolve_tasks_and_outputs as fun
 
         # pipeline
-        got = fun(self.wf.pipeline, None)
-        self.assertDictEqual(got, self.tasks_and_outputs)
+        pipeline = Pipeline.query.get(1)
+        got = fun(pipeline, None)
+        self.assertDictEqual(got, {"hw.run_hello_world": ["output_file"]})
 
         # file
-        got = fun(self.wf, self.wf.pipeline.outputs)
+        got = fun(pipeline, self.tasks_and_outputs_fn)
         self.assertDictEqual(got, self.tasks_and_outputs)
 
     def test_collect_shards_outputs(self):
@@ -126,8 +122,8 @@ class CwWfOutputsTest(BaseWithDb):
         with open(fn, "r") as f:
             self.assertEqual(f.read(), expected)
 
-    @patch("cw.wf_metadata.metadata_for_wf")
-    def test_gather_cmd(self, metadata_p):
+    @patch("cw.server.server_factory")
+    def test_gather_cmd(self, factory_p):
         from cw.wf_outputs import gather_cmd as cmd
         runner = CliRunner()
 
@@ -212,9 +208,11 @@ class CwWfOutputsTest(BaseWithDb):
                 ],
             }
         }
-        metadata_p.return_value = metadata
+        server = Mock()
+        server.configure_mock(**{"metadata_for_workflow.return_value": metadata})
+        factory_p.return_value = server
 
-        result = runner.invoke(cmd, [f"{self.wf.id}", self.destination], catch_exceptions=False)
+        result = runner.invoke(cmd, ["1", self.destination, "-t", self.tasks_and_outputs_fn], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
@@ -243,8 +241,8 @@ class CwWfOutputsTest(BaseWithDb):
         expected = list(map(lambda f: os.path.join(self.destination, f), expected))
         self.assertEqual(got.sort(), expected.sort())
 
-    @patch("cw.wf_metadata.metadata_for_wf")
-    def test_list_cmd(self, metadata_p):
+    @patch("cw.server.server_factory")
+    def test_list_cmd(self, factory_p):
         from cw.wf_outputs import list_cmd as cmd
         runner = CliRunner()
 
@@ -329,9 +327,11 @@ class CwWfOutputsTest(BaseWithDb):
                 ],
             }
         }
-        metadata_p.return_value = metadata
+        server = Mock()
+        server.configure_mock(**{"metadata_for_workflow.return_value": metadata})
+        factory_p.return_value = server
 
-        result = runner.invoke(cmd, [f"{self.wf.id}"], catch_exceptions=False)
+        result = runner.invoke(cmd, ["1", "-t", self.tasks_and_outputs_fn], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:

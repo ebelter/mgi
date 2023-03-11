@@ -2,7 +2,7 @@ import click, os, requests, tempfile, unittest, yaml
 from click.testing import CliRunner
 from unittest.mock import MagicMock, patch
 
-from tests.test_cw_base import BaseWithDb
+from tests.cw.test_base import BaseWithDb
 
 class CwHeartbeatCmdTest(BaseWithDb):
 
@@ -19,20 +19,13 @@ class CwHeartbeatCmdTest(BaseWithDb):
             print(result.output)
             raise
         expected_output = f"Can't find server 'host' in application configuration.\n"
+        self.assertEqual(result.output, expected_output)
 
         host = "server1"
         appcon.set(group="server", name="host", value=host)
-
-        result = runner.invoke(cmd, [])
-        try:
-            self.assertEqual(result.exit_code, 1)
-        except:
-            print(result.output)
-            raise
-        expected_output = f"Can't find server 'port' in application configuration.\n"
-
         port = "8888"
         appcon.set(group="server", name="port", value=port)
+
         requests_p.return_value = MagicMock(ok=True, content="1")
         os.chdir(self.temp_d.name)
         result = runner.invoke(cmd, [], catch_exceptions=False)

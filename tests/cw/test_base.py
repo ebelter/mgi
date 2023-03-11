@@ -1,4 +1,4 @@
-import os, tempfile, unittest
+import os, shutil, tempfile, unittest
 
 class BaseWithDb(unittest.TestCase):
     @classmethod
@@ -7,15 +7,7 @@ class BaseWithDb(unittest.TestCase):
         self.temp_d = tempfile.TemporaryDirectory()
         os.chdir(self.temp_d.name)
         os.makedirs("server")
-        self.pipelines_dn = os.path.join(self.temp_d.name, "pipelines")
-        os.makedirs(self.pipelines_dn)
-        self.db_fn = os.path.join(self.temp_d.name, "server", "db")
-        self.db_uri = 'sqlite:///' + os.path.abspath(self.db_fn)
-        os.environ["CW_DB_URI"] = self.db_uri
-        import cw
-        cw.appcon.dn = self.temp_d.name
-        cw.db_uri(self.db_uri)
-        cw.create_db(uri=self.db_uri)
+        shutil.copy(os.path.join(self.data_dn, "server", "db"), os.path.join(self.temp_d.name, "server", "db"))
         self._setUpClass(self)
 
     def _setUpClass(self):
@@ -26,44 +18,17 @@ class BaseWithDb(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    def add_pipeline_to_db(self):
-        if getattr(self, "pipeline", None) is not None:
-            return
-        from cw import db, Pipeline
-        p = Pipeline(
-                id=10001, name="__TESTER__",
-                wdl=os.path.join(self.pipelines_dn, "t.wdl"),
-                inputs=os.path.join(self.pipelines_dn, "t.inputs.yaml"),
-                outputs=os.path.join(self.pipelines_dn, "t.outputs.yaml"),
-                imports=os.path.join(self.pipelines_dn, "t.imports.zip"),
-                )
-        db.session.add(p)
-        db.session.commit()
-        self.pipeline = p
-
-    def add_workflow_to_db(self):
-        if getattr(self, "wf", None) is not None:
-            return
-        from cw import db, Workflow
-        self.add_pipeline_to_db()
-        wf = Workflow(id=10001, wf_id="__WF_ID__", name="__SAMPLE__", pipeline=self.pipeline)
-        self.wf = wf
-
-    def add_lsf_config_to_db(self):
-        configs = ["docker_volumes=MINE", "job_group=MINE", "queue=MINE", "user_group=MINE"]
-        for c in configs:
-            n, v = c.split("=")
-            cw.appcon.set(group="lsf", name=n, value=v)
 #-- BaseWithDb
 
 class BaseWithDbTest(BaseWithDb):
     def test1_setup(self):
         from cw import flask_app
+        import cw
         self.assertTrue(bool(self.temp_d))
-        self.assertTrue(bool(self.db_fn))
-        self.assertTrue(os.path.exists(self.db_fn))
-        self.assertEqual(flask_app.config["SQLALCHEMY_DATABASE_URI"], self.db_uri)
+        self.assertTrue(os.getcwd(), self.temp_d.name)
+        self.assertTrue(os.path.exists(cw.DN))
+        db_fn = cw.DB_URI.replace("sqlite:///", "")
+        self.assertTrue(os.path.exists(db_fn))
 #-- BaseWithDbTest
 
 class CwTest(BaseWithDb):
@@ -100,14 +65,6 @@ class CwTest(BaseWithDb):
             self.assertTrue(appcon.dn_for(n))
         with self.assertRaisesRegex(Exception, "Unknown directory"):
             appcon.dn_for("blah")
-
-    def test_add_objects_to_db(self):
-        self.assertFalse(getattr(self, "pipeline", None))
-        self.add_pipeline_to_db()
-        self.assertTrue(self.pipeline)
-        self.assertFalse(getattr(self, "wf", None))
-        self.add_workflow_to_db()
-        self.assertTrue(self.wf)
 #-- CwTest
 
 if __name__ == '__main__':
