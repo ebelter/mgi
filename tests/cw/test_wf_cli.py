@@ -26,6 +26,11 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cli, ["add"])
         self.assertEqual(result.exit_code, 2)
 
+        result = runner.invoke(cli, ["detail", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["detail"])
+        self.assertEqual(result.exit_code, 2)
+
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
 
