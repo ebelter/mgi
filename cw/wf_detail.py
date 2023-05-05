@@ -5,7 +5,7 @@ from cw import db
 from cw.model_helpers import get_wf
 import cw.server
 
-@click.command(short_help="get status of a workflow")
+@click.command(short_help="get details of a workflow")
 @click.argument("workflow-id", required=True, nargs=1)
 def detail_cmd(workflow_id):
     """
@@ -36,7 +36,7 @@ def detail_cmd(workflow_id):
 
 def detailed_status(server, wf):
     known_statuses = ["aborted", "done", "running", "preempted", "failed"]
-    tasks = []
+    tasks, failed_calls = [], []
     now = datetime.now()
     md = server.metadata_for_workflow(wf.wf_id)
     if md is None:
@@ -53,6 +53,8 @@ def detailed_status(server, wf):
                 end = now
             time_elapsed += end - start
             call_statuses[call["executionStatus"].lower()] += 1
+            if call["executionStatus"] == "Failed": # accumulate failed calls for investigation
+                failed_calls.append(f"{call['workflowName']} {call['stdout']}")
         task = [task_name, str(time_elapsed).split(".")[0]]
         for status in known_statuses:
             task.append(call_statuses[status])
@@ -65,5 +67,7 @@ Workflow name:
 Tasks:
 """
     detail += tabulate.tabulate(tasks, headers=["name", "time"]+known_statuses, tablefmt="plain")
+    if len(failed_calls) > 0:
+        detail += "\nFailed calls:\n"+"\n".join(failed_calls)
     return (md["status"].lower(), detail)
 #-- detailed_status
