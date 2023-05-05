@@ -42,10 +42,18 @@ class CwWfTest(BaseWithDb):
         result = runner.invoke(cli, ["update"])
         self.assertEqual(result.exit_code, 2)
 
-    def test11_list_cmd(self):
-        from cw import db, Workflow
+    @patch("cw.server.server_factory")
+    def test11_list_cmd(self, factory_p):
+        from cw import appcon, db, Workflow
         from cw.wf_cli import list_cmd as cmd
         runner = CliRunner()
+
+        server_host = "compute1-exec-225.ris.wustl.edu"
+        server_port = "8888"
+        appcon.set(group="server", name="host", value=server_host)
+        appcon.set(group="server", name="port", value=server_port)
+        server = MagicMock(host=server_host, port=server_port, server_url=f"http://{server_host}:{server_port}", **{"is_running.return_value": True, "status_for_workflow": "Running"})
+        factory_p.return_value = server
 
         wf = Workflow.query.get(1)
         db.session.delete(wf)
@@ -84,10 +92,18 @@ class CwWfTest(BaseWithDb):
 """
         self.assertEqual(result.output, expected_output)
 
-    def test13_list_cmd(self):
-        from cw import Workflow
+    @patch("cw.server.server_factory")
+    def test13_list_cmd(self, factory_p):
+        from cw import appcon, Workflow
         from cw.wf_cli import list_cmd as cmd
         runner = CliRunner()
+
+        server_host = "compute1-exec-225.ris.wustl.edu"
+        server_port = "8888"
+        appcon.set(group="server", name="host", value=server_host)
+        appcon.set(group="server", name="port", value=server_port)
+        server = MagicMock(host=server_host, port=server_port, server_url=f"http://{server_host}:{server_port}", **{"is_running.return_value": True, "status_for_workflow.return_value": "new"})
+        factory_p.return_value = server
 
         wf = Workflow.query.get(1)
         self.assertTrue(wf)

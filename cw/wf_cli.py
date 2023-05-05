@@ -49,19 +49,16 @@ def list_cmd(update):
     if len(workflows) == 0:
         sys.stderr.write(f"No workflows found in db")
         return
+    server = cw.server.server_factory()
     rows = []
-    if update:
-        for w in workflows:
-            if w.status in ("aborted", "failed", "succeeded"):
-                continue
-            server = cw.server.server_factory()
-            status = server.status_for_workflow(w.wf_id)
+    for wf in workflows:
+        if server is not None and server.is_running and wf.status not in ("aborted", "failed", "succeeded"): # only update active workflows
+            status = server.status_for_workflow(wf.wf_id)
             if status is not None:
-                w.status = status
-            db.session.add(w)
-        db.session.commit()
-    for w in workflows:
-        rows.append([w.wf_id, w.name, w.status, w.pipeline.name, w.inputs])
+                wf.status = status
+            db.session.add(wf)
+        rows.append([wf.wf_id, wf.name, wf.status, wf.pipeline.name, wf.inputs])
+    db.session.commit()
     print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE", "INPUTS"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
 
