@@ -10,6 +10,7 @@ RUN apt update && \
     less \
     libnss-sss \
     mailutils \
+    sqlite3 \
     vim \
     zip \
   && apt clean
