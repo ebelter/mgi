@@ -22,13 +22,6 @@ RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWEL
 RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/womtool-${CROMWELL_VERSION}.jar" && \
   mv womtool-${CROMWELL_VERSION}.jar womtool.jar
 
-WORKDIR /apps/cromshell/
-RUN git clone https://github.com/broadinstitute/cromshell.git && \
-  sed -i 's#\${HOME}#/apps/cromshell#' cromshell/cromshell && \
-  cp cromshell/cromshell /usr/local/bin/ && \
-  rm -rf cromshell
-WORKDIR /apps/cromshell/.cromshell/
-
 WORKDIR /apps/build/
 COPY ./ ./
 RUN python3 -m pip install --upgrade pip \

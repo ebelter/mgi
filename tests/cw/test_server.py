@@ -177,8 +177,7 @@ class CwServerTest(BaseWithDb):
     @patch("cw.server.server_factory")
     @patch("cw.server.start_server")
     @patch("cw.server.wait_for_host")
-    @patch("cw.cromshell.config_dn")
-    def test_start_cmd(self, dn_p, wait_p, start_p, factory_p):
+    def test_start_cmd(self, wait_p, start_p, factory_p):
         import cw
         from cw import appcon
         from cw.server import start_cmd as cmd
@@ -195,7 +194,6 @@ class CwServerTest(BaseWithDb):
         start_p.return_value = self.server_job_id
         wait_p.return_value = self.server_host
         url = f"http://{self.server_host}:{self.server_port}"
-        dn_p.return_value = "/blah"
         appcon.set(group="server", name="port", value=self.server_port)
 
         result = runner.invoke(cmd, [], catch_exceptions=False)
@@ -207,7 +205,6 @@ class CwServerTest(BaseWithDb):
         expected_output = f"""Waiting for job <{self.server_job_id}> to start to obtain HOST...
 Server running on <{self.server_host}> port <{self.server_port}>
 Updating application configuration...
-No cromshell directory at </blah> detected, not updating url
 Server ready!
 """
         self.assertEqual(result.output, expected_output)

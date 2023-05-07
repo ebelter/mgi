@@ -29,7 +29,6 @@ Setup cromwell: making directories, scripts, and configuration.
 Waiting for job <560377> to start to obtain HOST...
 Server running on <compute1-exec-118.ris.wustl.edu> port <8888>
 Updating application configuration...
-Updated cromshell url <http://compute1-exec-118.ris.wustl.edu:8888> in </apps/cromshell/.cromshell/cromwell_server.config>
 Server ready!
 ```
 

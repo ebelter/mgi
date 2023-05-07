@@ -1,7 +1,6 @@
 import click, json, os, re, requests, subprocess, sys, time, yaml
 
 from cw import appcon
-import cw.cromshell
 
 def server_factory():
     host = appcon.get(group="server", name="host")
@@ -98,8 +97,6 @@ def start_cmd():
     url = f"http://{host}:{port}"
     url = appcon.set(group="server", name="url", value=url)
     sys.stdout.write(f"Updating application configuration...\n")
-    rv, msg = cw.cromshell.update_server(url)
-    sys.stderr.write(msg)
     sys.stdout.write("Server ready!\n")
 cli.add_command(start_cmd, name="start")
 
