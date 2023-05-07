@@ -4,7 +4,8 @@ from cw import appcon, create_db
 
 @click.command(short_help="setup cromwell")
 @click.argument("configs", required=True, nargs=-1)
-def setup_cmd(configs):
+@click.option("--env", is_flag=True, default=False, help="Attempt to get configs from enviroment. Not all required configs can be detected.")
+def setup_cmd(configs, env):
     """
     Setup Cromwell
 
@@ -13,7 +14,7 @@ def setup_cmd(configs):
 
     \b
     Examples
-     cw setup queue=general
+     cw setup queue=general job_group=/user/default
 
     \b
     Required configurations for LSF:
@@ -23,26 +24,48 @@ def setup_cmd(configs):
      user_group
     """
     sys.stdout.write("Setup cromwell: making directories, scripts, and configuration.\n")
-    extra_configs = resolve_additional_configs(configs)
+    configs = resolve_configs(configs, env)
     for name in appcon.known_directories:
         os.makedirs(appcon.dn_for(name), exist_ok=True)
-    create_db(extra_configs=extra_configs)
+    create_db(extra_configs=configs)
     write_server_files()
 #-- setup_cmd
 
-def resolve_additional_configs(configs):
-    required_configs = set(["docker_volumes", "job_group", "queue", "user_group"])
+def required_configs_for_lsf():
+    return {
+            "docker_volumes": "LSF_DOCKER_VOLUMES",
+            "job_group": "LSB_JOBGROUP",
+            "queue": "LSB_QUEUE",
+            "user_group" : None,
+            }
+#-- required_configs_for_lsf
+
+def resolve_configs(incoming_configs, env):
     seen_configs = set()
-    extra_configs = []
-    for config in configs:
+    configs = []
+    # Parse the given configs
+    for config in incoming_configs:
         n, v = config.split("=")
         seen_configs.add(n)
-        extra_configs.append(["lsf", n, v])
-    missing_configs = required_configs - seen_configs
+        configs.append(["lsf", n, v])
+    # Which reqruied are missing?
+    required_configs = required_configs_for_lsf()
+    required_names = required_configs.keys()
+    missing_configs = required_names - seen_configs
+    # Try getting config from environment
+    if env:
+        for n in missing_configs:
+            v = os.environ.get(required_configs[n], None)
+            if v is not None:
+                seen_configs.add(n)
+                if n == "queue":
+                    v = v.replace("-interactive", "")
+                configs.append(["lsf", n, v])
+    missing_configs = required_names - seen_configs
     if len(missing_configs) > 0:
         raise Exception(f"Missing these configurations: {' '.join(missing_configs)}\nPlease add them to the command arguments as name=value pairs.")
-    return extra_configs
-#--
+    return configs
+#-- required_configs
 
 def write_server_files():
     server_dn = appcon.get("server_dn")
