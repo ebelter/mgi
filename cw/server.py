@@ -53,6 +53,15 @@ class Server(object):
             raise Exception(f"Server error encountered getting metadata with <{url}>")
         return response.json()
     #-- metadata_for_wf
+
+    def abort_workflow(self, wf_id):
+        url = f"{self.url()}/api/workflows/v1/{wf_id}/abort"
+        response = self.query(url)
+        if not response or not response.ok:
+            raise Exception(f"Server error encountered aborting workflow with <{url}>")
+        info = response.json()
+        return info.get("status", "unknown").lower()
+    #-- abort_workflow
 #-- Server
 
 @click.group()

@@ -35,6 +35,35 @@ class CwServerTest(BaseWithDb):
         requests_p.assert_called_with(server.url())
 
     @patch("requests.get")
+    def test_server_abort_workflow(self, requests_p):
+        from cw.server import server_factory
+        server = server_factory()
+        self.assertTrue(bool(server))
+
+        stderr = io.StringIO()
+        sys.stderr = stderr
+
+        wf_id = "__WF_ID__"
+        url = f"{server.url()}/api/workflows/v1/{wf_id}/abort"
+
+        requests_p.return_value = Mock(ok=False)
+        with self.assertRaisesRegex(Exception, f"Server error encountered aborting workflow with <{url}>"):
+            server.abort_workflow(wf_id)
+        requests_p.assert_called_with(url)
+        stderr.seek(0, 0)
+
+        stderr.truncate(0)
+        response = Mock(ok=True)
+        response.configure_mock(**{"json.return_value": {"status": "Aborting", "id": "__WF_ID__"},})
+        requests_p.return_value = response
+        result = server.abort_workflow(wf_id)
+        self.assertEqual(result, "aborting")
+        requests_p.assert_called_with(url)
+        self.assertEqual(requests_p.call_count, 2)
+        stderr.seek(0, 0)
+        self.assertEqual(stderr.read(), f"")
+
+    @patch("requests.get")
     def test_server_status_for_workflow(self, requests_p):
         from cw.server import server_factory
         server = server_factory()

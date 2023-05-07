@@ -62,6 +62,9 @@ def list_cmd(update):
     print(tabulate.tabulate(rows, ["WF_ID" , "NAME", "STATUS", "PIPELINE", "INPUTS"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
 
+from cw.wf_abort import abort_cmd as cmd
+cli.add_command(cmd, name="abort")
+
 from cw.wf_detail import detail_cmd as cmd
 cli.add_command(cmd, name="detail")
 
