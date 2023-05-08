@@ -1,0 +1,3 @@
+[submodule "hprc-benchmarking"]
+	path = hprc-benchmarking
+	url = git@github.com:twlab/hprc-benchmarking.git
