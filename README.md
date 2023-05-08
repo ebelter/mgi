@@ -191,6 +191,20 @@ drwx--S---. 3 ebelter compute-hprc 4.0K Jan 13 11:34 ../
 drwx--S---. 2 ebelter compute-hprc 4.0K Jan 17 11:55 run_hello_world/
 ```
 
+
+### Stop the Server
+When done running, stop the server using the command below. The LSF can just be killed, but the command updates the local DB it uses.
+
+```
+cw server stop
+
+-- OUTPUT --
+Server URL: <http://compute1-exec-36.ris.wustl.edu:8888>
+Stopping job <441696>
+Job <441696> is being terminated
+Updating application configuration...
+```
+
 ### Error Investgation
 Look in the _server/log_ file. Most errors will be there. They may also reference errors in the starting workflow tasks, which STDOUT/ERR are in the individual workflow/task paths.
 
