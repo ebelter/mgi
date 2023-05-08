@@ -17,19 +17,26 @@ RUN apt update && \
 
 ARG CROMWELL_VERSION=81
 WORKDIR /apps/cromwell/
-RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/cromwell-${CROMWELL_VERSION}.jar" && \
+RUN wget -nv "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/cromwell-${CROMWELL_VERSION}.jar" && \
   mv cromwell-${CROMWELL_VERSION}.jar cromwell.jar
-RUN wget "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/womtool-${CROMWELL_VERSION}.jar" && \
+RUN wget -nv "https://github.com/broadinstitute/cromwell/releases/download/${CROMWELL_VERSION}/womtool-${CROMWELL_VERSION}.jar" && \
   mv womtool-${CROMWELL_VERSION}.jar womtool.jar
 
 WORKDIR /apps/build/
 COPY ./ ./
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
-RUN mv ./wdl/ /apps/
+
+WORKDIR /apps/wdl/
+RUN mv /apps/build/wdl/hello-world/ ./
+WORKDIR /apps/wdl/bulk-rna/
+RUN mv /apps/build/hprc-benchmarking/bulk-rna/build-idxs.* .
+RUN mv /apps/build/hprc-benchmarking/bulk-rna/rna-seq-pipeline.* .
+
 WORKDIR /apps/
 RUN rm -rf /apps/build/
-RUN chmod -R go+w .
+RUN find . -type f -exec chmod -R go+rw {} \; && \
+  find . -type d -exec chmod -R go+rwx {} \;
 
 ENV TZ America/Chicago
 ENV LANG C
