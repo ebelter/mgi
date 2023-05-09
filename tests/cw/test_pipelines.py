@@ -22,11 +22,39 @@ class Pipelinestest(BaseWithDb):
         result = runner.invoke(cli, ["add"])
         self.assertEqual(result.exit_code, 2)
 
+        result = runner.invoke(cli, ["detail", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["detail"])
+        self.assertEqual(result.exit_code, 2)
+
         result = runner.invoke(cli, ["inputs", "--help"])
         self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["inputs"])
+        self.assertEqual(result.exit_code, 2)
 
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
+
+    def test111_detail_cmd(self):
+        from cw.pipelines import detail_cmd as cmd
+        runner = CliRunner()
+
+        result = runner.invoke(cmd, ["--help"])
+        self.assertEqual(result.exit_code, 0)
+
+        result = runner.invoke(cmd, ["1"], catch_exceptions=False)
+        try:
+            self.assertEqual(result.exit_code, 0)
+        except:
+            print(result.output)
+            raise
+        self.maxDiff = 100000
+        expected_output = f"""Name:     hello-world
+WDL:      /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
+Inputs:   /home/ebelter/dev/mgi/wdl/hello-world/hello_world.inputs.json
+Outputs:  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.outputs.yaml
+"""
+        self.assertEqual(result.output, expected_output)
 
     def test11_list_cmd(self):
         from cw.pipelines import list_cmd as cmd
@@ -41,8 +69,8 @@ class Pipelinestest(BaseWithDb):
         except:
             print(result.output)
             raise
-        expected_output = f"""NAME         WDL                                                    IMPORTS
------------  -----------------------------------------------------  ---------
+        expected_output = f"""NAME         WDL
+-----------  -----------------------------------------------------
 hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
 """
         self.assertEqual(result.output, expected_output)
@@ -84,7 +112,7 @@ hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
         except:
             print(result.output)
             raise
-        expected_output = f"""NAME\s+WDL\s+IMPORTS\n"""
+        expected_output = f"""NAME\s+WDL\n"""
         self.assertRegex(result.output, expected_output)
 
     def test14_update_cmd(self):

@@ -41,10 +41,29 @@ cli.add_command(add_cmd, name="add")
 from cw.pl_inputs import inputs_cmd
 cli.add_command(inputs_cmd, name="inputs")
 
+@click.command(short_help="show detailed pipeline info")
+@click.argument("pipeline_id", required=True, nargs=1)
+def detail_cmd(pipeline_id):
+    """
+    Pipelines Detail
+
+    Show all the files for a pipeline. Give pipeline name or id.
+
+    """
+    pipeline = get_pipeline(pipeline_id)
+    if pipeline is None:
+        sys.stderr.write(f"Failed to get pipeline for {pipeline_id}")
+    else:
+        sys.stdout.write(f"Name:     {pipeline.name}\nWDL:      {pipeline.wdl}\nInputs:   {pipeline.inputs}\nOutputs:  {pipeline.outputs}\n")
+cli.add_command(detail_cmd, name="detail")
+
 @click.command(short_help="list pipelines")
 def list_cmd():
     """
-    List Pipelines
+    Pipelines List
+
+    List all pipelines and their WDLs. Use the detail command to see all the files for a pipeline.
+
     """
     pipelines = Pipeline.query.all()
     if len(pipelines) == 0:
@@ -52,8 +71,8 @@ def list_cmd():
         return
     rows = []
     for p in pipelines:
-        rows.append([p.name, p.wdl, p.imports])
-    print(tabulate.tabulate(rows, ["NAME", "WDL", "IMPORTS"], tablefmt="simple"))
+        rows.append([p.name, p.wdl])
+    print(tabulate.tabulate(rows, ["NAME", "WDL"], tablefmt="simple"))
 cli.add_command(list_cmd, name="list")
 
 update_pipeline_help = f"""
