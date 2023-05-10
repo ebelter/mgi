@@ -51,6 +51,7 @@ class Pipelinestest(BaseWithDb):
         self.maxDiff = 100000
         expected_output = f"""Name:     hello-world
 WDL:      /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
+Imports:  None
 Inputs:   /home/ebelter/dev/mgi/wdl/hello-world/hello_world.inputs.json
 Outputs:  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.outputs.yaml
 """
