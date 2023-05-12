@@ -27,10 +27,13 @@ class Server(object):
             return False
         return response.ok
 
-    def query(self, url):
+    def query(self, url, post=False):
         # Response ok status_code reason json content
         try:
-            response = requests.get(url)
+            if post:
+                response = requests.post(url)
+            else:
+                response = requests.get(url)
         except:
             return False
         return response
@@ -55,7 +58,7 @@ class Server(object):
 
     def abort_workflow(self, wf_id):
         url = f"{self.url()}/api/workflows/v1/{wf_id}/abort"
-        response = self.query(url)
+        response = self.query(url, True)
         if not response or not response.ok:
             raise Exception(f"Server error encountered aborting workflow with <{url}>")
         info = response.json()
