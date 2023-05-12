@@ -101,7 +101,7 @@ def resolve_tasks_and_outputs(pipeline, tasks_and_outputs):
     elif pipeline.outputs is not None:
         fn = pipeline.outputs
     else:
-        raise Exception(f"No outputs found for pipeline <{wf.pipeline.name}>\nAdd outputs with the 'cw pipelines update' command or provide them with tasks_and_outputs option")
+        raise Exception(f"No outputs found for pipeline <{pipeline.name}>\nAdd outputs with the 'cw pipelines update' command or provide them with tasks_and_outputs option")
     with open(fn, "r") as f:
         tasks_and_outputs = yaml.safe_load(f)
     return tasks_and_outputs
