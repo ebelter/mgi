@@ -1,8 +1,0 @@
-{
-  "bwaidx.name": "HG00621-mat",
-  "bwaidx.fasta": "/storage1/fs1/hprc/Active/shared/HPRC_Annotation_PhaseI/HG00621/year1_f1_assembly_v2_genbank/HG00621_maternal_reference/HG00621_mat_ragtag.fasta",
-  "bwaidx.docker": "ebelter/bwa:v0.7.17"
-  "bwaidx.cpu": 2,
-  "bwaidx.memory": 8,
-  "bwaidx.disks": "local-disk 20 HDD",
-}

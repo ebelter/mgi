@@ -27,8 +27,8 @@ COPY ./ ./
 RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
 
-WORKDIR /apps/wdl/
-RUN mv /apps/build/wdl/hello-world/ ./
+WORKDIR /apps/
+RUN mv /apps/build/twlab-pipelines/wdl/ ./
 WORKDIR /apps/wdl/bulk-rna/
 RUN mv /apps/build/hprc-benchmarking/bulk-rna/build-idxs.* .
 RUN mv /apps/build/hprc-benchmarking/bulk-rna/rna-seq-pipeline.* .

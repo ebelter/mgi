@@ -1,3 +1,6 @@
 [submodule "hprc-benchmarking"]
 	path = hprc-benchmarking
 	url = git@github.com:twlab/hprc-benchmarking.git
+[submodule "twlab-workflows"]
+	path = twlab-workflows
+	url = git@github.com:twlab/twlab-workflows.git
