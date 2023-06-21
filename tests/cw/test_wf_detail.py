@@ -31,21 +31,23 @@ class CwWfTest(BaseWithDb):
         except:
             print(result.output)
             raise
+        #print(result.output)
         self.maxDiff = 10000
-        expected_output = f"""Workflow ID:      67c1c73d-9b92-408e-9f7a-5ad0c9df2a36
-Status:           Running
-Workflow name:    test.hello-world
-Workflow inputs:  /home/ebelter/dev/mgi/tests/cw/data/wf/homer.hello-world.inputs.json
-Workflow name:
-Tasks:
-name                                         time                 aborted    done    running    preempted    failed
-long_read_rna_pipeline.clean_reference       0:01:17                    0       1          0            0         0
-long_read_rna_pipeline.get_splice_junctions  0:00:29                    0       1          0            0         0
-long_read_rna_pipeline.minimap2              4:15:26                    0       1          0            0         0
-long_read_rna_pipeline.init_talon_db         1:15:19                    0       1          0            0         0
-long_read_rna_pipeline.combined_fastq        0:00:53                    0       1          0            0         0
-long_read_rna_pipeline.decompressed_gtf      0:00:06                    0       1          0            0         0
-long_read_rna_pipeline.transcriptclean"""
+        expected_output = f"""ID:       67c1c73d-9b92-408e-9f7a-5ad0c9df2a36
+Status:   Running
+Name:     test.hello-world
+Inputs:   /home/ebelter/dev/mgi/tests/cw/data/wf/homer.hello-world.inputs.json
+Pipeline: hello-world
+Time:     5:33:34.205000
+task                                         time       aborted    done    running    preempted    failed
+long_read_rna_pipeline.clean_reference       0:01:17          0       1          0            0         0
+long_read_rna_pipeline.get_splice_junctions  0:00:29          0       1          0            0         0
+long_read_rna_pipeline.minimap2              4:15:26          0       1          0            0         0
+long_read_rna_pipeline.init_talon_db         1:15:19          0       1          0            0         0
+long_read_rna_pipeline.combined_fastq        0:00:53          0       1          0            0         0
+long_read_rna_pipeline.decompressed_gtf      0:00:06          0       1          0            0         0
+long_read_rna_pipeline.transcriptclean       0:00:00          0       0          1            0         0
+"""
         self.assertRegex(result.output, expected_output)
         self.assertEqual(server_p.call_count, 1)
         db.session.refresh(wf)
