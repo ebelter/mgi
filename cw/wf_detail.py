@@ -57,10 +57,13 @@ def detailed_status(server, wf):
             #time_elapsed += end - start
             call_statuses[call["executionStatus"].lower()] += 1
             if call["executionStatus"] == "Failed": # accumulate failed calls for investigation
-                if "subWorkflowMetadata" in call:
-                    pass #failed_calls.append(f"{call['subWorkflowMetadata']['workflowName']} {call['subWorkflowMetadata']['stdout']}")
-                else:
-                    pass #failed_calls.append(f"{call['workflowName']} {call['stdout']}")
+                if "stdout" in call:
+                    failed_calls.append(f"{task_name} {call['stdout']}")
+                elif "subWorkflowMetadata" in call:
+                    try:
+                        failed_calls.append(f"{task_name} {call['subWorkflowMetadata']['stdout']}")
+                    except:
+                        pass
         task = [task_name, str(time_elapsed).split(".")[0]]
         for status in known_statuses:
             task.append(call_statuses[status])
