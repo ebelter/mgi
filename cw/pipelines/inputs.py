@@ -2,7 +2,7 @@ import click, jinja2, json, os, sys
 from cw.model_helpers import get_pipeline
 import cw.server
 
-@click.command(short_help="render pipelien inputs")
+@click.command(short_help="render pipeline inputs")
 @click.argument("identifier", required=True, nargs=1)
 @click.argument("data", required=True, nargs=-1)
 @click.option("--output", "-o", type=click.File('w'), required=True, help="Output file for rendered inputs.")

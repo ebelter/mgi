@@ -10,7 +10,7 @@ class Pipelinestest(BaseWithDb):
 
     def test_pipelines_cli(self):
         runner = CliRunner()
-        from cw.pipelines import cli
+        from cw.pipelines.cli import cli
 
         result = runner.invoke(cli, ["--help"])
         self.assertEqual(result.exit_code, 0)
@@ -36,7 +36,7 @@ class Pipelinestest(BaseWithDb):
         self.assertEqual(result.exit_code, 0)
 
     def test111_detail_cmd(self):
-        from cw.pipelines import detail_cmd as cmd
+        from cw.pipelines.cli import detail_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
@@ -58,7 +58,7 @@ Outputs:  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.outputs.yaml
         self.assertEqual(result.output, expected_output)
 
     def test11_list_cmd(self):
-        from cw.pipelines import list_cmd as cmd
+        from cw.pipelines.cli import list_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, ["--help"])
@@ -77,7 +77,7 @@ hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
         self.assertEqual(result.output, expected_output)
 
     def test12_add_cmd(self):
-        from cw.pipelines import add_cmd as cmd
+        from cw.pipelines.cli import add_cmd as cmd
         runner = CliRunner()
         os.chdir(self.temp_d.name)
 
@@ -104,7 +104,7 @@ hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
 """
 
     def test13_list_cmd(self):
-        from cw.pipelines import list_cmd as cmd
+        from cw.pipelines.cli import list_cmd as cmd
         runner = CliRunner()
 
         result = runner.invoke(cmd, [], catch_exceptions=False)
@@ -118,7 +118,7 @@ hello-world  /home/ebelter/dev/mgi/wdl/hello-world/hello_world.wdl
 
     def test14_update_cmd(self):
         from cw import db, Pipeline
-        from cw.pipelines import update_cmd as cmd
+        from cw.pipelines.cli import update_cmd as cmd
         runner = CliRunner()
         os.chdir(self.temp_d.name)
 

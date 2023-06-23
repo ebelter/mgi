@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 from tests.cw.test_base import BaseWithDb
 class CwWfTest(BaseWithDb):
     def test_inputs_cmd(self):
-        from cw.pl_inputs import inputs_cmd as cmd
+        from cw.pipeline.inputs import inputs_cmd as cmd
 
         runner = CliRunner()
         result = runner.invoke(cmd, ["--help"])

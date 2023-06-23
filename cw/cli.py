@@ -8,7 +8,7 @@ def cli():
     """
     pass
 
-from cw.pipelines import cli as pipelines_cli
+from cw.pipelines.cli import cli as pipelines_cli
 cli.add_command(pipelines_cli, "pipelines")
 
 from cw.server import cli as server_cli

@@ -38,7 +38,7 @@ def add_cmd(features):
     print(f"Add pipeline {p.name} {p.wdl} {p.imports} {p.outputs}")
 cli.add_command(add_cmd, name="add")
 
-from cw.pl_inputs import inputs_cmd
+from cw.pipelines.inputs import inputs_cmd
 cli.add_command(inputs_cmd, name="inputs")
 
 @click.command(short_help="show detailed pipeline info")
