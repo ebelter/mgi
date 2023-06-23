@@ -54,7 +54,7 @@ def detail_cmd(pipeline_id):
     if pipeline is None:
         sys.stderr.write(f"Failed to get pipeline for {pipeline_id}")
     else:
-        sys.stdout.write(f"Name:     {pipeline.name}\nWDL:      {pipeline.wdl}\nImports:  {pipeline.imports}\nInputs:   {pipeline.inputs}\nOutputs:  {pipeline.outputs}\n")
+        sys.stdout.write(f"Name:     {pipeline.name}\nID:       {pipeline.id}\nWDL:      {pipeline.wdl}\nImports:  {pipeline.imports}\nInputs:   {pipeline.inputs}\nOutputs:  {pipeline.outputs}\n")
 cli.add_command(detail_cmd, name="detail")
 
 @click.command(short_help="list pipelines")
