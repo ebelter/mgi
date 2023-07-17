@@ -1,4 +1,4 @@
-import click, os, subprocess, sys
+import click, os, subprocess, sys, tempfile
 
 from cw.model_helpers import get_pipeline
 
