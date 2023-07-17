@@ -4,12 +4,12 @@ A command line interface to run and manage cromwelll workflows.
 
 ## Directory Structure and Files
 
+_WIP_
+
 db
 logs
 runs
 server
-
-Upcoming
 
 ## Tutorial [MGI LSF]
 
@@ -20,14 +20,14 @@ This tutorial is targeted for running on MGI's LSF platform.
 ### Setup and Start the Cromwell Server
 #### Start an interactive job with MGI Cromwell(cw) CLI
 **use your preferred LSF_DOCKER_VOLUMES and LSF_USER_GROUP**
-**the $USER environment variable may not be set - use your username**
-From a compute client, run the *ebelter/mgi:cromwell' docker interactively:
+**the ${USER} environment variable may not be set - use your username**
+From a compute client, run the *ebelter/mgi:cromwell* docker interactively:
 ```
 LSF_DOCKER_VOLUMES="/home/${USER}:/home/${USER} /scratch1/fs1/hprc:/scratch1/fs1/hprc /storage1/fs1/hprc:/storage1/fs1/hprc" bsub -q general-interactive -g /${USER}/default -G compute-hprc -Is -R 'span[hosts=1] select[mem>4G] rusage[mem=4G]' -M 4G -a 'docker(ebelter/mgi:cromwell)' /bin/bash
 ```
 
 #### Setup the Cromwell Configuration
-Create a directory for running the cromwell service. Here we are using our ${USER} directory in the HPRC scratch space, but can be in a different location.
+Create a directory for running the cromwell service. Here we are using our ${USER} directory in the HPRC scratch space, but can be in a different location.  It is recommendaed to use scatch for running workflows, but storage can be used. All interaction with cromwell will happen inside this directory.
 ```
 cd /scratch1/fs1/hprc/${USER}
 mkdir cromwell
