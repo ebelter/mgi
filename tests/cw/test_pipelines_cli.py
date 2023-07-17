@@ -35,6 +35,11 @@ class Pipelinestest(BaseWithDb):
         result = runner.invoke(cli, ["list", "--help"])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["validate", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["validate"])
+        self.assertEqual(result.exit_code, 2)
+
     def test111_detail_cmd(self):
         from cw.pipelines.cli import detail_cmd as cmd
         runner = CliRunner()

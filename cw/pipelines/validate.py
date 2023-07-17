@@ -3,36 +3,38 @@ import click, os, subprocess, sys
 from cw.model_helpers import get_pipeline
 
 @click.command(short_help="submit a workflow")
-@click.argument("name", required=True, nargs=1)
 @click.argument("pipeline_identifier", required=True, nargs=1)
 @click.option("--inputs", "-i", required=False, help="Filled out inputs JSON")
-def validate_cmd(name, pipeline_identifier, inputs):
+def validate_cmd(pipeline_identifier, inputs):
     """
     Validate Pipeline and Inputs
-
     \b
     Give:
     pipeline_identifier  pipeline name/id
-
+    \b
     Optionally give:
-    inputs_json          inputs json
-
+    inputs               inputs json
+    \b
     WOMTOOL will validate the pipeline WDL with the inputs, if given.
     """
     pipeline = get_pipeline(pipeline_identifier)
     if pipeline is None:
         sys.stderr.write(f"Failed to find pipeline for <{pipeline_identifier}>!\n")
         sys.exit(1)
-    if inputs is not None and not os.path.exists(inputs):
-        sys.stderr.write(f"Inputs JSO file <{inputs_json}> does not exist!\n")
+    if not os.path.exists(pipeline.wdl):
+        sys.stderr.write(f"Pipeline <{pipeline_identifier}> WDL does not exist! <{pipeline.wdl}>!\n")
         sys.exit(1)
-    sys.stdout.write(f"Pipeline:    {pipeline.name}\n")
-    #sys.stdout.write(f"Inputs json: {inputs_json}\n")
-    output = validate_pipeline(pipeline, inputs_json)
+    if inputs is not None and not os.path.exists(inputs):
+        sys.stderr.write(f"Inputs JSO file <{inputs}> does not exist!\n")
+        sys.exit(1)
+    sys.stdout.write(f"Pipeline:        {pipeline.name}\n")
+    sys.stdout.write(f"Inputs json:     {inputs}\n")
+    sys.stdout.write(f"WOMTOOL output:\n")
+    output = validate_pipeline(pipeline, inputs)
     sys.stdout.write(f"{output.decode()}")
 #-- submit_cmd
 
-def validate_pipeline(pipeline, inputs_json=None):
+def validate_pipeline(pipeline, inputs=None):
     cmd = ["java", "-jar", "/apps/cromwell/womtool.jar", "validate", pipeline.wdl]
     if inputs is not None:
         cmd += ["-i", inputs]
