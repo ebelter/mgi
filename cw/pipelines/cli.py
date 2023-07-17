@@ -102,3 +102,6 @@ def update_cmd(identifier, features):
     db.session.commit()
     print(f"Update pipeline <{identifier}>\n{tabulate.tabulate(rows, ['ATTR', 'FROM', 'TO'], tablefmt='simple')}")
 cli.add_command(update_cmd, name="update")
+
+from cw.pipelines.validate import validate_cmd
+cli.add_command(validate_cmd, name="validate")
