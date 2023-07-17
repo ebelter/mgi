@@ -19,8 +19,10 @@ This tutorial is targeted for running on MGI's LSF platform.
 
 ### Setup and Start the Cromwell Server
 #### Start an interactive job with MGI Cromwell(cw) CLI
-**use your preferred LSF_DOCKER_VOLUMES and LSF_USER_GROUP**
-**the ${USER} environment variable may not be set - use your username**
+_use your preferred LSF_DOCKER_VOLUMES and LSF_USER_GROUP_
+
+_the ${USER} environment variable may not be set - use your username_
+
 From a compute client, run the *ebelter/mgi:cromwell* docker interactively:
 ```
 LSF_DOCKER_VOLUMES="/home/${USER}:/home/${USER} /scratch1/fs1/hprc:/scratch1/fs1/hprc /storage1/fs1/hprc:/storage1/fs1/hprc" bsub -q general-interactive -g /${USER}/default -G compute-hprc -Is -R 'span[hosts=1] select[mem>4G] rusage[mem=4G]' -M 4G -a 'docker(ebelter/mgi:cromwell)' /bin/bash
@@ -43,7 +45,7 @@ Setup cromwell: making directories, scripts, and configuration.
 ```
 
 #### Start the Cromwell Server
-The server start command finishes once server has been assigned an LSF ID, and started running. The cromwell server will still take a minute or to to download the docker image and start the server. There will be a line in the *server/log* like "Cromwell 81 service started on 0.0.0.0:8888" indicating the server is ready.
+The server start command finishes once server has been assigned an LSF ID, and started running.
 ```
 cw server start
 
@@ -53,6 +55,15 @@ Server running on <compute1-exec-118.ris.wustl.edu> port <8888>
 Updating application configuration...
 Server ready!
 ```
+The cromwell server will still take a minute or to to download the docker image and start the server. There will be a line in the *server/log* like "Cromwell 81 service started on 0.0.0.0:8888" indicating the server is ready. The server log can be viewed with the tail follow command:
+ ```
+ tail -f server/log
+
+ -- OUTPUT --
+2023-07-17 16:47:39,860 cromwell-system-akka.dispatchers.engine-dispatcher-5 INFO  - Cromwell 81 service started on 0.0.0.0:8888...
+2023-07-17 16:47:44,285 cromwell-system-akka.dispatchers.engine-dispatcher-38 INFO  - Not triggering log of restart checking token queue status. Effective log interval = None
+2023-07-17 16:47:44,304 cromwell-system-akka.dispatchers.engine-dispatcher-71 INFO  - Not triggering log of execution token queue status. Effective log interval = None
+ ```
 
 #### Verify the Server is Running
 ```
