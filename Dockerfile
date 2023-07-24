@@ -28,10 +28,10 @@ RUN python3 -m pip install --upgrade pip \
   && python3 -m pip install --prefix=/usr/local .
 
 WORKDIR /apps/
-RUN mv /apps/build/twlab-pipelines/wdl/ ./
-WORKDIR /apps/wdl/bulk-rna/
-RUN mv /apps/build/hprc-benchmarking/bulk-rna/build-idxs.* .
-RUN mv /apps/build/hprc-benchmarking/bulk-rna/rna-seq-pipeline.* .
+RUN mv /apps/build/twlab-workflows/wdl/ ./
+#WORKDIR /apps/wdl/bulk-rna/
+#RUN mv /apps/build/hprc-benchmarking/bulk-rna/build-idxs.* .
+#RUN mv /apps/build/hprc-benchmarking/bulk-rna/rna-seq-pipeline.* .
 
 WORKDIR /apps/
 RUN rm -rf /apps/build/
