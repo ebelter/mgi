@@ -76,21 +76,34 @@ Cromwell server is up and running! Response: b'{"cromwell":"81"}'
 ```
 
 ### Run a Workflow
-Run the _hello world_ test worlfow.
+Run the _hello world_ test workfow.
 
 #### Add a pipeline
 ```
-WDL_PATH=/apps/wdl/hello-world
-cw pipelines add name=hello_world wdl=${WDL_PATH}/hello_world.wdl inputs=${WDL_PATH}/hello_world.inputs.json outputs=${WDL_PATH}/hello_world.outputs.yaml
+cw pipelines add name=hello_world wdl=/apps/wdl/pipelines/hello-world.wdl 
 
 -- OUTPUT --
-Add pipeline hello_world /apps/wdl/hello-world/hello_world.wdl None /apps/wdl/hello-world/hello_world.outputs.yaml
+Name:     hello_world
+ID:       1
+WDL:      /apps/wdl/pipelines/hello-world.wdl
+Inputs:   /apps/wdl/pipelines/hello-world.inputs.json
+Outputs:  /apps/wdl/pipelines/hello-world.outputs.yaml
+Imports:  None
+```
+List all pipelines.
+```
+cw pipelines list
+
+-- OUTPUT --
+NAME         WDL
+-----------  -----------------------------------
+hello_world  /apps/wdl/pipelines/hello-world.wdl
 ```
 
 #### Create the Inputs
 MGI managed WDL pipelines have inputs templates. These have place holders in them in order to fill from the comand line and save a copy. Here is the *hello-world* inputs file:
 ```
-cat /apps/wdl/hello-world/hello_world.inputs.json 
+cat /apps/wdl/pipelines/hello-world.inputs.json 
 
 -- OUTPUT --
 {
@@ -98,7 +111,7 @@ cat /apps/wdl/hello-world/hello_world.inputs.json
 }
 ```
 
-The **ipelines inputs** command will fill in these place holders for you. Add the NAME parameter to the inputs and output a file for the workflow using `cw` CLI. The inputs can also be copied and manually edited.
+The **pipelines inputs** command will fill in these place holders for you. Add the NAME parameter to the inputs and output a file for the workflow using `cw` CLI. The inputs can also be copied and manually edited.
 ```
 cw pipelines inputs hello_world NAME=MGI -o hello_world_1.inputs.json
 
@@ -205,7 +218,6 @@ drwx--S---. 2 ebelter compute-hprc 4.0K Jan 17 11:55 run_hello_world/
 
 ### Stop the Server
 When done running, stop the server using the command below. The LSF can just be killed, but the command updates the local DB it uses.
-
 ```
 cw server stop
 
