@@ -31,7 +31,9 @@ backend {
 
         kill = "bkill ${job_id}"
         docker-kill = "bkill ${job_id}"
-        check-alive = "bjobs -noheader -o stat ${job_id} | /bin/grep 'PEND\\|RUN'"
+        kill-docker = "bkill ${job_id}"
+        docker_kill = "bkill ${job_id}"
+        check-alive = "bjobs -noheader -o stat ${job_id} | /bin/grep -P 'PEND|RUN'"
         job-id-regex = "Job <(\\d+)>.*"
       }
     }
