@@ -134,12 +134,17 @@ def copy_shards_outputs(shards, dest_dn):
             continue
         dest = dest_dn.format(str(idx))
         os.makedirs(dest, exist_ok=1)
-        for fn in files:
-            if not os.path.exists(fn):
-                sys.stdout.write(f"[INFO] File <{fn}> not found ... skipping\n")
+        for path_n in files:
+            if not os.path.exists(path_n):
+                sys.stdout.write(f"[INFO] File <{path_n}> not found ... skipping\n")
                 continue
-            sys.stdout.write(f"[INFO] Copy {fn} to {dest}\n")
-            shutil.copy(fn, dest)
+            sys.stdout.write(f"[INFO] Copy {path_n} to {dest}\n")
+            if os.path.isdir(path_n):
+                #if os.path.exists(os.path.join(dest, path_n)):
+                #    shutil.rmtree(os.path.join(dest, path_n))
+                shutil.copytree(path_n, dest)
+            else: # file
+                shutil.copy(path_n, dest)
 #-- copy_shards_outputs
 
 def list_shards_outputs(task_name, shards):
