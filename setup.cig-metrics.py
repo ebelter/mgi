@@ -38,4 +38,5 @@ setup(
     setup_requires=["pytest-runner"],
     test_suite="nose.collector",
     tests_requires=tests_require,
+    packages=find_packages(include=["cig", "cig.metrics", "cig.metrics.seqlendist"], exclude=("tests")),
 )
