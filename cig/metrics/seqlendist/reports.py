@@ -1,5 +1,9 @@
-import csv
+import csv, json, yaml
 from jinja2 import BaseLoader, Environment
+
+def avalible_reports():
+    return ("csv", "json", "plot", "text", "yaml")
+#-- avalible_reports
 
 def write_text_report(output_h, seqlendist):
     template_str = """SAMPLE    {{metrics.label}}
@@ -35,17 +39,42 @@ LARGEST   {{metrics.max}} bp
         output_h.write(template.render(metrics=metrics, distbins=distbins))
 #-- write_text_report
 
-# Need count, count pct, bps, bps pct
 def write_csv_report(output_h, seqlendist):
-    fieldnames = ["label", "count", "length", "min", "max", "mean", "n50"]
+    fieldnames = ("label", "count", "length", "min", "max", "mean", "n50")
     wtr = csv.DictWriter(output_h, fieldnames=fieldnames, delimiter=",", lineterminator="\n")
     wtr.writeheader()
     for label, row in seqlendist.summary_df.iterrows():
-        metrics = {"label": label}
+        row_metrics = {"label": label}
         for k, v in row.to_dict().items():
-            metrics[k] = int(v)
-        wtr.writerow(metrics)
+            row_metrics[k] = int(v)
+        wtr.writerow(row_metrics)
 #-- write_csv_report
+
+def write_json_report(output_h, seqlendist):
+    metrics = []
+    for label, row in seqlendist.summary_df.iterrows():
+        row_metrics = {"label": label}
+        for k, v in row.to_dict().items():
+            row_metrics[k] = int(v)
+        metrics.append(row_metrics)
+    if len(metrics) == 1:
+        output_h.write(json.dumps(metrics[0]))
+    else:
+        output_h.write(json.dumps(metrics))
+#-- write_json_report
+
+def write_yaml_report(output_h, seqlendist):
+    metrics = []
+    for label, row in seqlendist.summary_df.iterrows():
+        row_metrics = {"label": label}
+        for k, v in row.to_dict().items():
+            row_metrics[k] = int(v)
+        metrics.append(row_metrics)
+    if len(metrics) == 1:
+        output_h.write(yaml.dump(metrics[0]))
+    else:
+        output_h.write(yaml.dump(metrics))
+#-- write_yaml_report
 
 def write_plot_report(out_h, seqlendist):
     from plotnine import ggplot, ggsave, aes, geom_line, geom_histogram, geom_density, geom_segment, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid
