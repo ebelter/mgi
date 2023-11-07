@@ -142,7 +142,7 @@ def copy_shards_outputs(shards, dest_dn):
             if os.path.isdir(path_n):
                 #if os.path.exists(os.path.join(dest, path_n)):
                 #    shutil.rmtree(os.path.join(dest, path_n))
-                shutil.copytree(path_n, dest)
+                shutil.copytree(path_n, dest, dirs_exist_ok=True)
             else: # file
                 shutil.copy(path_n, dest)
 #-- copy_shards_outputs
