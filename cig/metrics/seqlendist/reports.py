@@ -77,9 +77,9 @@ def write_yaml_report(output_h, seqlendist):
 #-- write_yaml_report
 
 def write_plot_report(out_h, seqlendist):
-    from plotnine import ggplot, ggsave, aes, geom_line, geom_histogram, geom_density, geom_segment, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid
-    #plot = ggplot(lengths) + aes(x="length") + geom_histogram(binwidth=.1, colour="black", fill="white")
-    #plot = ggplot(lengths) + aes(x="length", y="count", xmin=0, ymin=0) + geom_line()
+    from plotnine import ggplot, ggsave, aes, geom_line, geom_histogram, geom_density, geom_segment, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid, coord_cartesian
+    means_sum = int((seqlendist.summary_df['n50'].mean() + seqlendist.summary_df['mean'].mean())/2)
+    xlim = means_sum * 10
     plot = (
             ggplot(seqlendist.lengths_df)
             + aes(x="length", xmin=0)
@@ -87,6 +87,8 @@ def write_plot_report(out_h, seqlendist):
             + facet_grid("label ~ .")
             + scale_x_continuous(name="Length")
             + scale_y_continuous(name="Count")
+            #+ xlim(1, seqlendist.distbins[-1])
+            + coord_cartesian(xlim=(1, xlim))
             + theme_bw()
             )
     ggsave(plot, out_h)
