@@ -10,7 +10,6 @@ class MetricsHelpersTest(unittest.TestCase):
         with SeqFile(fastq) as sf:
             self.assertTrue(sf)
             self.assertEqual(sf.fn, fastq)
-            self.assertEqual(sf.label, "sample")
             self.assertEqual(sf.type, "fastq")
             self.assertEqual(sf.is_gzipped, True)
             count = 0
@@ -18,10 +17,9 @@ class MetricsHelpersTest(unittest.TestCase):
                 count += 1
             self.assertEqual(count, 3)
         fasta = os.path.join(self.data_dn, "sample.fasta")
-        with SeqFile(f"TEST:{fasta}") as sf:
+        with SeqFile(f"{fasta}") as sf:
             self.assertTrue(sf)
             self.assertEqual(sf.fn, fasta)
-            self.assertEqual(sf.label, "TEST")
             self.assertEqual(sf.type, "fasta")
             self.assertEqual(sf.is_gzipped, False)
             count = 0

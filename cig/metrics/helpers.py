@@ -3,17 +3,13 @@ from Bio import SeqIO
 
 class SeqFile():
     def __init__(self, seqfile):
-        bn = os.path.basename(seqfile)
+        self.fn = seqfile
+        bn = os.path.basename(self.fn)
         bn_tokens = bn.split(".")
         types = set(["fastq", "fasta"]) & set(bn_tokens)
         if len(types) != 1:
             raise Exception(f"Failed to deteremine sequence file type for {seqfile}")
         self.type = types.pop()
-        if ":" in seqfile:
-            self.label, self.fn = seqfile.split(":", 2)
-        else:
-            self.fn = seqfile
-            self.label = bn_tokens[0]
         if "gz" in bn_tokens:
             self.is_gzipped = True
         else:

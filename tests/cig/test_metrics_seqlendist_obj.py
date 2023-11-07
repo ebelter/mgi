@@ -25,7 +25,7 @@ class MetricsSeqlendistObjTest(unittest.TestCase):
     def test_load(self):
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
-        sld.load(self.fastq_fn)
+        sld.load(self.fastq_fn, "test")
         self.assertEqual(sld.lengths[0], ["test", 214, 1])
         self.assertEqual(sld.lengths[1], ["test", 237, 1])
         self.assertEqual(sld.lengths[2], ["test", 261, 1])
@@ -33,7 +33,7 @@ class MetricsSeqlendistObjTest(unittest.TestCase):
     def test_complete(self):
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
-        sld.load(self.fastq_fn)
+        sld.load(self.fastq_fn, "test")
         sld.complete()
         self.assertEqual(len(sld.lengths_df), 25)
         self.assertFalse(sld.summary_df.empty)

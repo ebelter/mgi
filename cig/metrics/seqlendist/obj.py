@@ -21,7 +21,7 @@ class SeqLenDist():
         self.distbins = SeqLenDist.lengths_for(distbin_type)
     #-- __init__
 
-    def load(self, seqfile):
+    def load(self, seqfile, label):
         with SeqFile(seqfile) as sf:
             for entry in sf:
                 x = len(entry.seq)
@@ -29,7 +29,7 @@ class SeqLenDist():
                     if x >= l:
                         break
                 j = len(self.distbins) - i - 1
-                self.lengths.append([sf.label, x, j])
+                self.lengths.append([label, x, j])
     #-- load
 
     def complete(self):
