@@ -76,7 +76,7 @@ def write_yaml_report(output_h, seqlendist):
         output_h.write(yaml.dump(metrics))
 #-- write_yaml_report
 
-def write_plot_report(out_h, seqlendist):
+def write_png_report(out_h, seqlendist):
     from plotnine import ggplot, ggsave, aes, geom_line, geom_histogram, geom_density, geom_segment, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid, coord_cartesian
     means_sum = int((seqlendist.summary_df['n50'].mean() + seqlendist.summary_df['mean'].mean())/2)
     xlim = means_sum * 10

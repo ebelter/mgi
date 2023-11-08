@@ -1,14 +1,14 @@
 import click, os, sys
 from cig.metrics.helpers import OutHandle
 from cig.metrics.seqlendist.obj import SeqLenDist
-from cig.metrics.seqlendist.reports import write_csv_report, write_text_report, write_plot_report
+import cig.metrics.seqlendist.reports as sld_reports
 
 @click.command()
 @click.argument("seqfiles", required=True, nargs=-1)
 @click.option("--distbin", "-b", default="lr", help="Numerical binning to report: asm or lr, see above.")
 @click.option("--labels", "-l", help="Labels for multiple seqfiles to group and evaluate together. Give one per seqfile, in order, separated by commas.")
 @click.option("--out", "-o", default="-", help="Dirname/basename to use when outputing reports.")
-@click.option("--reports", "-r", default=["text"], multiple=True, help="reports to generate: csv, text, plot.")
+@click.option("--reports", "-r", default=["text"], multiple=True, help="reports to generate: csv, json, plot, text, yaml.")
 def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
     """
     Generate Length Distributuion Reports from Seqfiles
@@ -17,9 +17,11 @@ def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
     Known seqfiles: fasta [gz], fastq [gz]
     \b
     Reports available:
-    text - general output from a template
-    csv  - output data as CSV, suitable for loading into a spreadsheet
-    plot - plot of sequence lengths
+    csv  - summary metrics as CSV, suitable for loading into a spreadsheet
+    json - summary metrics as JSON
+    png - plot of sequence lengths
+    text - summary and binned output
+    yaml - summary metrics as YAML
 
     \b
     Bins
@@ -55,18 +57,12 @@ def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
         sys.stderr.write(f"Processing seqfile: {seqfile}\n")
         sld.load(seqfile, labels[i])
     sld.complete()
-    if "text" in reports:
-        with OutHandle(out, ext="txt", mode="w") as out_h:
-            sys.stderr.write(f"Writing TEXT report: {out_h.fn}\n")
-            text_report = write_text_report(out_h.fh, sld)
-    if "csv" in reports:
-        with OutHandle(out, ext="csv", mode="w") as out_h:
-            sys.stderr.write(f"Writing CSV report: {out_h.fn}\n")
-            csv_report = write_csv_report(out_h.fh, sld)
-    if "plot" in reports:
-        with OutHandle(out, ext="png", mode="wb") as out_h:
-            sys.stderr.write(f"Writing PLOT report: {out_h.fn}\n")
-            write_plot_report(out_h.fh, sld)
+    for report_type in reports:
+        report_writer_name = f"write_{report_type}_report"
+        writer = getattr(sld_reports, report_writer_name)
+        with OutHandle(out, ext=report_type) as out_h:
+            sys.stderr.write(f"Writing {report_type.upper()} report: {out_h.fn}\n")
+            writer(out_h.fh, sld)
 #-- lendist_cmd
 
 def resolve_labels(labels, seqfiles, out):

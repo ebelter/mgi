@@ -15,7 +15,7 @@ class MetricsSeqlendistReportsTest(unittest.TestCase):
         from cig.metrics.seqlendist.reports import write_csv_report
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
-        sld.load(self.fastq_fn)
+        sld.load(self.fastq_fn, label="test")
         sld.complete()
         out_h = StringIO()
         write_csv_report(out_h, sld)
@@ -25,23 +25,23 @@ test,25,12846,214,922,513,593
         out_h.seek(0)
         self.assertEqual(out_h.read(), expected_output)
 
-    def test_plot_report(self):
-        from cig.metrics.seqlendist.reports import write_plot_report
+    def test_png_report(self):
+        from cig.metrics.seqlendist.reports import write_png_report
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
-        sld.load(self.fastq_fn)
+        sld.load(self.fastq_fn, label="test")
         sld.complete()
         out_fn = os.path.join(self.temp_d.name, "seqlengthdists.png")
         #out_fn = "p.png"
         with open(out_fn, "wb") as out_h:
-            write_plot_report(out_h, sld)
+            write_png_report(out_h, sld)
         self.assertTrue(os.path.exists(out_fn))
 
     def test_text_report(self):
         from cig.metrics.seqlendist.reports import write_text_report
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
-        sld.load(self.fastq_fn)
+        sld.load(self.fastq_fn, label="test")
         sld.complete()
         out_h = StringIO()
         write_text_report(out_h, sld)

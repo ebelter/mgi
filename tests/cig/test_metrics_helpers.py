@@ -35,7 +35,7 @@ class MetricsHelpersTest(unittest.TestCase):
             self.assertEqual(out_h.ext, "txt")
             self.assertEqual(out_h.mode, "w")
             self.assertEqual(out_h.fn, "STDOUT")
-        with OutHandle(bn="plot", ext="png", mode="wb") as out_h:
+        with OutHandle(bn="plot", ext="png") as out_h:
             self.assertTrue(bool(out_h.fh))
             self.assertEqual(out_h.bn, "plot")
             self.assertEqual(out_h.ext, "png")

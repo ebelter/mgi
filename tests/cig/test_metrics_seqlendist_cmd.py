@@ -32,19 +32,22 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
 
         out_n = os.path.join(self.temp_d.name, "TEST")
         out_fns = dict()
-        for ext in ("csv", "txt", "png"):
-            out_fns[ext] = os.path.join(out_n + "." + ext)
+        report_types = ("csv", "json", "png", "text", "yaml")
+        report_params = []
+        for report_type in report_types:
+            out_fns[report_type] = os.path.join(out_n + "." + report_type)
+            report_params.extend(["-r", report_type])
         for ext, fn in out_fns.items():
             self.assertFalse(os.path.exists(fn))
 
-        result = runner.invoke(cmd, ["-o", out_n, "-r", "csv", "-r", "plot", "-r", "text", self.fastq_fn], catch_exceptions=False)
+        result = runner.invoke(cmd, report_params + ["-o", out_n, self.fastq_fn], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
             print(result.output)
             raise
         for ext, fn in out_fns.items():
-            print(f"{ext} {fn}")
+            #print(f"{ext} {fn}")
             self.assertTrue(os.path.exists(fn))
 #--
 

@@ -39,10 +39,12 @@ class SeqFile():
 #-- SeqFile
 
 class OutHandle():
-    def __init__(self, bn="-", ext="txt", mode="w"):
+    def __init__(self, bn="-", ext="txt"):
         self.bn = bn
         self.ext = ext
-        self.mode = mode
+        self.mode = "w"
+        if ext == "png":
+            self.mode = "wb"
         if bn == "-":
             self.fn = "STDOUT"
         else:
