@@ -28,13 +28,13 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
 
     def test1_seqlendist_cmd(self):
         from cig.metrics.seqlendist.cmd import seqlendist_cmd as cmd
+        from cig.metrics.seqlendist.reports import available_reports
         runner = CliRunner()
 
         out_n = os.path.join(self.temp_d.name, "TEST")
         out_fns = dict()
-        report_types = ("csv", "json", "png", "text", "yaml")
         report_params = []
-        for report_type in report_types:
+        for report_type in available_reports():
             out_fns[report_type] = os.path.join(out_n + "." + report_type)
             report_params.extend(["-r", report_type])
         for ext, fn in out_fns.items():

@@ -1,8 +1,8 @@
 import csv, json, yaml
 from jinja2 import BaseLoader, Environment
 
-def avalible_reports():
-    return ("csv", "json", "plot", "text", "yaml")
+def available_reports():
+    return ("csv", "json", "png", "text", "yaml")
 #-- avalible_reports
 
 def write_text_report(output_h, seqlendist):

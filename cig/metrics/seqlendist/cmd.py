@@ -8,7 +8,7 @@ import cig.metrics.seqlendist.reports as sld_reports
 @click.option("--distbin", "-b", default="lr", help="Numerical binning to report: asm or lr, see above.")
 @click.option("--labels", "-l", help="Labels for multiple seqfiles to group and evaluate together. Give one per seqfile, in order, separated by commas.")
 @click.option("--out", "-o", default="-", help="Dirname/basename to use when outputing reports.")
-@click.option("--reports", "-r", default=["text"], multiple=True, help="reports to generate: csv, json, plot, text, yaml.")
+@click.option("--reports", "-r", type=click.Choice(sld_reports.available_reports()), multiple=True, help=f"reports to generate: {','.join(sld_reports.available_reports())}.")
 def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
     """
     Generate Length Distributuion Reports from Seqfiles
