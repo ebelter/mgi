@@ -40,6 +40,7 @@ class MetricsSeqlendistObjTest(unittest.TestCase):
         expected = """min         214.00
 max         922.00
 mean        513.84
+median      496.00
 length    12846.00
 count        25.00
 n50         593.00
@@ -50,10 +51,16 @@ Name: test, dtype: float64"""
         #import re
         #s = re.sub('\n', '|\n', f"{sld.bins_df.xs('test')}")
         #print(f"{s}")
-        expected = """     min  max        mean  median  length  count
-bin                                             
-1    214  500  385.857143   407.0    5402     14
-2    554  922  676.727273   617.0    7444     11"""
+        expected = """       min    max        mean  median  length  count
+bin                                                 
+0      0.0    0.0    0.000000     0.0     0.0    0.0
+1    214.0  500.0  385.857143   407.0  5402.0   14.0
+2    554.0  922.0  676.727273   617.0  7444.0   11.0
+3      0.0    0.0    0.000000     0.0     0.0    0.0
+4      0.0    0.0    0.000000     0.0     0.0    0.0
+5      0.0    0.0    0.000000     0.0     0.0    0.0
+6      0.0    0.0    0.000000     0.0     0.0    0.0
+7      0.0    0.0    0.000000     0.0     0.0    0.0"""
         self.assertEqual(f"{sld.bins_df.xs('test')}", expected)
 #--
 

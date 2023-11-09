@@ -45,19 +45,24 @@ class SeqLenDist():
             label_length = bins_df.xs(label, ).length.sum()
             half_length = int(label_length / 2)
             current_length = 0
-
-            #bins_df["pct_"] = bins_df["count"] / bins_df["length"] * 100
+            # add rows for bins without lengths 
             for i, b in enumerate(self.distbins):
                 if (label, i) not in bins_df.index:
-                    continue
+                    bins_df.loc[(label, i),:] = [0, 0, 0, 0, 0, 0]
+            # re-sort index
+            bins_df = bins_df.sort_index()
+            # get bin where n50 length is
+            for i, b in enumerate(self.distbins):
                 bin_length = bins_df.loc[(label, i)].length
                 if current_length +bin_length > half_length:
                     break
                 current_length += bin_length
+            # get n50 length for label
             for l in sorted(lengths_df.loc[(lengths_df['label'] == label) & (lengths_df['bin'] == i)].length.values):
                 current_length += l
                 if current_length > half_length:
                     break
+            # add n50 to summary table
             summary_df.at[label, "n50"] = l
         self.lengths_df = lengths_df
         self.summary_df = summary_df

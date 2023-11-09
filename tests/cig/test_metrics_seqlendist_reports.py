@@ -64,15 +64,18 @@ MEAN      513 bp
 MEDIAN    496 bp
 N50       593 bp
 LARGEST   922 bp
-SEQS        1 -- 200      (            0 bp ) 0.00%
-SEQS      201 -- 500      (         5402 bp ) 42.05%
-SEQS      501 -- 1000     (         7444 bp ) 57.95%
-SEQS     1001 -- 2000     (            0 bp ) 0.00%
-SEQS     2001 -- 5000     (            0 bp ) 0.00%
-SEQS     5001 -- 10000    (            0 bp ) 0.00%
-SEQS    10001 -- 20000    (            0 bp ) 0.00%
-SEQS    20001 -- +        (            0 bp ) 0.00%
+        LOWER -- UPPER         COUNT          BASES      PCT
+BIN         1 -- 200               0 (            0 bp ) 0.00%
+BIN       201 -- 500            5402 (         5402 bp ) 42.05%
+BIN       501 -- 1000           7444 (         7444 bp ) 57.95%
+BIN      1001 -- 2000              0 (            0 bp ) 0.00%
+BIN      2001 -- 5000              0 (            0 bp ) 0.00%
+BIN      5001 -- 10000             0 (            0 bp ) 0.00%
+BIN     10001 -- 20000             0 (            0 bp ) 0.00%
+BIN     20001 -- +                 0 (            0 bp ) 0.00%
 """
+        out_h.seek(0)
+        print(f"{out_h.read()}")
         out_h.seek(0)
         self.maxDiff = 10000
         self.assertEqual(out_h.read(), expected_output)
