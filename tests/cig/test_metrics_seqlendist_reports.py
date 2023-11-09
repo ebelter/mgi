@@ -19,8 +19,8 @@ class MetricsSeqlendistReportsTest(unittest.TestCase):
         sld.complete()
         out_h = StringIO()
         write_csv_report(out_h, sld)
-        expected_output = """label,count,length,min,max,mean,n50
-test,25,12846,214,922,513,593
+        expected_output = """label,count,length,min,max,mean,median,n50
+test,25,12846,214,922,513,496,593
 """
         out_h.seek(0)
         self.assertEqual(out_h.read(), expected_output)
@@ -33,7 +33,7 @@ test,25,12846,214,922,513,593
         sld.complete()
         out_h = StringIO()
         write_report(out_h, sld)
-        expected_output = """{"label": "test", "min": 214, "max": 922, "mean": 513, "length": 12846, "count": 25, "n50": 593}"""
+        expected_output = """{"label": "test", "min": 214, "max": 922, "mean": 513, "median": 496, "length": 12846, "count": 25, "n50": 593}"""
         out_h.seek(0)
         self.assertEqual(out_h.read(), expected_output)
 
@@ -60,7 +60,8 @@ test,25,12846,214,922,513,593
         expected_output = """SAMPLE    test
 COUNT     25
 BASES     12846 bp
-AVG       513 bp
+MEAN      513 bp
+MEDIAN    496 bp
 N50       593 bp
 LARGEST   922 bp
 SEQS        1 -- 200      (            0 bp ) 0.00%
@@ -89,6 +90,7 @@ label: test
 length: 12846
 max: 922
 mean: 513
+median: 496
 min: 214
 n50: 593
 """

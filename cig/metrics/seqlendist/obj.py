@@ -36,7 +36,7 @@ class SeqLenDist():
         lengths_df = pandas.DataFrame(data=self.lengths, columns=["label", "length", "bin"])
         self.lengths = []
 
-        summary_df = lengths_df.groupby(['label']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), length=('length', 'sum'), count=('length', 'count'))
+        summary_df = lengths_df.groupby(['label']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), median=('length', 'median'), length=('length', 'sum'), count=('length', 'count'))
         summary_df["n50"] = 0
 
         bins_df = lengths_df.groupby(['label', 'bin']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), median=('length', 'median'), length=('length', 'sum'), count=('length', 'count'))

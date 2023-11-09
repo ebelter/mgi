@@ -9,7 +9,8 @@ def write_text_report(output_h, seqlendist):
     template_str = """SAMPLE    {{metrics.label}}
 COUNT     {{metrics.count}}
 BASES     {{metrics.length}} bp
-AVG       {{metrics.mean}} bp
+MEAN      {{metrics.mean}} bp
+MEDIAN    {{metrics.median}} bp
 N50       {{metrics.n50}} bp
 LARGEST   {{metrics.max}} bp
 {% for b in distbins %}SEQS {{'%8s -- %-8s ( %12i bp ) %.2f%%'|format(b.lower, b.upper, b.length, b.length_pct)}}
@@ -40,7 +41,7 @@ LARGEST   {{metrics.max}} bp
 #-- write_text_report
 
 def write_csv_report(output_h, seqlendist):
-    fieldnames = ("label", "count", "length", "min", "max", "mean", "n50")
+    fieldnames = ("label", "count", "length", "min", "max", "mean", "median", "n50")
     wtr = csv.DictWriter(output_h, fieldnames=fieldnames, delimiter=",", lineterminator="\n")
     wtr.writeheader()
     for label, row in seqlendist.summary_df.iterrows():
