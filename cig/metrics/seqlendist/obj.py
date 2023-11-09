@@ -39,7 +39,7 @@ class SeqLenDist():
         summary_df = lengths_df.groupby(['label']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), length=('length', 'sum'), count=('length', 'count'))
         summary_df["n50"] = 0
 
-        bins_df = lengths_df.groupby(['label', 'bin']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), length=('length', 'sum'), count=('length', 'count'))
+        bins_df = lengths_df.groupby(['label', 'bin']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), median=('length', 'median'), length=('length', 'sum'), count=('length', 'count'))
 
         for label in summary_df.index:
             label_length = bins_df.xs(label, ).length.sum()

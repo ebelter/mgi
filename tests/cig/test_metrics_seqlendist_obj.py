@@ -45,12 +45,15 @@ count        25.00
 n50         593.00
 Name: test, dtype: float64"""
         #print(f"{sld.summary_df.loc['test']}")
-        #print(f"||{sld.bins_df.xs('test')}||")
         self.assertEqual(f"{sld.summary_df.loc['test']}", expected)
-        expected = """     min  max        mean  length  count
-bin                                     
-1    214  500  385.857143    5402     14
-2    554  922  676.727273    7444     11"""
+        self.maxDiff = 10000
+        #import re
+        #s = re.sub('\n', '|\n', f"{sld.bins_df.xs('test')}")
+        #print(f"{s}")
+        expected = """     min  max        mean  median  length  count
+bin                                             
+1    214  500  385.857143   407.0    5402     14
+2    554  922  676.727273   617.0    7444     11"""
         self.assertEqual(f"{sld.bins_df.xs('test')}", expected)
 #--
 
