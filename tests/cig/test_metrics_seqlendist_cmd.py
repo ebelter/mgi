@@ -12,19 +12,12 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
 
     def test0_seqlendist_resolve_labels(self):
         from cig.metrics.seqlendist.cmd import resolve_labels as fun
-        labels = fun("a-b", ["seqfile1"], None)
+        labels = fun("a-b", ["seqfile1"])
         self.assertEqual(labels, ["a-b"])
-        labels = fun("a,b", ["seqfile1", "seqfile2"], None)
+        labels = fun("a,b", ["seqfile1", "seqfile2"])
         self.assertEqual(labels, ["a", "b"])
-        # Get labels from out
-        labels = fun(None, ["/data/a.txt", "/data/b.txt", "/data/a.txt"], "test")
-        self.assertEqual(labels, ["test", "test", "test"])
-        # Get labels from seqfile basename
-        labels = fun(None, ["/data/a.txt", "/data/b.txt", "/data/a.txt"], None)
+        labels = fun(None, ["/data/a.fasta", "/data/b.fastq", "/data/a.fastq.gz"])
         self.assertEqual(labels, ["a", "b", "a"])
-
-        with self.assertRaisesRegex(Exception, "ERROR Unequal number of labels"):
-            fun("a-b", ["seqfile1", "seqfile2"], None)
 
     def test1_seqlendist_cmd(self):
         from cig.metrics.seqlendist.cmd import seqlendist_cmd as cmd
