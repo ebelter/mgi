@@ -1,6 +1,13 @@
 import gzip, os, sys
 from Bio import SeqIO
 
+def str_to_number(s):
+    if "." in s:
+        return round(float(s), (2))
+    else:
+        return int(s)
+#-- str_to_number
+
 class SeqFile():
     def __init__(self, seqfile):
         self.fn = seqfile

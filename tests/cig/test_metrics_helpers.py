@@ -4,6 +4,13 @@ class MetricsHelpersTest(unittest.TestCase):
     def setUp(self):
         self.data_dn = os.path.join(os.path.dirname(__file__), "data", "metrics")
 
+    def test_str_to_number(self):
+        from cig.metrics.helpers import str_to_number
+        # FIXME test passing non numbers?
+        self.assertEqual(str_to_number("2"), 2)
+        self.assertEqual(str_to_number("2.2"), 2.20)
+        self.assertEqual(str_to_number("2.229"), 2.23)
+
     def test_seqfile(self):
         from cig.metrics.helpers import SeqFile
         fastq = os.path.join(self.data_dn, "sample.fastq.gz")
