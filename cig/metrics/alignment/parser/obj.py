@@ -1,5 +1,5 @@
-from cig.metrics.alignment.samtools import parse as samtools_parser
-from cig.metrics.alignment.vg import parse as vg_parser
+from cig.metrics.alignment.parser.samtools import parse as samtools_parser
+from cig.metrics.alignment.parser.vg import parse as vg_parser
 
 class StatsfileParser(object):
     def __init__(self, statsfile):

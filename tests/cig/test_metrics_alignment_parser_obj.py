@@ -1,5 +1,4 @@
-import click, os, tempfile, unittest
-from io import StringIO
+import click, os, unittest
 
 class MetricsAlignmentParserTest(unittest.TestCase):
     def setUp(self):
@@ -9,9 +8,9 @@ class MetricsAlignmentParserTest(unittest.TestCase):
         self.unknown_statsfile = os.path.join(self.data_dn, "sample.fasta")
 
     def test_get_parser(self):
-        from cig.metrics.alignment.parser import get_parser
-        from cig.metrics.alignment.samtools import parse as samtools_parse
-        from cig.metrics.alignment.vg import parse as vg_parse
+        from cig.metrics.alignment.parser.obj import get_parser
+        from cig.metrics.alignment.parser.samtools import parse as samtools_parse
+        from cig.metrics.alignment.parser.vg import parse as vg_parse
 
         kind, parser = get_parser(self.samtools_statsfile)
         self.assertEqual(kind, "samtools")
@@ -24,7 +23,7 @@ class MetricsAlignmentParserTest(unittest.TestCase):
             get_parser(self.unknown_statsfile)
 
     def test_init(self):
-        from cig.metrics.alignment.parser import StatsfileParser
+        from cig.metrics.alignment.parser.obj import StatsfileParser
         parser = StatsfileParser(self.samtools_statsfile)
         self.assertTrue(bool(parser))
         self.assertEqual(parser.statsfile, self.samtools_statsfile)
@@ -32,7 +31,7 @@ class MetricsAlignmentParserTest(unittest.TestCase):
         self.assertTrue(bool(parser.parser))
 
     def test_parse(self):
-        from cig.metrics.alignment.parser import StatsfileParser
+        from cig.metrics.alignment.parser.obj import StatsfileParser
         parser = StatsfileParser(self.samtools_statsfile)
         self.assertTrue(bool(parser))
         metrics = parser.parse()
