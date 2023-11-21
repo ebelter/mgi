@@ -1,4 +1,5 @@
 import os, sys
+from cig.metrics.helpers import str_to_number
 
 def parse(f):
     metrics = {}
@@ -15,12 +16,12 @@ def parse(f):
 def parse_SN_line(l):
     sn, k, v, *c = l.split("\t")
     k = k.rstrip(":").replace(" (%)", "")#.replace(" ", "_")
-    return {k: v}
+    return {k: str_to_number(v)}
 #-- parse_SN_line
 
 # Read lengths. Use `grep ^RL | cut -f 2-` to extract this part. The columns are: read length, count
 # RL  75  62943876
 def parse_RL_line(l):
     rl, l, c = l.split("\t")
-    return {"read length": l, "read count": c}
+    return {"read length": str_to_number(l), "read count": str_to_number(c)}
 #-- parse_RL_line
