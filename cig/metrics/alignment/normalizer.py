@@ -1,11 +1,11 @@
 import pandas as pd
 
 def metric_names_mapper():
-    data = {
+    data = {                 # samtools    vg
             "total":         ["sequences", "alignments"],
             "aligned":       ["reads mapped", "aligned"],
             "secondary":     ["non-primary alignments", "secondary"],
-            "paired":        ["reads paired", "primary"],
+            "paired":        ["reads paired", "properly paired"],
             "unmapped":      ["reads unmapped", "unmapped"], 
             "quality mean":  ["average quality", "mapping quality mean"]
             }
@@ -20,7 +20,6 @@ def normalize(kind, metrics):
 
     normalized["aligned pct"] = round(normalized["aligned"] / normalized["total"], 4)
     normalized["paired pct"] = round(normalized["paired"] / normalized["total"], 4)
-    normalized["secondary pct"] = round(normalized["secondary"] / normalized["total"], 4)
     normalized["unmapped pct"] = round(normalized["unmapped"] / normalized["total"], 4)
     return normalized
 #-- normalize

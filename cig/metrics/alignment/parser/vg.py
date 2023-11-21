@@ -21,10 +21,7 @@ def parse(f):
             metrics[k] = v
         else:
             metrics[k] = str_to_number(v)
-    # % mapped
-    metrics["unaligned"] = int((metrics["alignments"]) - int(metrics["aligned"]))
-    metrics["aligned pct"] = round((int(metrics["aligned"]) * 100 )/ int(metrics["alignments"]), 2)
-    metrics["paired pct"] = round((int(metrics["properly paired"]) * 100 )/ int(metrics["aligned"]), 2)
+    metrics["unmapped"] = int((metrics["alignments"]) - int(metrics["aligned"]))
     return metrics
 #-- parse
 
