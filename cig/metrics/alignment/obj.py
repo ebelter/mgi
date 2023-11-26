@@ -8,17 +8,19 @@ class AlignmentMetrics():
     #-- __init__
 
     def load(self, label, statsfile):
-        metrics = get_metrics(statsfile)
-        # dict with kind, original, normalized
-        # kind combined metrics
-        if getattr(self.dfs, metrics["kind"], None) is None:
-            self.dfs[metrics["kind"]] = pd.DataFrame(index=metrics["original"].keys(), data={label: metrics["original"].values()})
+        metrics = get_metrics(statsfile) # dict with kind, original, normalized
+        kind = metrics["kind"]
+        # kind combined metrics - row index is label
+        if getattr(self.dfs, kind, None) is None:
+            self.dfs[kind] = pd.DataFrame(index=[label], data=metrics["original"])
         else:
-            self.dfs[metrics["kind"]][label] = metrics["original"].values()
-        # normalized combined metrics
+            self.dfs[label].loc[label] = metrics["original"]
+        # normalized combined metrics - row index is int
+        data = metrics["normalized"]
         if self.dfs["normalized"] is None:
-            self.dfs["normalized"] = pd.DataFrame(index=metrics["normalized"].keys(), data={label: metrics["normalized"].values()})
+            metrics["normalized"].update({"label": label, "kind": kind})
+            self.dfs["normalized"] = pd.DataFrame(index=[0], data=metrics["normalized"]).set_index(["label", "kind"])
         else:
-            self.dfs["normalized"][label] = metrics["normalized"].values()
+            self.dfs["normalized"].loc[(label, kind),:] = metrics["normalized"]
     #-- load
 #-- AlignmentMetrics
