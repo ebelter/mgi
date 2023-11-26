@@ -8,6 +8,21 @@ def str_to_number(s):
         return int(s)
 #-- str_to_number
 
+def resolve_labels(labels, files, out):
+    if labels is None:
+        if out is not None:
+            label = os.path.basename(out)
+            return [out for i in range(0, len(files))]
+        else:
+            return list(map(lambda sf: os.path.basename(sf).split(".")[0], files))
+
+    labels = labels.split(",")
+    if len(labels) != len(files):
+        raise Exception(f"ERROR Unequal number of labels {len(labels)} => {labels}) given for files: {len(files)}")
+        #return [labels[0] for i in range(0, len(files))]
+    return labels
+#-- resolve_labels
+
 class SeqFile():
     def __init__(self, seqfile):
         self.fn = seqfile

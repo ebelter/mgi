@@ -1,5 +1,5 @@
 import click, os, sys
-from cig.metrics.helpers import OutHandle
+from cig.metrics.helpers import OutHandle, resolve_labels
 from cig.metrics.seqlendist.obj import SeqLenDist
 import cig.metrics.seqlendist.reports as sld_reports
 
@@ -64,21 +64,6 @@ def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
             sys.stderr.write(f"Writing {report_type.upper()} report: {out_h.fn}\n")
             writer(out_h.fh, sld)
 #-- lendist_cmd
-
-def resolve_labels(labels, seqfiles, out):
-    if labels is None:
-        if out is not None:
-            label = os.path.basename(out)
-            return [out for i in range(0, len(seqfiles))]
-        else:
-            return list(map(lambda sf: os.path.basename(sf).split(".")[0], seqfiles))
-
-    labels = labels.split(",")
-    if len(labels) != len(seqfiles):
-        raise Exception(f"ERROR Unequal number of labels {len(labels)} => {labels}) given for seqfiles: {len(seqfiles)}")
-        #return [labels[0] for i in range(0, len(seqfiles))]
-    return labels
-#-- resolve_labels
 
 if __name__ == '__main__':
     seqlendist_cmd()

@@ -11,6 +11,22 @@ class MetricsHelpersTest(unittest.TestCase):
         self.assertEqual(str_to_number("2.2"), 2.20)
         self.assertEqual(str_to_number("2.229"), 2.23)
 
+    def test_resolve_labels(self):
+        from cig.metrics.helpers import resolve_labels as fun
+        labels = fun("a-b", ["seqfile1"], None)
+        self.assertEqual(labels, ["a-b"])
+        labels = fun("a,b", ["seqfile1", "seqfile2"], None)
+        self.assertEqual(labels, ["a", "b"])
+        # Get labels from out
+        labels = fun(None, ["/data/a.txt", "/data/b.txt", "/data/a.txt"], "test")
+        self.assertEqual(labels, ["test", "test", "test"])
+        # Get labels from seqfile basename
+        labels = fun(None, ["/data/a.txt", "/data/b.txt", "/data/a.txt"], None)
+        self.assertEqual(labels, ["a", "b", "a"])
+
+        with self.assertRaisesRegex(Exception, "ERROR Unequal number of labels"):
+            fun("a-b", ["seqfile1", "seqfile2"], None)
+
     def test_seqfile(self):
         from cig.metrics.helpers import SeqFile
         fastq = os.path.join(self.data_dn, "sample.fastq.gz")
