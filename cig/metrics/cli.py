@@ -8,5 +8,8 @@ def cli():
     """
     pass
 
+from cig.metrics.alignment.cmd import alignment_cmd
+cli.add_command(alignment_cmd, "alignment")
+
 from cig.metrics.seqlendist.cmd import seqlendist_cmd
 cli.add_command(seqlendist_cmd, "seqlendist")

@@ -8,6 +8,13 @@ def str_to_number(s):
         return int(s)
 #-- str_to_number
 
+def number_to_str(n):
+    if type(n) is float and n.is_integer():
+        return str(int(n))
+    else:
+        return str(n)
+#-- str_to_number
+
 def resolve_labels(labels, files, out):
     if labels is None:
         if out is not None:

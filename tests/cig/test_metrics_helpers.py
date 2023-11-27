@@ -11,6 +11,14 @@ class MetricsHelpersTest(unittest.TestCase):
         self.assertEqual(str_to_number("2.2"), 2.20)
         self.assertEqual(str_to_number("2.229"), 2.23)
 
+    def test_str_to_number(self):
+        from cig.metrics.helpers import number_to_str as fun
+        self.assertEqual(fun("2"), "2")
+        self.assertEqual(fun("2.2"), "2.2")
+        self.assertEqual(fun(2), "2")
+        self.assertEqual(fun(2.00), "2")
+        self.assertEqual(fun(2.01), "2.01")
+
     def test_resolve_labels(self):
         from cig.metrics.helpers import resolve_labels as fun
         labels = fun("a-b", ["seqfile1"], None)

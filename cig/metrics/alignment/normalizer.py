@@ -4,9 +4,12 @@ def metric_names_mapper():
     data = {                 # samtools    vg
             "total":         ["sequences", "alignments"],
             "aligned":       ["reads mapped", "aligned"],
+            "aligned pct":   ["aligned pct", "aligned pct"],
             "secondary":     ["non-primary alignments", "secondary"],
             "paired":        ["reads paired", "properly paired"],
+            "paired pct":    ["paired pct", "paired pct"],
             "unmapped":      ["reads unmapped", "unmapped"], 
+            "unmapped pct":  ["unmapped pct", "unmapped pct"],
             "quality mean":  ["average quality", "mapping quality mean"]
             }
     return pd.DataFrame(index=["samtools", "vg"], data=data)
@@ -18,8 +21,8 @@ def normalize(kind, metrics):
     for name in mapper.columns:
         normalized[name] = metrics.get(mapper.loc[kind][name], 0)
 
-    normalized["aligned pct"] = round(normalized["aligned"] / normalized["total"], 4)
-    normalized["paired pct"] = round(normalized["paired"] / normalized["total"], 4)
-    normalized["unmapped pct"] = round(normalized["unmapped"] / normalized["total"], 4)
+    normalized["aligned pct"] = str(round((normalized["aligned"] * 100)/ normalized["total"], 2))+"%"
+    normalized["paired pct"] = str(round((normalized["paired"] * 100)/ normalized["total"], 2))+"%"
+    normalized["unmapped pct"] = str(round((normalized["unmapped"] * 100)/ normalized["total"], 2))+"%"
     return normalized
 #-- normalize
