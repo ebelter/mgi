@@ -9,10 +9,12 @@ def write_text_report(output_h, seqlendist):
     template_str = """SAMPLE    {{metrics.label}}
 COUNT     {{metrics.count}}
 BASES     {{metrics.length}} bp
-AVG       {{metrics.mean}} bp
+MEAN      {{metrics.mean}} bp
+MEDIAN    {{metrics.median}} bp
 N50       {{metrics.n50}} bp
 LARGEST   {{metrics.max}} bp
-{% for b in distbins %}SEQS {{'%8s -- %-8s ( %12i bp ) %.2f%%'|format(b.lower, b.upper, b.length, b.length_pct)}}
+        LOWER -- UPPER         COUNT          BASES      PCT
+{% for b in distbins %}BIN  {{'%8s -- %-8s %10i ( %12i bp ) %.2f%%'|format(b.lower, b.upper, b.length, b.length, b.length_pct)}}
 {% endfor %}
 """
     template = Environment(loader=BaseLoader()).from_string(template_str)
@@ -28,19 +30,16 @@ LARGEST   {{metrics.max}} bp
             else:
                 upper = seqlendist.distbins[i+1] - 1
             distbin["upper"] = upper
-            if (label, i) not in seqlendist.bins_df.index:
-                distbin["length"] = 0
-                distbin["length_pct"] = 0.0
-            else:
-                bin_length = seqlendist.bins_df.loc[(label, i)].length
-                distbin["length"] = bin_length
-                distbin["length_pct"] = bin_length / metrics["length"] * 100
+            distbin["num"] = seqlendist.bins_df.loc[(label, i)]["count"]
+            bin_length = seqlendist.bins_df.loc[(label, i)]["length"]
+            distbin["length"] = bin_length
+            distbin["length_pct"] = bin_length / metrics["length"] * 100
             distbins.append(distbin)
         output_h.write(template.render(metrics=metrics, distbins=distbins))
 #-- write_text_report
 
 def write_csv_report(output_h, seqlendist):
-    fieldnames = ("label", "count", "length", "min", "max", "mean", "n50")
+    fieldnames = ("label", "count", "length", "min", "max", "mean", "median", "n50")
     wtr = csv.DictWriter(output_h, fieldnames=fieldnames, delimiter=",", lineterminator="\n")
     wtr.writeheader()
     for label, row in seqlendist.summary_df.iterrows():

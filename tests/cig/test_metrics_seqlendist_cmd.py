@@ -10,6 +10,15 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
+    def test0_seqlendist_resolve_labels(self):
+        from cig.metrics.seqlendist.cmd import resolve_labels as fun
+        labels = fun("a-b", ["seqfile1"])
+        self.assertEqual(labels, ["a-b"])
+        labels = fun("a,b", ["seqfile1", "seqfile2"])
+        self.assertEqual(labels, ["a", "b"])
+        labels = fun(None, ["/data/a.fasta", "/data/b.fastq", "/data/a.fastq.gz"])
+        self.assertEqual(labels, ["a", "b", "a"])
+
     def test1_seqlendist_cmd(self):
         from cig.metrics.seqlendist.cmd import seqlendist_cmd as cmd
         from cig.metrics.seqlendist.reports import available_reports

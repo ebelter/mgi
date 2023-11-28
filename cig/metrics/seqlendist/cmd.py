@@ -5,13 +5,13 @@ import cig.metrics.seqlendist.reports as sld_reports
 
 @click.command()
 @click.argument("seqfiles", required=True, nargs=-1)
-@click.option("--distbin", "-b", default="lr", help="Numerical binning to report: asm or lr, see above.")
+@click.option("--bins", "-b", default="lr", help="Numerical binning to report: asm or lr, see above.")
 @click.option("--labels", "-l", help="Labels for multiple seqfiles to group and evaluate together. Give one per seqfile, in order, separated by commas.")
 @click.option("--out", "-o", default="-", help="Dirname/basename to use when outputing reports.")
 @click.option("--reports", "-r", type=click.Choice(sld_reports.available_reports()), multiple=True, help=f"reports to generate: {','.join(sld_reports.available_reports())}.")
-def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
+def seqlendist_cmd(seqfiles, labels, out, reports, bins):
     """
-    Generate Length Distributuion Reports from Seqfiles
+    Generate Length Distribution Reports from Seqfiles
 
     \b
     Known seqfiles: fasta [gz], fastq [gz]
@@ -44,15 +44,15 @@ def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
       1-200
     """
     try:
-        labels = resolve_labels(labels, seqfiles, out)
+        labels = resolve_labels(labels, seqfiles)
     except Exception as e:
         sys.stderr.write(f"{e}\n")
         sys.exit(2)
-    if "plot" in reports and out == "-":
+    if "png" in reports and out == "-":
         sys.stderr.write("ERROR Cannot output dist plot to STDOUT, plaease specify a value for '--out'.\n")
         sys.exit(2)
 
-    sld = SeqLenDist(distbin)
+    sld = SeqLenDist(bins)
     for i, seqfile in enumerate(seqfiles):
         sys.stderr.write(f"Processing seqfile: {seqfile}\n")
         sld.load(seqfile, labels[i])
@@ -65,6 +65,17 @@ def seqlendist_cmd(seqfiles, labels, out, reports, distbin):
             writer(out_h.fh, sld)
 #-- lendist_cmd
 
-if __name__ == '__main__':
-    seqlendist_cmd()
-#-- __main__
+def resolve_labels(labels, seqfiles):
+    if labels is None:
+        labels = []
+        for seqfile in seqfiles:
+            #seqfile_tokens = os.path.basename(seqfile).split(".")
+            labels.append(".".join([e for e in os.path.basename(seqfile).split(".") if e not in ("fasta", "fastq", "gz")]))
+        #return list(map(lambda sf: os.path.basename(sf).split(".")[0], seqfiles))
+        return labels
+
+    labels = labels.split(",")
+    if len(labels) != len(seqfiles):
+        return [labels[0] for i in range(0, len(seqfiles))]
+    return labels
+#-- resolve_labels
