@@ -11,6 +11,16 @@ class MetricsCliTest(unittest.TestCase):
         result = runner.invoke(cli, [])
         self.assertEqual(result.exit_code, 0)
 
+        result = runner.invoke(cli, ["alignment", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["alignment"])
+        self.assertEqual(result.exit_code, 2)
+
+        result = runner.invoke(cli, ["rnaseq", "--help"])
+        self.assertEqual(result.exit_code, 0)
+        result = runner.invoke(cli, ["rnaseq"])
+        self.assertEqual(result.exit_code, 2)
+
         result = runner.invoke(cli, ["seqlendist", "--help"])
         self.assertEqual(result.exit_code, 0)
         result = runner.invoke(cli, ["seqlendist"])

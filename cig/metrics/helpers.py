@@ -1,4 +1,4 @@
-import gzip, os, sys
+import gzip, os, re, sys
 from Bio import SeqIO
 
 def str_to_number(s):
@@ -8,11 +8,13 @@ def str_to_number(s):
         return int(s)
 #-- str_to_number
 
+zeros_p = re.compile(r"^0+$")
 def number_to_str(n):
-    if type(n) is float and n.is_integer():
-        return str(int(n))
-    else:
-        return str(n)
+    n = str(n)
+    tokens = n.split(".")
+    if len(tokens) > 1 and re.match(zeros_p, tokens[1]):
+        return tokens[0]
+    return n
 #-- str_to_number
 
 def resolve_labels(labels, files, out):

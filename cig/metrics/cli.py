@@ -11,5 +11,8 @@ def cli():
 from cig.metrics.alignment.cmd import alignment_cmd
 cli.add_command(alignment_cmd, "alignment")
 
+from cig.metrics.rnaseq.cmd import rnaseq_cmd
+cli.add_command(rnaseq_cmd, "rnaseq")
+
 from cig.metrics.seqlendist.cmd import seqlendist_cmd
 cli.add_command(seqlendist_cmd, "seqlendist")
