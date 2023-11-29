@@ -7,27 +7,28 @@ import cig.metrics.alignment.reports as am_reports
 @click.argument("statsfiles", required=True, nargs=-1)
 @click.option("--labels", "-l", help="Labels for multiple statsfiles to group and evaluate together. Give one per seqfile, in order, separated by commas.")
 @click.option("--out", "-o", default="-", help="Dirname/basename to use when outputing reports.")
-@click.option("--reports", "-r", type=click.Choice(am_reports.available_report_types()), multiple=True, help=f"reports to generate: {','.join(am_reports.available_report_types())}.")
+@click.option("--reports", "-r", multiple=True, help=f"reports to generate, give as colon separated type and format, ex type:format. Availble types: {','.join(am_reports.available_report_types())}. Availble formats: {', '.join(am_reports.available_report_formats())}.")
+
 def alignment_cmd(statsfiles, labels, out, reports):
     """
-    Generate Alignment Reports from Statsfiles
     \b
+    Generate Alignment Reports from Statsfiles
+
     Known statsfiles: samtools stat, vg stat
+
     \b
     Reports
-    \b
     Give report type and format as colon separated pairs like "summary:csv". If not format is given, csv is the default.
+
     \b
     Reports Types:
     summary - normalized metrics
+
     \b
     Report Formats:
-    csv  - CSV suitable for loading into a spreadsheet
-    json - JSON
-    mw   - mediawiki table
-    png  - plot of ...
-    text - tabulate formatted table
-    yaml - YAML
+    csv    - CSV suitable for loading into a spreadsheet
+    mw     - mediawiki table
+    table  - tabulate formatted table
     """
     try:
         labels = resolve_labels(labels, statsfiles, out)

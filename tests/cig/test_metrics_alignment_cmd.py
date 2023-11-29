@@ -28,7 +28,7 @@ class MetricsAlignemntCmdTest(unittest.TestCase):
         runner = CliRunner()
 
         out_n = os.path.join(self.temp_d.name, "SAMPLE001")
-        result = runner.invoke(cmd, ["-r", "summary", "-l", "SAMPLE001,SAMPLE001", "-o", out_n, self.samtools_statsfile, self.vg_statsfile], catch_exceptions=False)
+        result = runner.invoke(cmd, ["-r", "summary:table", "-l", "SAMPLE001,SAMPLE001", "-o", out_n, self.samtools_statsfile, self.vg_statsfile], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:
