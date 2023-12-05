@@ -1,4 +1,4 @@
-import click, io, os, sys, tempfile, unittest
+import glob, os, tempfile, unittest
 from click.testing import CliRunner
 
 class MetricsSeqlendistCmdTest(unittest.TestCase):
@@ -30,8 +30,7 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
         for report_type in available_reports():
             out_fns[report_type] = os.path.join(out_n + "." + report_type)
             report_params.extend(["-r", report_type])
-        for ext, fn in out_fns.items():
-            self.assertFalse(os.path.exists(fn))
+        self.assertEqual(0, len(glob.glob(out_n+"*")))
 
         result = runner.invoke(cmd, report_params + ["-o", out_n, self.fastq_fn], catch_exceptions=False)
         try:
@@ -39,9 +38,7 @@ class MetricsSeqlendistCmdTest(unittest.TestCase):
         except:
             print(result.output)
             raise
-        for ext, fn in out_fns.items():
-            #print(f"{ext} {fn}")
-            self.assertTrue(os.path.exists(fn))
+        self.assertEqual(len(glob.glob(out_n+"*")), len(available_reports()))
 #--
 
 if __name__ == '__main__':

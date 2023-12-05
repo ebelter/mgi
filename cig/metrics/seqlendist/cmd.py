@@ -60,7 +60,11 @@ def seqlendist_cmd(seqfiles, labels, out, reports, bins):
     for report_type in reports:
         report_writer_name = f"write_{report_type}_report"
         writer = getattr(sld_reports, report_writer_name)
-        with OutHandle(out, ext=report_type) as out_h:
+        rformat = report_type
+        if report_type.startswith("plot"):
+            rformat = "png"
+        out_n = ".".join([out, report_type])
+        with OutHandle(out_n, ext=rformat) as out_h:
             sys.stderr.write(f"Writing {report_type.upper()} report: {out_h.fn}\n")
             writer(out_h.fh, sld)
 #-- lendist_cmd

@@ -19,6 +19,7 @@ install_requires=[
     "pandas",
     "plotnine",
     "pyyaml>=5.1",
+    "seaborn",
     "tabulate",
 ]
 
