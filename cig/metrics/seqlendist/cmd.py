@@ -25,7 +25,7 @@ def seqlendist_cmd(seqfiles, labels, out, reports, bins):
 
     \b
     Bins
-    asm - assembly bins
+    * asm - assembly bins
       1M+
       250K-1M
       100K-250K
@@ -33,7 +33,7 @@ def seqlendist_cmd(seqfiles, labels, out, reports, bins):
       5K-10K
       2K-5K
       1-2K
-    lr - long read bins
+    * lr - long read bins
       20001+
       10001-20000
       5001-10000
@@ -42,6 +42,10 @@ def seqlendist_cmd(seqfiles, labels, out, reports, bins):
       501-1000
       201-500
       1-200
+    * comma separated list - "1" will always be added as first number
+      1,50001,100001,1000001 => [1, 50001, 100001, 1000001]
+    * colon separated limit and interval - "1" will be added to the limit
+      2000:1000 => [1, 1001, 2001]
     """
     try:
         labels = resolve_labels(labels, seqfiles)

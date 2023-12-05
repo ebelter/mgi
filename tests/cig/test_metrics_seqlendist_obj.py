@@ -14,7 +14,10 @@ class MetricsSeqlendistObjTest(unittest.TestCase):
         from cig.metrics.seqlendist.obj import SeqLenDist
         with self.assertRaisesRegex(Exception, "Unknown binning type: foo"):
             SeqLenDist.lengths_for("foo")
+        self.assertEqual(len(SeqLenDist.lengths_for("asm")), 7)
         self.assertEqual(len(SeqLenDist.lengths_for("lr")), 8)
+        self.assertEqual(SeqLenDist.lengths_for("501,1001,1501,2001"), [1, 501, 1001, 1501, 2001])
+        self.assertEqual(SeqLenDist.lengths_for("2000:500"), [1, 501, 1001, 1501, 2001])
 
     def test_init(self):
         from cig.metrics.seqlendist.obj import SeqLenDist

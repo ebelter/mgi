@@ -1,4 +1,5 @@
-import pandas
+import pandas as pd
+import numpy as np
 from cig.metrics.helpers import SeqFile
 
 # Need count, count pct, bps, bps pct
@@ -11,8 +12,16 @@ class SeqLenDist():
         elif distbin_type == "lr":
             #longread_lengths = [1, 201, 501, 1001, 2001, 5001, 10001, 20001]
             return [1, 201, 501, 1001, 2001, 5001, 10001, 20001]
+        elif "," in distbin_type:
+            lengths = sorted(list(map(int, distbin_type.split(","))))
+            if lengths[0] != 1:
+                lengths.insert(0, 1)
+            return lengths
+        elif ":" in distbin_type:
+            limit, interval = distbin_type.split(":")
+            lengths = np.arange(1, int(limit) + int(interval) + 1, int(interval))
+            return list(lengths)
         else:
-            #two50_lengths = np.arange(1, 20001, 250)
             raise Exception(f"Unknown binning type: {distbin_type}")
     #-- lengths_for
 
@@ -33,7 +42,7 @@ class SeqLenDist():
     #-- load
 
     def complete(self):
-        lengths_df = pandas.DataFrame(data=self.lengths, columns=["label", "length", "bin"])
+        lengths_df = pd.DataFrame(data=self.lengths, columns=["label", "length", "bin"])
         self.lengths = []
 
         summary_df = lengths_df.groupby(['label']).agg(min=('length', 'min'), max=('length', 'max'), mean=('length', 'mean'), median=('length', 'median'), length=('length', 'sum'), count=('length', 'count'))
