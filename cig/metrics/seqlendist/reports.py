@@ -95,10 +95,11 @@ def write_plot_bins_number_report(out_h, seqlendist):
 #-- write_plot_bins_report
 
 def write_plot_dist_report(out_h, seqlendist):
-    axes = sns.histplot(data=seqlendist.lengths_df, x="length")
+    grid = sns.FacetGrid(seqlendist.lengths_df, col="label", sharey="row", margin_titles=True)
+    grid.map(sns.histplot, "length")
+    grid.set_titles(col_template="{col_name}")
+    grid.set(xlabel="Length", ylabel="Count")
     m_sum = int((seqlendist.summary_df['n50'].median() + seqlendist.summary_df['median'].mean())/2)
-    axes.set_xlim(0, m_sum * 4)
-    axes.set(title="Sequence Length Distribution", xlabel="Length", ylabel="Count")
-    fig = axes.get_figure()
-    fig.savefig(out_h)
+    grid.set(xlim=(0, m_sum * 4))
+    grid.savefig(out_h)
 #-- write_plot_dist_report
