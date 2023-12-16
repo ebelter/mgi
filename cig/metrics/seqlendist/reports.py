@@ -1,8 +1,10 @@
 import csv, json, yaml
+import pandas as pd
 from jinja2 import BaseLoader, Environment
+import seaborn as sns
 
 def available_reports():
-    return ("csv", "json", "plot_bins", "plot_dist", "text", "yaml")
+    return ("csv", "json", "plot_bins_number", "plot_bins_length", "plot_dist", "text", "yaml")
 #-- avalible_reports
 
 def write_text_report(output_h, seqlendist):
@@ -75,9 +77,17 @@ def write_yaml_report(output_h, seqlendist):
         output_h.write(yaml.dump(metrics))
 #-- write_yaml_report
 
-def write_plot_bins_report(out_h, seqlendist):
-    import seaborn as sns
-    import pandas as pd
+def write_plot_bins_length_report(out_h, seqlendist):
+    print(f"\n{seqlendist.bins_df}")
+    #axes = sns.barplot(x="Bin", y="Length", data=pd.DataFrame(data={"Bin": map(str, seqlendist.distbins), "Length": seqlendist.bins_df["length"].values}), err_kws={'linewidth': 0})
+    axes = sns.barplot(x="bin", y="length", data=seqlendist.bins_df, err_kws={'linewidth': 0})
+    axes.set_yticklabels(['{:,.0f}'.format(y) + 'K' for y in axes.get_yticks()/1000])
+    #for i in ax.containers: # add labels to bars
+    #    ax.bar_label(i,)
+    axes.get_figure().savefig(out_h)
+#-- write_plot_bins_report
+
+def write_plot_bins_number_report(out_h, seqlendist):
     axes = sns.barplot(x="Bin", y="Number", data=pd.DataFrame(data={"Bin": map(str, seqlendist.distbins), "Number": seqlendist.bins_df["count"].values}), err_kws={'linewidth': 0})
     #for i in ax.containers: # add labels to bars
     #    ax.bar_label(i,)
@@ -85,19 +95,10 @@ def write_plot_bins_report(out_h, seqlendist):
 #-- write_plot_bins_report
 
 def write_plot_dist_report(out_h, seqlendist):
-    from plotnine import ggplot, ggsave, aes, geom_line, geom_histogram, geom_density, geom_segment, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid, coord_cartesian
-    means_sum = int((seqlendist.summary_df['n50'].mean() + seqlendist.summary_df['mean'].mean())/2)
-    xlim = means_sum * 10
-    plot = (
-            ggplot(seqlendist.lengths_df)
-            + aes(x="length", xmin=0)
-            + geom_histogram(binwidth=25,boundary=0,closed="left",color="black")
-            + facet_grid("label ~ .")
-            + scale_x_continuous(name="Length")
-            + scale_y_continuous(name="Count")
-            #+ xlim(1, seqlendist.distbins[-1])
-            + coord_cartesian(xlim=(1, xlim))
-            + theme_bw()
-            )
-    ggsave(plot, out_h)
+    axes = sns.histplot(data=seqlendist.lengths_df, x="length")
+    m_sum = int((seqlendist.summary_df['n50'].median() + seqlendist.summary_df['median'].mean())/2)
+    axes.set_xlim(0, m_sum * 4)
+    axes.set(title="Sequence Length Distribution", xlabel="Length", ylabel="Count")
+    fig = axes.get_figure()
+    fig.savefig(out_h)
 #-- write_plot_dist_report
