@@ -95,8 +95,8 @@ def write_plot_bins_number_report(out_h, seqlendist):
 #-- write_plot_bins_report
 
 def write_plot_dist_report(out_h, seqlendist):
-    grid = sns.FacetGrid(seqlendist.lengths_df, col="label", sharey="row", margin_titles=True)
-    grid.map(sns.histplot, "length")
+    grid = sns.FacetGrid(seqlendist.lengths_df, col="label", margin_titles=True)
+    grid.map(sns.histplot, "length", element="poly", shrink=0)
     grid.set_titles(col_template="{col_name}")
     grid.set(xlabel="Length", ylabel="Count")
     m_sum = int((seqlendist.summary_df['n50'].median() + seqlendist.summary_df['median'].mean())/2)
