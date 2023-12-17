@@ -4,7 +4,7 @@ from jinja2 import BaseLoader, Environment
 import seaborn as sns
 
 def available_reports():
-    return ("csv", "json", "plot_bins_number", "plot_bins_length", "plot_dist", "text", "yaml")
+    return ("csv", "json", "plot_bins_number", "plot_bins_length", "plot_dist", "plot_dist2", "text", "yaml")
 #-- avalible_reports
 
 def write_text_report(output_h, seqlendist):
@@ -95,7 +95,7 @@ def write_plot_bins_number_report(out_h, seqlendist):
 #-- write_plot_bins_report
 
 def write_plot_dist_report(out_h, seqlendist):
-    grid = sns.FacetGrid(seqlendist.lengths_df, col="label", margin_titles=True)
+    grid = sns.FacetGrid(seqlendist.lengths_df, col="label", margin_titles=True, col_wrap=2)
     grid.map(sns.histplot, "length", element="poly", shrink=0)
     grid.set_titles(col_template="{col_name}")
     grid.set(xlabel="Length", ylabel="Count")
@@ -103,3 +103,21 @@ def write_plot_dist_report(out_h, seqlendist):
     grid.set(xlim=(0, m_sum * 4))
     grid.savefig(out_h)
 #-- write_plot_dist_report
+
+
+def write_plot_dist2_report(out_h, seqlendist):
+    from plotnine import ggplot, ggsave, aes, geom_histogram, scale_y_continuous, scale_x_continuous, theme_bw, facet_grid, coord_cartesian
+    means_sum = int((seqlendist.summary_df['n50'].mean() + seqlendist.summary_df['mean'].mean())/2)
+    xlim = means_sum * 10
+    plot = (
+            ggplot(seqlendist.lengths_df)
+            + aes(x="length", xmin=0)
+            + geom_histogram(binwidth=25,boundary=0,closed="left",color="black")
+            + facet_grid("label ~ .")
+            + scale_x_continuous(name="Length")
+            + scale_y_continuous(name="Count")
+            + coord_cartesian(xlim=(1, xlim))
+            + theme_bw()
+            )
+    ggsave(plot, out_h)
+#-- write_plot_dist2_report
