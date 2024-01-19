@@ -16,7 +16,7 @@ MEDIAN    {{metrics.median}} bp
 N50       {{metrics.n50}} bp
 LARGEST   {{metrics.max}} bp
         LOWER -- UPPER         COUNT          BASES      PCT
-{% for b in distbins %}BIN  {{'%8s -- %-8s %10i ( %12i bp ) %.2f%%'|format(b.lower, b.upper, b.length, b.length, b.length_pct)}}
+{% for b in distbins %}BIN  {{'%8s -- %-8s %10i ( %12i bp ) %.2f%%'|format(b.lower, b.upper, b.num, b.length, b.length_pct)}}
 {% endfor %}
 """
     template = Environment(loader=BaseLoader()).from_string(template_str)
@@ -78,7 +78,7 @@ def write_yaml_report(output_h, seqlendist):
 #-- write_yaml_report
 
 def write_plot_bins_length_report(out_h, seqlendist):
-    print(f"\n{seqlendist.bins_df}")
+    #print(f"\n{seqlendist.bins_df}")
     #axes = sns.barplot(x="Bin", y="Length", data=pd.DataFrame(data={"Bin": map(str, seqlendist.distbins), "Length": seqlendist.bins_df["length"].values}), err_kws={'linewidth': 0})
     axes = sns.barplot(x="bin", y="length", data=seqlendist.bins_df, err_kws={'linewidth': 0})
     axes.set_yticklabels(['{:,.0f}'.format(y) + 'K' for y in axes.get_yticks()/1000])

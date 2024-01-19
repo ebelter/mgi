@@ -37,8 +37,8 @@ test,25,12846,214,922,513,496,593
         out_h.seek(0)
         self.assertEqual(out_h.read(), expected_output)
 
-    def test_plot_bins_report(self):
-        from cig.metrics.seqlendist.reports import write_plot_bins_report as report
+    def test_plot_bins_length_report(self):
+        from cig.metrics.seqlendist.reports import write_plot_bins_length_report as report
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
         sld.load(self.fastq_fn, label="test")
@@ -49,6 +49,17 @@ test,25,12846,214,922,513,496,593
             report(out_h, sld)
         self.assertTrue(os.path.exists(out_fn))
 
+    def test_plot_bins_number_report(self):
+        from cig.metrics.seqlendist.reports import write_plot_bins_number_report as report
+        from cig.metrics.seqlendist.obj import SeqLenDist
+        sld = SeqLenDist("lr")
+        sld.load(self.fastq_fn, label="test")
+        sld.complete()
+        out_fn = os.path.join(self.temp_d.name, "seqlengthdists.bins.png")
+        #out_fn = "p.png"
+        with open(out_fn, "wb") as out_h:
+            report(out_h, sld)
+        self.assertTrue(os.path.exists(out_fn))
 
     def test_plot_dist_report(self):
         from cig.metrics.seqlendist.reports import write_plot_dist_report as report
@@ -79,8 +90,8 @@ N50       593 bp
 LARGEST   922 bp
         LOWER -- UPPER         COUNT          BASES      PCT
 BIN         1 -- 200               0 (            0 bp ) 0.00%
-BIN       201 -- 500            5402 (         5402 bp ) 42.05%
-BIN       501 -- 1000           7444 (         7444 bp ) 57.95%
+BIN       201 -- 500              14 (         5402 bp ) 42.05%
+BIN       501 -- 1000             11 (         7444 bp ) 57.95%
 BIN      1001 -- 2000              0 (            0 bp ) 0.00%
 BIN      2001 -- 5000              0 (            0 bp ) 0.00%
 BIN      5001 -- 10000             0 (            0 bp ) 0.00%

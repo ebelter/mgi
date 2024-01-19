@@ -1,6 +1,6 @@
 import csv, tabulate
 from cig.metrics.helpers import number_to_str
-import cig.metrics.hic.metadata
+from cig.metrics.hic.metadata import get_metadata
 
 def available_reports():
     return ("csv", "table", "mw",)
