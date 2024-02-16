@@ -1,5 +1,4 @@
 import json, pandas as pd
-#import cig.metrics.hic.metadata
 from cig.metrics.hic.normalizer import normalize
 
 class HiCMetrics():

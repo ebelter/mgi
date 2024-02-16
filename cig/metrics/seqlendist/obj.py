@@ -75,6 +75,7 @@ class SeqLenDist():
             summary_df.at[label, "n50"] = l
         self.lengths_df = lengths_df
         self.summary_df = summary_df
+        self.df = summary_df
         self.bins_df = bins_df
     #-- complete
 #-- SeqLenDist

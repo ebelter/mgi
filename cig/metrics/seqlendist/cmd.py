@@ -15,13 +15,6 @@ def seqlendist_cmd(seqfiles, labels, out, reports, bins):
 
     \b
     Known seqfiles: fasta [gz], fastq [gz]
-    \b
-    Reports available:
-    csv  - summary metrics as CSV, suitable for loading into a spreadsheet
-    json - summary metrics as JSON
-    png - plot of sequence lengths
-    text - summary and binned output
-    yaml - summary metrics as YAML
 
     \b
     Bins

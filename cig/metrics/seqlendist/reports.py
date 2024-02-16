@@ -4,7 +4,7 @@ from jinja2 import BaseLoader, Environment
 import seaborn as sns
 
 def available_reports():
-    return ("csv", "json", "plot_bins_number", "plot_bins_length", "plot_dist", "plot_dist2", "text", "yaml")
+    return ("plot_bins_number", "plot_bins_length", "plot_dist", "plot_dist2", "text")
 #-- avalible_reports
 
 def write_text_report(output_h, seqlendist):
@@ -50,32 +50,6 @@ def write_csv_report(output_h, seqlendist):
             row_metrics[k] = int(v)
         wtr.writerow(row_metrics)
 #-- write_csv_report
-
-def write_json_report(output_h, seqlendist):
-    metrics = []
-    for label, row in seqlendist.summary_df.iterrows():
-        row_metrics = {"label": label}
-        for k, v in row.to_dict().items():
-            row_metrics[k] = int(v)
-        metrics.append(row_metrics)
-    if len(metrics) == 1:
-        output_h.write(json.dumps(metrics[0]))
-    else:
-        output_h.write(json.dumps(metrics))
-#-- write_json_report
-
-def write_yaml_report(output_h, seqlendist):
-    metrics = []
-    for label, row in seqlendist.summary_df.iterrows():
-        row_metrics = {"label": label}
-        for k, v in row.to_dict().items():
-            row_metrics[k] = int(v)
-        metrics.append(row_metrics)
-    if len(metrics) == 1:
-        output_h.write(yaml.dump(metrics[0]))
-    else:
-        output_h.write(yaml.dump(metrics))
-#-- write_yaml_report
 
 def write_plot_bins_length_report(out_h, seqlendist):
     #print(f"\n{seqlendist.bins_df}")
