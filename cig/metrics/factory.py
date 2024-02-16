@@ -1,4 +1,5 @@
 from cig.metrics.hic.obj import HiCMetrics
+from cig.metrics.json.obj import StarMetrics
 from cig.metrics.picard.obj import PicardMetrics
 from cig.metrics.seqlendist.obj import SeqLenDist
 
@@ -6,6 +7,7 @@ known_kinds_and_objs = {
         "hic": HiCMetrics,
         "picard": PicardMetrics,
         "sld": SeqLenDist,
+        "star": StarMetrics,
         }
 def known_kinds():
     return sorted(known_kinds_and_objs.keys())
