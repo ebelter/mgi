@@ -4,6 +4,13 @@ class MetricsHelpersTest(unittest.TestCase):
     def setUp(self):
         self.data_dn = os.path.join(os.path.dirname(__file__), "data", "metrics")
 
+    def test_str_to_number_if_number(self):
+        from cig.metrics.helpers import str_to_number_if_number as fun
+        self.assertEqual(fun("NUM"), "NUM")
+        self.assertEqual(fun("2"), 2)
+        self.assertEqual(fun("2.2"), 2.20)
+        self.assertEqual(fun("2.229"), 2.23)
+
     def test_str_to_number(self):
         from cig.metrics.helpers import str_to_number
         # FIXME test passing non numbers?

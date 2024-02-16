@@ -1,8 +1,8 @@
 import pandas as pd
-from cig.metrics.rnaseq.normalizer import normalize
-from cig.metrics.rnaseq.parser import parse
+from cig.metrics.picard.normalizer import normalize
+from cig.metrics.picard.parser import parse
 
-class RnaSeqMetrics():
+class PicardMetrics():
     def __init__(self):
         self.df = None
     #-- __init__

@@ -1,9 +1,11 @@
-from cig.metrics.rnaseq.obj import RnaSeqMetrics
 from cig.metrics.hic.obj import HiCMetrics
+from cig.metrics.picard.obj import PicardMetrics
+from cig.metrics.seqlendist.obj import SeqLenDist
 
 known_kinds_and_objs = {
-        "rnaseq": RnaSeqMetrics,
         "hic": HiCMetrics,
+        "picard": PicardMetrics,
+        "sld": SeqLenDist,
         }
 def known_kinds():
     return sorted(known_kinds_and_objs.keys())

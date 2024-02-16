@@ -4,8 +4,8 @@ from click.testing import CliRunner
 class MetricsCollateCmdTest(unittest.TestCase):
     def setUp(self):
         self.data_dn = os.path.join(os.path.dirname(__file__), "data", "metrics")
-        self.statsfile = os.path.join(self.data_dn, "rnaseq.metrics")
-        self.statsfile_dep = os.path.join(self.data_dn, "rnaseq.dep.metrics")
+        self.statsfile = os.path.join(self.data_dn, "picard.rnaseq.metrics")
+        self.statsfile_dep = os.path.join(self.data_dn, "picard.rnaseq.dep.metrics")
         self.temp_d = tempfile.TemporaryDirectory()
 
     def tearDown(self):
@@ -16,7 +16,7 @@ class MetricsCollateCmdTest(unittest.TestCase):
         runner = CliRunner()
 
         out_n = os.path.join(self.temp_d.name, "PAN001")
-        result = runner.invoke(cmd, ["-r", "table", "-k", "rnaseq", "-l", "PAN001,PAN001", "-o", out_n, self.statsfile, self.statsfile_dep], catch_exceptions=False)
+        result = runner.invoke(cmd, ["-r", "table", "-k", "picard", "-l", "PAN001,PAN001", "-o", out_n, self.statsfile, self.statsfile_dep], catch_exceptions=False)
         try:
             self.assertEqual(result.exit_code, 0)
         except:

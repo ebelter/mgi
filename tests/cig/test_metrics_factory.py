@@ -8,13 +8,13 @@ class MetricsFactoryTest(unittest.TestCase):
 
     def test_build(self):
         from cig.metrics.factory import build
-        from cig.metrics.rnaseq.obj import RnaSeqMetrics
+        from cig.metrics.picard.obj import PicardMetrics
         kind = "unknown"
         with self.assertRaisesRegex(Exception, f"Unknown kind to build metrics: {kind}"):
             build(kind)
-        kind = "rnaseq"
+        kind = "picard"
         m = build(kind)
-        self.assertTrue(isinstance(m, RnaSeqMetrics))
+        self.assertTrue(isinstance(m, PicardMetrics))
 #--
 
 if __name__ == '__main__':

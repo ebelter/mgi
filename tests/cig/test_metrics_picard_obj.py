@@ -1,17 +1,17 @@
 import os, unittest
 
-class MetricsRnaseqObjTest(unittest.TestCase):
+class MetricsPicardObjTest(unittest.TestCase):
     def setUp(self):
         self.data_dn = os.path.join(os.path.dirname(__file__), "data", "metrics")
-        self.statsfile = os.path.join(self.data_dn, "rnaseq.metrics")
+        self.statsfile = os.path.join(self.data_dn, "picard.rnaseq.metrics")
 
     def test_init(self):
-        from cig.metrics.rnaseq.obj import RnaSeqMetrics
-        am = RnaSeqMetrics()
+        from cig.metrics.picard.obj import PicardMetrics
+        am = PicardMetrics()
 
     def test_load(self):
-        from cig.metrics.rnaseq.obj import RnaSeqMetrics
-        m = RnaSeqMetrics()
+        from cig.metrics.picard.obj import PicardMetrics
+        m = PicardMetrics()
         m.load("sample1", self.statsfile)
         self.assertFalse(bool(m.df.empty))
         self.assertEqual(list(m.df.index.values), ["sample1"])
