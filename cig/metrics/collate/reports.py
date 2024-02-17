@@ -16,7 +16,7 @@ def write_tsv_report(output_h, m):
 
 def _write_sv_report(output_h, m, sep):
     fieldnames, rows = _resolve_data_for_report(m.df)
-    wtr = csv.writer(output_h, delimiter=",", lineterminator="\n")
+    wtr = csv.writer(output_h, delimiter=sep, lineterminator="\n")
     wtr.writerow(["metric"]+list(fieldnames))
     wtr.writerows(rows)
 #-- _write_sv_report

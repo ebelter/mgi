@@ -31,10 +31,9 @@ n50,593
         self.assertEqual(out_h.read(), expected_output)
 
         out_h = StringIO()
-        expected_output.replace(",", "\t")
-        write_csv_report(out_h, sld)
+        write_tsv_report(out_h, sld)
         out_h.seek(0)
-        self.assertEqual(out_h.read(), expected_output)
+        self.assertEqual(out_h.read(), expected_output.replace(",", "\t"))
 
     def test_json_report(self):
         from cig.metrics.collate.reports import write_json_report as write_report
