@@ -1,6 +1,6 @@
 import csv, json, tabulate, yaml
 from jinja2 import BaseLoader, Environment
-from cig.metrics.helpers import number_to_str
+from cig.metrics.helpers import number_to_str, percentify
 
 def available_reports():
     return ("csv", "json", "table", "mw", "yaml")
@@ -18,16 +18,15 @@ def write_json_report(output_h, m):
 #-- write_json_report
 
 def write_mw_report(output_h, m):
-    fieldnames, rows = _resolve_data_for_report(m.df)
-    _write_tabulate_report(output_h, fieldnames, rows, "mediawiki")
+    _write_tabulate_report(output_h, m, "mediawiki")
 #--
 
 def write_table_report(output_h, m):
-    fieldnames, rows = _resolve_data_for_report(m.df)
-    _write_tabulate_report(output_h, fieldnames, rows, "simple")
+    _write_tabulate_report(output_h, m, "simple")
 #--
 
-def _write_tabulate_report(output_h, fieldnames, rows, tablefmt):
+def _write_tabulate_report(output_h, m, tablefmt):
+    fieldnames, rows = _resolve_data_for_report(m.df, normalizers=[percentify])
     output_h.write(tabulate.tabulate(rows, fieldnames, tablefmt=tablefmt))
 #--
 
@@ -35,13 +34,18 @@ def write_yaml_report(output_h, m):
     output_h.write(yaml.dump(json.loads(json.dumps(_resolve_data_for_serialization(m.df))),))
 #--
 
-def _resolve_data_for_report(df):
+def _resolve_data_for_report(df, normalizers=[]):
     fieldnames = df.index.values
     #fieldnames = list(df.index.values)
     rows = [[l] for l in df.columns.values]
+    normalizers.append(number_to_str)
     for label, row in df.iterrows():
-        for i, v in enumerate(row):
-            rows[i].append(number_to_str(v))
+        i = 0
+        for k, v in row.items():
+            for normalizer in normalizers:
+                v = normalizer(v, key=k)
+            rows[i].append(v)
+            i += 1
     return fieldnames, rows
 #--
 

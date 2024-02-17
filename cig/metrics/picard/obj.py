@@ -1,5 +1,4 @@
 import pandas as pd
-from cig.metrics.picard.normalizer import normalize
 from cig.metrics.picard.parser import parse
 
 class PicardMetrics():
@@ -9,7 +8,7 @@ class PicardMetrics():
 
     def load(self, label, statsfile):
         with open(statsfile, "r") as f:
-            metrics = normalize(parse(f))
+            metrics = parse(f)
         if self.df is None:
             self.df = pd.DataFrame(index=[label], data=metrics)
         else:

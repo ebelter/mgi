@@ -9,22 +9,29 @@ class MetricsHelpersTest(unittest.TestCase):
         self.assertEqual(fun("NUM"), "NUM")
         self.assertEqual(fun("2"), 2)
         self.assertEqual(fun("2.2"), 2.20)
-        self.assertEqual(fun("2.229"), 2.23)
+        self.assertEqual(fun("2.229"), 2.229)
 
     def test_str_to_number(self):
         from cig.metrics.helpers import str_to_number
-        # FIXME test passing non numbers?
         self.assertEqual(str_to_number("2"), 2)
         self.assertEqual(str_to_number("2.2"), 2.20)
-        self.assertEqual(str_to_number("2.229"), 2.23)
+        self.assertEqual(str_to_number("2.229"), 2.229)
 
-    def test_str_to_number(self):
+    def test_number_to_str(self):
         from cig.metrics.helpers import number_to_str as fun
         self.assertEqual(fun("2"), "2")
         self.assertEqual(fun("2.2"), "2.2")
         self.assertEqual(fun(2), "2")
         self.assertEqual(fun(2.00), "2")
         self.assertEqual(fun(2.01), "2.01")
+        self.assertEqual(fun(2.001), "2.001")
+
+    def test_percentify(self):
+        from cig.metrics.helpers import percentify as fun
+        self.assertEqual(fun(2, key="metric"), "2")
+        self.assertEqual(fun(.00002, key="metric_pct"), "0%")
+        self.assertEqual(fun(.02, key="metric_pct"), "2%")
+        self.assertEqual(fun(2, key="metric_pct"), "200%")
 
     def test_resolve_labels(self):
         from cig.metrics.helpers import resolve_labels as fun

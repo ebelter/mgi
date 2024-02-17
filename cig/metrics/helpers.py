@@ -8,21 +8,27 @@ def str_to_number_if_number(s):
     return str_to_number(s)
 #-- str_to_number
 
-def str_to_number(s):
+def str_to_number(s): # TODO remove and just use if number
     if "." in s:
-        return round(float(s), (2))
+        return float(s)
     else:
         return int(s)
 #-- str_to_number
 
 zeros_p = re.compile(r"^0+$")
-def number_to_str(n):
+def number_to_str(n, key=None):
     n = str(n)
     tokens = n.split(".")
     if len(tokens) > 1 and re.match(zeros_p, tokens[1]):
         return tokens[0]
     return n
 #-- str_to_number
+
+def percentify(n, key): # TODO add percentify if number ...
+    if key.startswith("pct") or key.endswith("pct"): # add more?
+        return number_to_str(round(n*100, 2))+"%"
+    return number_to_str(n)
+#--
 
 def resolve_labels(labels, files, out):
     if labels is None:
