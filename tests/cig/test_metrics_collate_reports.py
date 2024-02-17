@@ -10,8 +10,8 @@ class MetricsCollateReportsTest(unittest.TestCase):
     def tearDown(self):
         self.temp_d.cleanup()
 
-    def test_csv_report(self):
-        from cig.metrics.collate.reports import write_csv_report
+    def test_sv_report(self):
+        from cig.metrics.collate.reports import write_csv_report, write_tsv_report
         from cig.metrics.seqlendist.obj import SeqLenDist
         sld = SeqLenDist("lr")
         sld.load(self.fastq_fn, label="test")
@@ -27,6 +27,12 @@ length,12846
 count,25
 n50,593
 """
+        out_h.seek(0)
+        self.assertEqual(out_h.read(), expected_output)
+
+        out_h = StringIO()
+        expected_output.replace(",", "\t")
+        write_csv_report(out_h, sld)
         out_h.seek(0)
         self.assertEqual(out_h.read(), expected_output)
 

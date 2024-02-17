@@ -3,15 +3,23 @@ from jinja2 import BaseLoader, Environment
 from cig.metrics.helpers import number_to_str, percentify
 
 def available_reports():
-    return ("csv", "json", "table", "mw", "yaml")
+    return ("csv", "json", "table", "tsv", "mw", "yaml")
 #-- available_reports
 
 def write_csv_report(output_h, m):
+    _write_sv_report(output_h, m, ",")
+#-- write_report_csv
+
+def write_tsv_report(output_h, m):
+    _write_sv_report(output_h, m, "\t")
+#-- write_report_csv
+
+def _write_sv_report(output_h, m, sep):
     fieldnames, rows = _resolve_data_for_report(m.df)
     wtr = csv.writer(output_h, delimiter=",", lineterminator="\n")
     wtr.writerow(["metric"]+list(fieldnames))
     wtr.writerows(rows)
-#-- write_report_csv
+#-- _write_sv_report
 
 def write_json_report(output_h, m):
     output_h.write(json.dumps(_resolve_data_for_serialization(m.df), indent=2))
